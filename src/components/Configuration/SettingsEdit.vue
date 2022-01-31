@@ -1,6 +1,6 @@
 <template>
     <div class="xano-auth-settings-edit">
-        <wwEditorFormRow required label="Api Group Base URL">
+        <wwEditorFormRow required label="API Group Base URL">
             <wwEditorInputText
                 type="text"
                 placeholder="https://********.xano.io"
