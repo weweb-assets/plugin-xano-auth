@@ -3,7 +3,7 @@
         <wwEditorFormRow required label="Domain">
             <wwEditorInputText
                 type="text"
-                placeholder="https://********.xano.io/"
+                placeholder="https://********.xano.io"
                 :model-value="settings.publicData.domain"
                 large
                 @update:modelValue="setDomain"
@@ -20,6 +20,7 @@ export default {
     emits: ['update:settings'],
     methods: {
         setDomain(value) {
+            if (value.endsWith('/')) value = value.replace(/\/$/, '');
             this.$emit('update:settings', {
                 ...this.settings,
                 publicData: { ...this.settings.publicData, domain: value },
