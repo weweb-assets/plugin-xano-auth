@@ -55,18 +55,13 @@ export default {
     },
     async login(email, password, name) {
         const { baseUrl } = this.settings.publicData;
-        const token = wwLib.wwVariable.getValue(`${this.id}-token`);
 
         if (!baseUrl) throw new Error('No API Group Base URL defined.');
 
         try {
             const {
                 data: { authToken },
-            } = await axios.post(
-                `${baseUrl}/auth/login`,
-                { email, password, name },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            } = await axios.post(`${baseUrl}/auth/login`, { email, password, name });
             this.storeToken(authToken);
             return await this.fetchUser();
         } catch (err) {
@@ -74,18 +69,15 @@ export default {
             throw err;
         }
     },
-    async signUp() {
+    async signUp(email, password, name) {
         const { baseUrl } = this.settings.publicData;
-        const token = wwLib.wwVariable.getValue(`${this.id}-token`);
 
         if (!baseUrl) throw new Error('No API Group Base URL defined.');
 
         try {
             const {
                 data: { authToken },
-            } = await axios.get(`${baseUrl}/auth/signup`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            } = await axios.post(`${baseUrl}/auth/signup`, { email, password, name });
             this.storeToken(authToken);
             return await this.fetchUser();
         } catch (err) {
