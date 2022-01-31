@@ -1,9 +1,9 @@
 <template>
     <div class="xano-auth-settings-summary">
-        <wwEditorFormRow label="Domain">
+        <wwEditorFormRow label="API Group Base URL">
             <div class="xano-auth-settings-summary__elem">
                 <div><wwEditorIcon large name="link" class="xano-auth-settings-summary__icon" /></div>
-                <span class="xano-auth-settings-summary__value caption-m">{{ settings.publicData.domain }}</span>
+                <span class="xano-auth-settings-summary__value caption-m">{{ settings.publicData.baseUrl }}</span>
             </div>
         </wwEditorFormRow>
     </div>

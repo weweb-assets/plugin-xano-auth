@@ -7,8 +7,8 @@ export default {
                 edit: () => import('./src/components/Configuration/SettingsEdit.vue'),
                 summary: () => import('./src/components/Configuration/SettingsSummary.vue'),
                 getIsValid(settings) {
-                    const { domain } = settings.publicData;
-                    return !!domain;
+                    const { baseUrl } = settings.publicData;
+                    return !!baseUrl;
                 },
             },
             {

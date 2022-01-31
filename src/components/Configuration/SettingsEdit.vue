@@ -1,12 +1,12 @@
 <template>
     <div class="xano-auth-settings-edit">
-        <wwEditorFormRow required label="Domain">
+        <wwEditorFormRow required label="Api Group Base URL">
             <wwEditorInputText
                 type="text"
                 placeholder="https://********.xano.io"
-                :model-value="settings.publicData.domain"
+                :model-value="settings.publicData.baseUrl"
                 large
-                @update:modelValue="setDomain"
+                @update:modelValue="setBaseUrl"
             />
         </wwEditorFormRow>
     </div>
@@ -19,11 +19,11 @@ export default {
     },
     emits: ['update:settings'],
     methods: {
-        setDomain(value) {
+        setBaseUrl(value) {
             if (value.endsWith('/')) value = value.replace(/\/$/, '');
             this.$emit('update:settings', {
                 ...this.settings,
-                publicData: { ...this.settings.publicData, domain: value },
+                publicData: { ...this.settings.publicData, baseUrl: value },
             });
         },
     },

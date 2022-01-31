@@ -36,13 +36,13 @@ export default {
         wwLib.wwVariable.updateValue(`${this.id}-token`, null);
     },
     async fetchUser() {
-        const { domain } = this.settings.publicData;
+        const { baseUrl } = this.settings.publicData;
         const token = wwLib.wwVariable.getValue(`${this.id}-token`);
 
-        if (!domain) throw new Error('No domain defined.');
+        if (!baseUrl) throw new Error('No API Group Base URL defined.');
 
         try {
-            const { data: user } = await axios.get(`${domain}/auth/me`, {
+            const { data: user } = await axios.get(`${baseUrl}/auth/me`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             wwLib.wwVariable.updateValue(`${this.id}-user`, user);
@@ -54,16 +54,16 @@ export default {
         }
     },
     async login(email, password, name) {
-        const { domain } = this.settings.publicData;
+        const { baseUrl } = this.settings.publicData;
         const token = wwLib.wwVariable.getValue(`${this.id}-token`);
 
-        if (!domain) throw new Error('No domain defined.');
+        if (!baseUrl) throw new Error('No API Group Base URL defined.');
 
         try {
             const {
                 data: { authToken },
             } = await axios.post(
-                `${domain}/auth/login`,
+                `${baseUrl}/auth/login`,
                 { email, password, name },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -75,15 +75,15 @@ export default {
         }
     },
     async signUp() {
-        const { domain } = this.settings.publicData;
+        const { baseUrl } = this.settings.publicData;
         const token = wwLib.wwVariable.getValue(`${this.id}-token`);
 
-        if (!domain) throw new Error('No domain defined.');
+        if (!baseUrl) throw new Error('No API Group Base URL defined.');
 
         try {
             const {
                 data: { authToken },
-            } = await axios.get(`${domain}/auth/signup`, {
+            } = await axios.get(`${baseUrl}/auth/signup`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             this.storeToken(authToken);
