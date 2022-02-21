@@ -7,16 +7,16 @@ import './components/Functions/Login.vue';
 import './components/Functions/SignUp.vue';
 /* wwEditor:end */
 
-const COOKIE_NAME = 'ww-auth-token';
+const ACCESS_COOKIE_NAME = 'ww-auth-access-token';
 
 export default {
     /*=============================================m_ÔÔ_m=============================================\
         Plugin API
     \================================================================================================*/
     async onLoad() {
-        const token = window.vm.config.globalProperties.$cookie.getCookie(COOKIE_NAME);
-        wwLib.wwVariable.updateValue(`${this.id}-token`, token);
-        if (token) await this.fetchUser();
+        const accessToken = window.vm.config.globalProperties.$cookie.getCookie(ACCESS_COOKIE_NAME);
+        wwLib.wwVariable.updateValue(`${this.id}-accessToken`, accessToken);
+        if (accessToken) await this.fetchUser();
     },
     /*=============================================m_ÔÔ_m=============================================\
         Auth API
@@ -25,25 +25,25 @@ export default {
     // async getRoles() {},
     /* wwEditor:end */
     /*=============================================m_ÔÔ_m=============================================\
-        Auth Token API
+        Xano Auth API
     \================================================================================================*/
-    storeToken(token) {
-        window.vm.config.globalProperties.$cookie.setCookie(COOKIE_NAME, token);
-        wwLib.wwVariable.updateValue(`${this.id}-token`, token);
+    storeToken(accessToken) {
+        window.vm.config.globalProperties.$cookie.setCookie(ACCESS_COOKIE_NAME, accessToken);
+        wwLib.wwVariable.updateValue(`${this.id}-accessToken`, accessToken);
     },
     removeToken() {
-        window.vm.config.globalProperties.$cookie.removeCookie(COOKIE_NAME);
-        wwLib.wwVariable.updateValue(`${this.id}-token`, null);
+        window.vm.config.globalProperties.$cookie.removeCookie(ACCESS_COOKIE_NAME);
+        wwLib.wwVariable.updateValue(`${this.id}-accessToken`, null);
     },
     async fetchUser() {
         const { baseUrl } = this.settings.publicData;
-        const token = wwLib.wwVariable.getValue(`${this.id}-token`);
+        const accessToken = wwLib.wwVariable.getValue(`${this.id}-accessToken`);
 
         if (!baseUrl) throw new Error('No API Group Base URL defined.');
 
         try {
             const { data: user } = await axios.get(`${baseUrl}/auth/me`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${accessToken}` },
             });
             wwLib.wwVariable.updateValue(`${this.id}-user`, user);
             wwLib.wwVariable.updateValue(`${this.id}-isAuthenticated`, true);
