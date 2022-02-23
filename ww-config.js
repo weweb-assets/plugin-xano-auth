@@ -26,7 +26,7 @@ export default {
     },
     variables: [
         { name: 'user', value: 'user', type: 'object', defaultValue: null },
-        { name: 'token', value: 'token', type: 'string', defaultValue: null },
+        { name: 'accessToken', value: 'token', type: 'accessToken', defaultValue: null },
         { name: 'isAuthenticated', value: 'isAuthenticated', type: 'boolean', defaultValue: false },
     ],
     functions: [
