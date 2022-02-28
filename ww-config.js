@@ -22,7 +22,7 @@ export default {
                 },
             },
         ],
-        // designSystemId: 'ec2eebfe-499b-43c4-b260-80ee5a4d9504',
+        designSystemId: '9a1f106a-1397-4fb4-8b9a-369d744e6aa3',
     },
     variables: [
         { name: 'user', value: 'user', type: 'object', defaultValue: null },
