@@ -36,13 +36,13 @@ export default {
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, null);
     },
     async fetchUser() {
-        const { baseUrl } = this.settings.publicData;
+        const { getMeEndpoint } = this.settings.publicData;
         const accessToken = wwLib.wwVariable.getValue(`${this.id}-accessToken`);
 
-        if (!baseUrl) throw new Error('No API Group Base URL defined.');
+        if (!getMeEndpoint) throw new Error('No API Group Base URL defined.');
 
         try {
-            const { data: user } = await axios.get(`${baseUrl}/auth/me`, {
+            const { data: user } = await axios.get(getMeEndpoint, {
                 headers: { Authorization: `Bearer ${accessToken}` },
             });
             wwLib.wwVariable.updateValue(`${this.id}-user`, user);
@@ -54,14 +54,14 @@ export default {
         }
     },
     async login(email, password, name) {
-        const { baseUrl } = this.settings.publicData;
+        const { loginEndpoint } = this.settings.publicData;
 
-        if (!baseUrl) throw new Error('No API Group Base URL defined.');
+        if (!loginEndpoint) throw new Error('No API Group Base URL defined.');
 
         try {
             const {
                 data: { authToken },
-            } = await axios.post(`${baseUrl}/auth/login`, { email, password, name });
+            } = await axios.post(loginEndpoint, { email, password, name });
             this.storeToken(authToken);
             return await this.fetchUser();
         } catch (err) {
@@ -70,14 +70,14 @@ export default {
         }
     },
     async signUp(email, password, name) {
-        const { baseUrl } = this.settings.publicData;
+        const { signupEndpoint } = this.settings.publicData;
 
-        if (!baseUrl) throw new Error('No API Group Base URL defined.');
+        if (!signupEndpoint) throw new Error('No API Group Base URL defined.');
 
         try {
             const {
                 data: { authToken },
-            } = await axios.post(`${baseUrl}/auth/signup`, { email, password, name });
+            } = await axios.post(signupEndpoint, { email, password, name });
             this.storeToken(authToken);
             return await this.fetchUser();
         } catch (err) {

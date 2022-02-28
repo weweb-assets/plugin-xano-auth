@@ -1,12 +1,27 @@
 <template>
     <div class="xano-auth-settings-edit">
-        <wwEditorFormRow required label="API Group Base URL">
+        <wwEditorFormRow required label="Login Endpoint">
             <wwEditorInputText
                 type="text"
-                placeholder="https://********.xano.io"
-                :model-value="settings.publicData.baseUrl"
-                large
-                @update:modelValue="setBaseUrl"
+                placeholder="https://********.xano.io/.../login"
+                :model-value="settings.publicData.loginEndpoint"
+                @update:modelValue="setLoginEndpoint"
+            />
+        </wwEditorFormRow>
+        <wwEditorFormRow required label="Get Me Endpoint">
+            <wwEditorInputText
+                type="text"
+                placeholder="https://********.xano.io/.../me"
+                :model-value="settings.publicData.getMeEndpoint"
+                @update:modelValue="setGetMeEndpoint"
+            />
+        </wwEditorFormRow>
+        <wwEditorFormRow required label="Signup Endpoint">
+            <wwEditorInputText
+                type="text"
+                placeholder="https://********.xano.io/.../signup"
+                :model-value="settings.publicData.signupEndpoint"
+                @update:modelValue="setSignupEndpoint"
             />
         </wwEditorFormRow>
     </div>
@@ -19,11 +34,22 @@ export default {
     },
     emits: ['update:settings'],
     methods: {
-        setBaseUrl(value) {
-            if (value.endsWith('/')) value = value.replace(/\/$/, '');
+        setLoginEndpoint(value) {
             this.$emit('update:settings', {
                 ...this.settings,
-                publicData: { ...this.settings.publicData, baseUrl: value },
+                publicData: { ...this.settings.publicData, loginEndpoint: value },
+            });
+        },
+        setGetMeEndpoint(value) {
+            this.$emit('update:settings', {
+                ...this.settings,
+                publicData: { ...this.settings.publicData, getMeEndpoint: value },
+            });
+        },
+        setSignupEndpoint(value) {
+            this.$emit('update:settings', {
+                ...this.settings,
+                publicData: { ...this.settings.publicData, signupEndpoint: value },
             });
         },
     },
@@ -34,16 +60,5 @@ export default {
 .xano-auth-settings-edit {
     display: flex;
     flex-direction: column;
-    &__link {
-        color: var(--ww-color-blue-500);
-        margin-left: var(--ww-spacing-02);
-    }
-    &__row {
-        display: flex;
-        align-items: center;
-    }
-    &__radio-label {
-        margin-left: var(--ww-spacing-02);
-    }
 }
 </style>

@@ -7,8 +7,8 @@ export default {
                 edit: () => import('./src/components/Configuration/SettingsEdit.vue'),
                 summary: () => import('./src/components/Configuration/SettingsSummary.vue'),
                 getIsValid(settings) {
-                    const { baseUrl } = settings.publicData;
-                    return !!baseUrl;
+                    const { loginEndpoint, getMeEndpoint, signupEndpoint } = settings.publicData;
+                    return !!loginEndpoint && !!getMeEndpoint && !!signupEndpoint;
                 },
             },
             {
