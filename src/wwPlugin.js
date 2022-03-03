@@ -53,7 +53,7 @@ export default {
             throw err;
         }
     },
-    async login(email, password, name) {
+    async login(email, password) {
         const { loginEndpoint } = this.settings.publicData;
 
         if (!loginEndpoint) throw new Error('No API Group Base URL defined.');
@@ -61,7 +61,7 @@ export default {
         try {
             const {
                 data: { authToken },
-            } = await axios.post(loginEndpoint, { email, password, name });
+            } = await axios.post(loginEndpoint, { email, password });
             this.storeToken(authToken);
             return await this.fetchUser();
         } catch (err) {
