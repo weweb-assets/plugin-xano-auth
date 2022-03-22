@@ -1,5 +1,5 @@
 <template>
-    <div class="auth-token-settings-edit">
+    <div class="xano-auth-settings-edit">
         <wwEditorFormRow required label="Page to redirect when user is not signed-in">
             <wwEditorInputTextSelect
                 name="after-not-sign-in-page-id"
@@ -57,7 +57,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.auth-token-settings-edit {
+.xano-auth-settings-edit {
     display: flex;
     flex-direction: column;
     &__link {

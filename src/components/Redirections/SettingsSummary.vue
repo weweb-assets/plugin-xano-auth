@@ -1,9 +1,9 @@
 <template>
-    <div class="auth-token-settings-summary">
+    <div class="xano-auth-settings-summary">
         <wwEditorFormRow label="Page to redirect when user is not signed-in">
-            <div class="auth-token-settings-summary__elem">
-                <div><wwEditorIcon large name="document" class="auth-token-settings-summary__icon" /></div>
-                <span class="auth-token-settings-summary__value caption-m">
+            <div class="xano-auth-settings-summary__elem">
+                <div><wwEditorIcon large name="document" class="xano-auth-settings-summary__icon" /></div>
+                <span class="xano-auth-settings-summary__value caption-m">
                     {{ getPageFromId(settings.publicData.afterNotSignInPageId).name }}
                 </span>
             </div>
@@ -30,7 +30,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.auth-token-settings-summary {
+.xano-auth-settings-summary {
     &__elem {
         display: flex;
         align-items: center;

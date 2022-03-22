@@ -62,6 +62,12 @@ export default {
             /* wwEditor:end */
         },
         {
+            name: 'Fetch User',
+            code: 'fetchUser',
+            parameters: [],
+            isAsync: true,
+        },
+        {
             name: 'Logout',
             code: 'logout',
             parameters: [],
