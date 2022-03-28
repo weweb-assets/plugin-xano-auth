@@ -5,6 +5,7 @@
         :model-value="email"
         bindable
         placeholder="Enter a email"
+        required
         @update:modelValue="setEmail"
     />
     <wwEditorInputRow
@@ -13,6 +14,7 @@
         :model-value="password"
         bindable
         placeholder="Enter a password"
+        required
         @update:modelValue="setPassword"
     />
     <wwEditorInputRow
@@ -21,6 +23,7 @@
         :model-value="name"
         bindable
         placeholder="Enter a value"
+        required
         @update:modelValue="setName"
     />
 </template>
