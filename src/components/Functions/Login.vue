@@ -23,7 +23,7 @@
 export default {
     props: {
         plugin: { type: Object, required: true },
-        args: { type: Object, default: () => ({ email: null, password: null }) },
+        args: { type: Object, required: true },
     },
     emits: ['update:args'],
     computed: {
