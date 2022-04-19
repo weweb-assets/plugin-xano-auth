@@ -23,23 +23,23 @@
 export default {
     props: {
         plugin: { type: Object, required: true },
-        args: { type: Array, default: () => [null] },
+        args: { type: Object, default: () => ({ email: null, password: null }) },
     },
     emits: ['update:args'],
     computed: {
         email() {
-            return this.args[0];
+            return this.args.email;
         },
         password() {
-            return this.args[1];
+            return this.args.password;
         },
     },
     methods: {
         setEmail(email) {
-            this.$emit('update:args', [email, this.password]);
+            this.$emit('update:args', { ...this.args, email });
         },
         setPassword(password) {
-            this.$emit('update:args', [this.email, password]);
+            this.$emit('update:args', { ...this.args, password });
         },
     },
 };

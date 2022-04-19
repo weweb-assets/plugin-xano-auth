@@ -32,29 +32,29 @@
 export default {
     props: {
         plugin: { type: Object, required: true },
-        args: { type: Array, default: () => [null] },
+        args: { type: Object, default: () => ({ email: null, password: null, name: null }) },
     },
     emits: ['update:args'],
     computed: {
         email() {
-            return this.args[0];
+            return this.args.email;
         },
         password() {
-            return this.args[1];
+            return this.args.password;
         },
         name() {
-            return this.args[2];
+            return this.args.name;
         },
     },
     methods: {
         setEmail(email) {
-            this.$emit('update:args', [email, this.password, this.name]);
+            this.$emit('update:args', { ...this.args, email });
         },
         setPassword(password) {
-            this.$emit('update:args', [this.email, password, this.name]);
+            this.$emit('update:args', { ...this.args, password });
         },
         setName(name) {
-            this.$emit('update:args', [this.email, this.password, name]);
+            this.$emit('update:args', { ...this.args, name });
         },
     },
 };
