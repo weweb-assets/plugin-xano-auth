@@ -36,7 +36,7 @@ export default {
             isAsync: true,
             /* wwEditor:start */
             edit: () => import('./src/components/Functions/SignUp.vue'),
-            getIsValid([email, password, name]) {
+            getIsValid({ email, password, name }) {
                 return !!email && !!password && !!name;
             },
             /* wwEditor:end */
@@ -47,7 +47,7 @@ export default {
             isAsync: true,
             /* wwEditor:start */
             edit: () => import('./src/components/Functions/Login.vue'),
-            getIsValid([email, password]) {
+            getIsValid({ email, password }) {
                 return !!email && !!password;
             },
             /* wwEditor:end */
