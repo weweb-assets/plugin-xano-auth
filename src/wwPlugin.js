@@ -53,7 +53,7 @@ export default {
             throw err;
         }
     },
-    async login(email, password) {
+    async login({ email, password }) {
         const { loginEndpoint } = this.settings.publicData;
 
         if (!loginEndpoint) throw new Error('No API Group Base URL defined.');
@@ -69,7 +69,7 @@ export default {
             throw err;
         }
     },
-    async signUp(email, password, name) {
+    async signUp({ email, password, name }) {
         const { signupEndpoint } = this.settings.publicData;
 
         if (!signupEndpoint) throw new Error('No API Group Base URL defined.');

@@ -29,19 +29,14 @@ export default {
         { name: 'accessToken', value: 'token', type: 'string', defaultValue: null },
         { name: 'isAuthenticated', value: 'isAuthenticated', type: 'boolean', defaultValue: false },
     ],
-    functions: [
+    actions: [
         {
             name: 'Sign Up',
             code: 'signUp',
-            parameters: [
-                { name: 'Email', type: 'string' },
-                { name: 'Password', type: 'string' },
-                { name: 'Name', type: 'string' },
-            ],
             isAsync: true,
             /* wwEditor:start */
             edit: () => import('./src/components/Functions/SignUp.vue'),
-            getIsValid([email, password, name]) {
+            getIsValid({ email, password, name }) {
                 return !!email && !!password && !!name;
             },
             /* wwEditor:end */
@@ -49,14 +44,10 @@ export default {
         {
             name: 'Login',
             code: 'login',
-            parameters: [
-                { name: 'Email', type: 'string' },
-                { name: 'Password', type: 'string' },
-            ],
             isAsync: true,
             /* wwEditor:start */
             edit: () => import('./src/components/Functions/Login.vue'),
-            getIsValid([email, password]) {
+            getIsValid({ email, password }) {
                 return !!email && !!password;
             },
             /* wwEditor:end */
@@ -64,13 +55,11 @@ export default {
         {
             name: 'Fetch User',
             code: 'fetchUser',
-            parameters: [],
             isAsync: true,
         },
         {
             name: 'Logout',
             code: 'logout',
-            parameters: [],
         },
     ],
 };
