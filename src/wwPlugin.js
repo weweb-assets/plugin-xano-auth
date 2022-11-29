@@ -24,11 +24,11 @@ export default {
         await this.fetchInstances(settings.privateData.apiKey);
         await this.fetchInstance(settings.privateData.apiKey, settings.privateData.instanceId);
         /* wwEditor:end */
-        const providerLogin = window.vm.config.globalProperties.$cookie.getCookie(PENDING_PROVIDER_LOGIN);
+        const pendingLogin = window.vm.config.globalProperties.$cookie.getCookie(PENDING_PROVIDER_LOGIN);
         const accessToken = window.vm.config.globalProperties.$cookie.getCookie(ACCESS_COOKIE_NAME);
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, accessToken);
         if (accessToken) await this.fetchUser();
-        if (providerLogin) await this.continueLoginProvider(providerLogin);
+        if (pendingLogin) await this.continueLoginProvider(pendingLogin);
     },
     /*=============================================m_ÔÔ_m=============================================\
         Auth API
@@ -92,25 +92,27 @@ export default {
             const result = await axios.get(
                 `${provider.api}/oauth/${provider.name.split('-')[0]}/init?redirect_uri=${redirectUrl}`
             );
-            window.vm.config.globalProperties.$cookie.setCookie(PENDING_PROVIDER_LOGIN, provider.name + '/' + type);
+            window.vm.config.globalProperties.$cookie.setCookie(PENDING_PROVIDER_LOGIN, { provider, type });
             window.open(result.data.github_authurl || result.data.authUrl, '_self');
         } catch (err) {
+            window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
             this.logout();
             throw err;
         }
     },
-    async continueLoginProvider(providerLoginCookie) {
-        const [providerName, type] = providerLoginCookie.split('/');
-        const socialProviders = this.settings.publicData.socialProviders;
-        const provider = socialProviders && socialProviders[providerName];
-        const result = await axios.get(
-            `${provider.api}/oauth/${provider.name.split('-')[0]}/${type}?code=${
-                wwLib.globalContext.browser.query.code
-            }`
-        );
-        window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
-        this.storeToken(result.data.token);
-        return await this.fetchUser();
+    async continueLoginProvider(pendingLogin) {
+        try {
+            const { name, api } = pendingLogin.provider;
+            const result = await axios.get(
+                `${api}/oauth/${name.split('-')[0]}/${type}?code=${wwLib.globalContext.browser.query.code}`
+            );
+            window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
+            this.storeToken(result.data.token);
+            return await this.fetchUser();
+        } catch (error) {
+            window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
+            throw error;
+        }
     },
     async signUp({ email, password, name }) {
         const { signupEndpoint } = this.settings.publicData;
