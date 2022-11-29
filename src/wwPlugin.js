@@ -3,8 +3,11 @@ import './components/Configuration/SettingsEdit.vue';
 import './components/Configuration/SettingsSummary.vue';
 import './components/Redirections/SettingsEdit.vue';
 import './components/Redirections/SettingsSummary.vue';
+import './components/Social/SettingsEdit.vue';
+import './components/Social/SettingsSummary.vue';
 import './components/Functions/Login.vue';
 import './components/Functions/SignUp.vue';
+import './components/Functions/LoginProvider.vue';
 /* wwEditor:end */
 
 const ACCESS_COOKIE_NAME = 'ww-auth-access-token';
