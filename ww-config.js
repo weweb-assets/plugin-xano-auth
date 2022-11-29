@@ -12,6 +12,15 @@ export default {
                 },
             },
             {
+                label: 'Social login',
+                icon: 'advanced',
+                edit: () => import('./src/components/Social/SettingsEdit.vue'),
+                summary: () => import('./src/components/Social/SettingsSummary.vue'),
+                getIsValid() {
+                    return true;
+                },
+            },
+            {
                 label: 'Define redirections (URLs)',
                 icon: 'open-out',
                 edit: () => import('./src/components/Redirections/SettingsEdit.vue'),
@@ -49,6 +58,17 @@ export default {
             edit: () => import('./src/components/Functions/Login.vue'),
             getIsValid({ email, password }) {
                 return !!email && !!password;
+            },
+            /* wwEditor:end */
+        },
+        {
+            name: 'Login Provider',
+            code: 'loginProvider',
+            isAsync: true,
+            /* wwEditor:start */
+            edit: () => import('./src/components/Functions/LoginProvider.vue'),
+            getIsValid({ provider, type }) {
+                return !!provider && !!type;
             },
             /* wwEditor:end */
         },
