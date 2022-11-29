@@ -104,7 +104,7 @@ export default {
         try {
             const { name, api } = pendingLogin.provider;
             const result = await axios.get(
-                `${api}/oauth/${name.split('-')[0]}/${type}?code=${wwLib.globalContext.browser.query.code}`
+                `${api}/oauth/${name.split('-')[0]}/${pendingLogin.type}?code=${wwLib.globalContext.browser.query.code}`
             );
             window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
             this.storeToken(result.data.token);
