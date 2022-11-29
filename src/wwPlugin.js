@@ -89,10 +89,15 @@ export default {
             const redirectUrl = wwLib.manager
                 ? `${window.location.origin}/${websiteId}/${redirectPage}`
                 : `${window.location.origin}${wwLib.wwPageHelper.getPagePath(redirectPage)}`;
+            const endpoint = provider.name === 'twitter-oauth' ? 'request_token' : 'init';
             const result = await axios.get(
-                `${provider.api}/oauth/${provider.name.split('-')[0]}/init?redirect_uri=${redirectUrl}`
+                `${provider.api}/oauth/${provider.name.split('-')[0]}/${endpoint}?redirect_uri=${redirectUrl}`
             );
-            window.vm.config.globalProperties.$cookie.setCookie(PENDING_PROVIDER_LOGIN, { provider, type });
+            window.vm.config.globalProperties.$cookie.setCookie(PENDING_PROVIDER_LOGIN, {
+                provider,
+                type,
+                redirectUrl,
+            });
             window.open(result.data.github_authurl || result.data.authUrl, '_self');
         } catch (err) {
             window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
@@ -103,11 +108,17 @@ export default {
     async continueLoginProvider(pendingLogin) {
         try {
             const { name, api } = pendingLogin.provider;
-            const result = await axios.get(
-                `${api}/oauth/${name.split('-')[0]}/${pendingLogin.type}?code=${wwLib.globalContext.browser.query.code}`
-            );
+            const endpoint = provider.name === 'twitter-oauth' ? 'access_token' : pendingLogin.type;
+            const result = await axios.get(`${api}/oauth/${name.split('-')[0]}/${pendingLogin.type}`, {
+                params: {
+                    code: wwLib.globalContext.browser.query.code,
+                    oauth_token: wwLib.globalContext.browser.query.oauth_token,
+                    oauth_verifier: wwLib.globalContext.browser.query.oauth_verifier,
+                    redirect_uri: redirectUrl,
+                },
+            });
             window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
-            this.storeToken(result.data.token);
+            this.storeToken(result.data.token || result.data.authToken);
             return await this.fetchUser();
         } catch (error) {
             window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
