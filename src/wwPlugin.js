@@ -48,8 +48,7 @@ export default {
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, null);
     },
     async fetchUser() {
-        // const { getMeEndpoint } = this.settings.publicData;
-        const getMeEndpoint = 'https://x8ki-letl-twmt.n7.xano.io/api:z8zElEr7/basic_auth/me';
+        const { getMeEndpoint } = this.settings.publicData;
         const accessToken = wwLib.wwVariable.getValue(`${this.id}-accessToken`);
 
         if (!getMeEndpoint) throw new Error('No API Group Base URL defined.');
@@ -93,7 +92,7 @@ export default {
             const result = await axios.get(
                 `${provider.api}/oauth/${provider.name.split('-')[0]}/init?redirect_uri=${redirectUrl}`
             );
-            window.vm.config.globalProperties.$cookie.setCookie(PENDING_PROVIDER_LOGIN, provider.name + '-' + type);
+            window.vm.config.globalProperties.$cookie.setCookie(PENDING_PROVIDER_LOGIN, provider.name + '/' + type);
             window.open(result.data.github_authurl || result.data.authUrl, '_self');
         } catch (err) {
             this.logout();
@@ -101,11 +100,13 @@ export default {
         }
     },
     async continueLoginProvider(providerLoginCookie) {
-        const [providerName, _, type] = providerLoginCookie.split('-');
+        const [providerName, type] = providerLoginCookie.split('/');
         const socialProviders = this.settings.publicData.socialProviders;
         const provider = socialProviders && socialProviders[providerName];
         const result = await axios.get(
-            `${provider.api}/oauth/github/${type}?code=${wwLib.globalContext.browser.query.code}`
+            `${provider.api}/oauth/${provider.name.split('-')[0]}/${type}?code=${
+                wwLib.globalContext.browser.query.code
+            }`
         );
         window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
         this.storeToken(result.data.token);
