@@ -44,10 +44,10 @@ export default {
         return {
             pageActions: [{ icon: 'add', label: 'Create page', onAction: this.createPage }],
             types: [
-                { label: 'Login', value: 'login' },
-                { label: 'Signup', value: 'signup' },
-                { label: 'Login or Signup', value: 'continue' },
-                { label: 'Login or Signup', value: 'access_token', provider: 'twitter-oauth' },
+                { label: 'Login', value: 'login', excludes: ['twitter-oauth', 'auth0-oauth'] },
+                { label: 'Signup', value: 'signup', excludes: ['twitter-oauth', 'auth0-oauth'] },
+                { label: 'Login or Signup', value: 'continue', excludes: ['twitter-oauth'] },
+                { label: 'Login or Signup', value: 'access_token', includes: ['twitter-oauth'] },
             ],
         };
     },
@@ -66,9 +66,11 @@ export default {
             }));
         },
         availableTypes() {
-            const providerTypes = this.types.filter(type => type.provider === this.provider);
-            const genericTypes = this.types.filter(type => !type.provider);
-            return providerTypes.length ? providerTypes : genericTypes;
+            return this.types.filter(
+                type =>
+                    (!type.includes || type.includes.includes(this.provider)) &&
+                    (!type.excludes || !type.excludes.includes(this.provider))
+            );
         },
         provider() {
             return this.args.provider;
