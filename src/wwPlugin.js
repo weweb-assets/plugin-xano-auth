@@ -98,7 +98,7 @@ export default {
                 type,
                 redirectUrl,
             });
-            window.open(result.data.github_authurl || result.data.authUrl, '_self');
+            window.open(parseAuthUrl(provider.name, result.data), '_self');
         } catch (err) {
             window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
             this.logout();
@@ -116,7 +116,7 @@ export default {
                 },
             });
             window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
-            this.storeToken(result.data.token || result.data.authToken);
+            this.storeToken(parseAuthToken(provider.name, result.data));
             return await this.fetchUser();
         } catch (error) {
             window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
@@ -202,5 +202,26 @@ function resolveOauthInitEndpoint(provider) {
             return 'request_token';
         default:
             return 'init';
+    }
+}
+
+function parseAuthToken(provider, data) {
+    switch (provider) {
+        case 'twitter-oauth':
+            return data.authToken;
+        default:
+            return data.token;
+    }
+}
+function parseAuthUrl(provider, data) {
+    switch (provider) {
+        case 'github-oauth':
+            return data.github_authurl;
+        case 'facebook-oauth':
+            return data.facebook_authurl;
+        case 'linkedin-oauth':
+            return data.linkedin_authurl;
+        default:
+            return data.authUrl;
     }
 }
