@@ -21,6 +21,7 @@
             </div>
         </wwEditorFormRow>
     </div>
+    <wwLoader :loading="isLoading" />
 </template>
 
 <script>
@@ -48,22 +49,32 @@ export default {
     },
     methods: {
         async loadProviders() {
-            if (!this.plugin.instance || !this.settings.privateData.workspaceId) return;
-            const workspace = this.plugin.instance.filter(
-                workspace => workspace.id === this.settings.privateData.workspaceId
-            );
-            if (!workspace) return;
-            const groups = workspace[0].apigroups.filter(group => group.name.match('-oauth'));
-            this.$emit('update:settings', {
-                ...this.settings,
-                publicData: {
-                    ...this.settings.publicData,
-                    socialProviders: groups.reduce(
-                        (providers, group) => ({ ...providers, [group.name]: group }),
-                        this.settings.publicData.socialProviders || {}
-                    ),
-                },
-            });
+            try {
+                this.isLoading = true;
+                await this.plugin.fetchInstances();
+                await this.plugin.fetchInstance();
+                if (!this.plugin.instance || !this.settings.privateData.workspaceId) return;
+                const workspace = this.plugin.instance.filter(
+                    workspace => workspace.id === this.settings.privateData.workspaceId
+                );
+                if (!workspace) return;
+                const groups = workspace[0].apigroups.filter(group => group.name.match('-oauth'));
+                const socialProviders = groups.reduce(
+                    (providers, group) => ({ ...providers, [group.name]: group }),
+                    {}
+                );
+                this.$emit('update:settings', {
+                    ...this.settings,
+                    publicData: {
+                        ...this.settings.publicData,
+                        socialProviders,
+                    },
+                });
+            } catch (err) {
+                wwLib.wwLog.error(err);
+            } finally {
+                this.isLoading = false;
+            }
         },
     },
 };

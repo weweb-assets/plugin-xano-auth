@@ -192,11 +192,17 @@ export default {
             }
         },
         async loadWorkspace(workspaceId) {
-            if (!workspaceId) return;
-            const workspace = this.workspacesOptions.find(workspace => workspace.value === workspaceId);
-            if (!workspace) return;
-            const promises = workspace.apigroups.map(group => this.plugin.getApiGroup(group.api));
-            this.apiGroups = await Promise.all(promises);
+            try {
+                if (!workspaceId) return;
+                const workspace = this.workspacesOptions.find(workspace => workspace.value === workspaceId);
+                if (!workspace) return;
+                const promises = workspace.apigroups.map(group => this.plugin.getApiGroup(group.api));
+                this.apiGroups = await Promise.all(promises);
+            } catch (err) {
+                wwLib.wwLog.error(err);
+            } finally {
+                this.isLoading = false;
+            }
         },
     },
 };
