@@ -108,7 +108,7 @@ export default {
     async continueLoginProvider(pendingLogin) {
         try {
             const { name, api } = pendingLogin.provider;
-            const endpoint = provider.name === 'twitter-oauth' ? 'access_token' : pendingLogin.type;
+            const endpoint = name === 'twitter-oauth' ? 'access_token' : pendingLogin.type;
             const result = await axios.get(`${api}/oauth/${name.split('-')[0]}/${endpoint}`, {
                 params: {
                     code: wwLib.globalContext.browser.query.code,
