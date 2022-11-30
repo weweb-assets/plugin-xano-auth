@@ -3,7 +3,7 @@
         label="Provider"
         type="select"
         :model-value="provider"
-        :options="availableTypes"
+        :options="providers"
         bindable
         required
         placeholder="Select a provider"
@@ -13,20 +13,12 @@
         label="Type"
         type="select"
         :model-value="type"
-        :options="types"
+        :options="availableTypes"
         bindable
         required
         placeholder="Select an action"
         @update:modelValue="setType"
     />
-    <a
-        v-if="provider"
-        class="ww-editor-link my-2"
-        :href="`https://supabase.com/docs/guides/auth/auth-${provider}`"
-        target="_blank"
-    >
-        See documentation
-    </a>
     <wwEditorInputRow
         required
         type="select"
@@ -61,6 +53,7 @@ export default {
     },
     watch: {
         availableTypes(types) {
+            if (!this.provider) return;
             this.setType(types[0].value);
         },
     },
