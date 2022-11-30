@@ -52,9 +52,10 @@ export default {
         };
     },
     watch: {
-        availableTypes(types) {
-            if (!this.provider) return;
-            this.setType(types[0].value);
+        provider(provider) {
+            if (!provider || !this.availableTypes.some(type => type.value === this.type)) {
+                this.setType(this.availableTypes[0].value);
+            }
         },
     },
     computed: {
