@@ -89,7 +89,7 @@ export default {
             const redirectUrl = wwLib.manager
                 ? `${window.location.origin}/${websiteId}/${redirectPage}`
                 : `${window.location.origin}${wwLib.wwPageHelper.getPagePath(redirectPage)}`;
-            const endpoint = provider.name === 'twitter-oauth' ? 'request_token' : 'init';
+            const endpoint = resolveOauthInitEndpoint(provider.name);
             const result = await axios.get(
                 `${provider.api}/oauth/${provider.name.split('-')[0]}/${endpoint}?redirect_uri=${redirectUrl}`
             );
@@ -107,8 +107,7 @@ export default {
     },
     async continueLoginProvider({ provider, type, redirectUrl }) {
         try {
-            const endpoint = provider.name === 'twitter-oauth' ? 'access_token' : type;
-            const result = await axios.get(`${provider.api}/oauth/${provider.name.split('-')[0]}/${endpoint}`, {
+            const result = await axios.get(`${provider.api}/oauth/${provider.name.split('-')[0]}/${type}`, {
                 params: {
                     code: wwLib.globalContext.browser.query.code,
                     oauth_token: wwLib.globalContext.browser.query.oauth_token,
@@ -196,3 +195,12 @@ export default {
     },
     /* wwEditor:end */
 };
+
+function resolveOauthInitEndpoint(provider) {
+    switch (provider) {
+        case 'twitter-oauth':
+            return 'request_token';
+        default:
+            return 'init';
+    }
+}

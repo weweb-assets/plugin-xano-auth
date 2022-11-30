@@ -3,7 +3,7 @@
         label="Provider"
         type="select"
         :model-value="provider"
-        :options="providers"
+        :options="availableTypes"
         bindable
         required
         placeholder="Select a provider"
@@ -55,8 +55,14 @@ export default {
                 { label: 'Login', value: 'login' },
                 { label: 'Signup', value: 'signup' },
                 { label: 'Login or Signup', value: 'continue' },
+                { label: 'Login or Signup', value: 'access_token', provider: 'twitter-oauth' },
             ],
         };
+    },
+    watch: {
+        availableTypes(types) {
+            this.setType(types[0].value);
+        },
     },
     computed: {
         providers() {
@@ -64,6 +70,11 @@ export default {
                 label: provider.name.split('-')[0],
                 value: provider.name,
             }));
+        },
+        availableTypes() {
+            const providerTypes = this.types.filter(type => type.provider === this.provider);
+            const genericTypes = this.types.filter(type => !type.provider);
+            return providerTypes.length ? providerTypes : genericTypes;
         },
         provider() {
             return this.args.provider;
