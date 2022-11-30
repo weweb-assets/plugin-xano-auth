@@ -105,11 +105,10 @@ export default {
             throw err;
         }
     },
-    async continueLoginProvider(pendingLogin) {
+    async continueLoginProvider({ provider, type, redirectUrl }) {
         try {
-            const { name, api } = pendingLogin.provider;
-            const endpoint = name === 'twitter-oauth' ? 'access_token' : pendingLogin.type;
-            const result = await axios.get(`${api}/oauth/${name.split('-')[0]}/${endpoint}`, {
+            const endpoint = provider.name === 'twitter-oauth' ? 'access_token' : type;
+            const result = await axios.get(`${provider.api}/oauth/${provider.name.split('-')[0]}/${endpoint}`, {
                 params: {
                     code: wwLib.globalContext.browser.query.code,
                     oauth_token: wwLib.globalContext.browser.query.oauth_token,
