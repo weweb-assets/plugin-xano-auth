@@ -35,17 +35,6 @@
             @update:modelValue="changeWorkspace"
         />
         <wwEditorInputRow
-            label="Login Endpoint"
-            type="select"
-            full
-            placeholder="Select an endpoint"
-            required
-            :model-value="settings.publicData.loginEndpoint"
-            :disabled="!settings.privateData.workspaceId"
-            :options="endpointsOptions.filter(endpoint => endpoint.label.startsWith('POST'))"
-            @update:modelValue="setLoginEndpoint"
-        />
-        <wwEditorInputRow
             label="Get Me Endpoint"
             type="select"
             full
@@ -55,6 +44,17 @@
             :disabled="!settings.privateData.workspaceId"
             :options="endpointsOptions.filter(endpoint => endpoint.label.startsWith('GET'))"
             @update:modelValue="setGetMeEndpoint"
+        />
+        <wwEditorInputRow
+            label="Login Endpoint"
+            type="select"
+            full
+            placeholder="Select an endpoint"
+            required
+            :model-value="settings.publicData.loginEndpoint"
+            :disabled="!settings.privateData.workspaceId"
+            :options="endpointsOptions.filter(endpoint => endpoint.label.startsWith('POST'))"
+            @update:modelValue="setLoginEndpoint"
         />
         <wwEditorInputRow
             label="Signup Endpoint"

@@ -31,6 +31,7 @@
         @update:modelValue="setRedirectPage"
         @action="onAction"
     />
+    <wwLoader :loading="isLoading" />
 </template>
 
 <script>

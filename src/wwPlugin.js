@@ -65,15 +65,17 @@ export default {
             throw err;
         }
     },
-    async login({ email, password }) {
+    async login({ parameters = null, body = null, email = null, password = null }) {
         const { loginEndpoint } = this.settings.publicData;
 
         if (!loginEndpoint) throw new Error('No API Group Base URL defined.');
 
+        // support old email + password fixed parameters
+        const data = body || { email, password };
         try {
             const {
                 data: { authToken },
-            } = await axios.post(loginEndpoint, { email, password });
+            } = await axios.post(loginEndpoint, data, { params: parameters });
             this.storeToken(authToken);
             return await this.fetchUser();
         } catch (err) {
@@ -123,15 +125,17 @@ export default {
             throw error;
         }
     },
-    async signUp({ email, password, name }) {
+    async signUp({ body, parameters, email, password, name }) {
         const { signupEndpoint } = this.settings.publicData;
 
         if (!signupEndpoint) throw new Error('No API Group Base URL defined.');
 
+        // support old email + password fixed parameters
+        const data = body || { email, password, name };
         try {
             const {
                 data: { authToken },
-            } = await axios.post(signupEndpoint, { email, password, name });
+            } = await axios.post(signupEndpoint, data, { params: parameters });
             this.storeToken(authToken);
             return await this.fetchUser();
         } catch (err) {
