@@ -5,6 +5,8 @@ import './components/Redirections/SettingsEdit.vue';
 import './components/Redirections/SettingsSummary.vue';
 import './components/Social/SettingsEdit.vue';
 import './components/Social/SettingsSummary.vue';
+import './components/DataSource/SettingsEdit.vue';
+import './components/DataSource/SettingsSummary.vue';
 import './components/Functions/Login.vue';
 import './components/Functions/SignUp.vue';
 import './components/Functions/LoginProvider.vue';
@@ -55,7 +57,7 @@ export default {
 
         try {
             const { data: user } = await axios.get(getMeEndpoint, {
-                headers: { Authorization: `Bearer ${accessToken}` },
+                headers: { Authorization: `Bearer ${accessToken}`, 'X-Data-Source': getCurrentDataSource() },
             });
             wwLib.wwVariable.updateValue(`${this.id}-user`, user);
             wwLib.wwVariable.updateValue(`${this.id}-isAuthenticated`, true);
@@ -75,7 +77,10 @@ export default {
         try {
             const {
                 data: { authToken },
-            } = await axios.post(loginEndpoint, data, { params: parameters });
+            } = await axios.post(loginEndpoint, data, {
+                params: parameters,
+                headers: { 'X-Data-Source': getCurrentDataSource() },
+            });
             this.storeToken(authToken);
             return await this.fetchUser();
         } catch (err) {
@@ -92,9 +97,12 @@ export default {
                 ? `${window.location.origin}/${websiteId}/${redirectPage}`
                 : `${window.location.origin}${wwLib.wwPageHelper.getPagePath(redirectPage)}`;
             const endpoint = resolveOauthInitEndpoint(provider.name);
-            const result = await axios.get(
-                `${provider.api}/oauth/${provider.name.split('-')[0]}/${endpoint}?redirect_uri=${redirectUrl}`
-            );
+            const result = await axios.get(`${provider.api}/oauth/${provider.name.split('-')[0]}/${endpoint}`, {
+                params: {
+                    redirect_uri: redirectUrl,
+                },
+                headers: { 'X-Data-Source': getCurrentDataSource() },
+            });
             window.vm.config.globalProperties.$cookie.setCookie(PENDING_PROVIDER_LOGIN, {
                 provider,
                 type,
@@ -116,6 +124,7 @@ export default {
                     oauth_verifier: wwLib.globalContext.browser.query.oauth_verifier,
                     redirect_uri: redirectUrl,
                 },
+                headers: { 'X-Data-Source': getCurrentDataSource() },
             });
             window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
             this.storeToken(parseAuthToken(provider.name, result.data));
@@ -135,7 +144,10 @@ export default {
         try {
             const {
                 data: { authToken },
-            } = await axios.post(signupEndpoint, data, { params: parameters });
+            } = await axios.post(signupEndpoint, data, {
+                params: parameters,
+                headers: { 'X-Data-Source': getCurrentDataSource() },
+            });
             this.storeToken(authToken);
             return await this.fetchUser();
         } catch (err) {
@@ -227,5 +239,20 @@ function parseAuthUrl(provider, data) {
             return data.linkedin_authurl;
         default:
             return data.authUrl;
+    }
+}
+function getCurrentDataSource() {
+    const settings = wwLib.wwPlugins.xanoAuth.settings;
+    switch (wwLib.globalContext.browser.environment) {
+        case 'editor':
+            return settings.publicData.xDataSourceEditor;
+        case 'preview':
+            return settings.publicData.xDataSourceProd;
+        case 'staging':
+            return settings.publicData.xDataSourceStaging;
+        case 'production':
+            return settings.publicData.xDataSourceProd;
+        default:
+            return null;
     }
 }
