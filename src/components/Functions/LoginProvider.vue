@@ -45,8 +45,9 @@ export default {
         return {
             pageActions: [{ icon: 'add', label: 'Create page', onAction: this.createPage }],
             types: [
-                { label: 'Login', value: 'login', excludes: ['twitter-oauth', 'auth0-oauth'] },
-                { label: 'Signup', value: 'signup', excludes: ['twitter-oauth', 'auth0-oauth'] },
+                // Disabled for now
+                // { label: 'Login', value: 'login', excludes: ['twitter-oauth', 'auth0-oauth'] },
+                // { label: 'Signup', value: 'signup', excludes: ['twitter-oauth', 'auth0-oauth'] },
                 { label: 'Login or Signup', value: 'continue', excludes: ['twitter-oauth'] },
                 { label: 'Login or Signup', value: 'access_token', includes: ['twitter-oauth'] },
             ],
