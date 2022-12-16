@@ -53,7 +53,7 @@ export default {
     computed: {
         apiGroupUrl() {
             if (!this.plugin.settings.publicData.signupEndpoint) return null;
-            return this.plugin.settings.publicData.signupEndpoint.match(/https:\/\/.*\/api:[a-zA-Z1-9]+/g)[0] || null;
+            return this.plugin.settings.publicData.signupEndpoint.match(/https:\/\/.*\/api:[a-zA-Z0-9]+/g)[0] || null;
         },
         endpoint() {
             if (!this.plugin.settings.publicData.signupEndpoint) return null;
@@ -143,11 +143,16 @@ export default {
             }
         },
         async refreshApiGroup() {
-            if (!this.apiGroupUrl) return;
             try {
                 this.isLoading = true;
                 this.apiGroup = await this.plugin.getApiGroup(this.apiGroupUrl);
-                console.log('refreshApiGroup', this.apiGroupUrl, this.apiGroup);
+                if (!this.apiGroup) {
+                    wwLib.wwNotification.open({
+                        text: 'Your xano auth plugin configuration need to be updated.',
+                        color: 'yellow',
+                        duration: 5000,
+                    });
+                }
             } catch (err) {
                 wwLib.wwLog.error(err);
             } finally {
