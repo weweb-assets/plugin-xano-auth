@@ -1,21 +1,35 @@
 <template>
     <wwEditorInputRow
-        label="Email"
+        v-for="(parameter, index) in endpointParameters"
+        :key="index"
+        :label="parameter.name"
         type="query"
-        :model-value="email"
+        placeholder="Enter a value"
         bindable
-        placeholder="Enter a email"
-        required
-        @update:modelValue="setEmail"
+        :required="parameter.required"
+        :model-value="parameters[parameter.name]"
+        @update:modelValue="setParameters({ ...parameters, [parameter.name]: $event })"
     />
     <wwEditorInputRow
-        label="Password"
-        type="query"
-        :model-value="password"
+        v-if="endpointBody.length"
+        label="Body fields"
+        type="select"
+        multiple
+        :options="bodyFieldOptions"
+        :model-value="bodyFields"
+        placeholder="All body fields"
+        @update:modelValue="setBodyFields"
+    />
+    <wwEditorInputRow
+        v-for="(elem, index) in endpointBodyFiltered"
+        :key="index"
+        :label="elem.name"
+        :type="elem.type || 'string'"
+        placeholder="Enter a value"
         bindable
-        placeholder="Enter a password"
-        required
-        @update:modelValue="setPassword"
+        :required="elem.required"
+        :model-value="body[elem.name]"
+        @update:modelValue="setBody({ ...body, [elem.name]: $event })"
     />
 </template>
 
@@ -26,20 +40,123 @@ export default {
         args: { type: Object, required: true },
     },
     emits: ['update:args'],
+    data() {
+        return {
+            isLoading: false,
+            apiGroup: null,
+        };
+    },
+    mounted() {
+        this.refreshApiGroup();
+    },
     computed: {
-        email() {
-            return this.args.email;
+        apiGroupUrl() {
+            if (!this.plugin.settings.publicData.loginEndpoint) return null;
+            return this.plugin.settings.publicData.loginEndpoint.match(/https:\/\/.*\/api:[a-zA-Z0-9]+/g)[0] || null;
         },
-        password() {
-            return this.args.password;
+        endpoint() {
+            if (!this.plugin.settings.publicData.loginEndpoint) return null;
+            return this.plugin.settings.publicData.loginEndpoint.match(/https:\/\/.*\/api:.*?(\/.*)/)[1] || null;
+        },
+        parameters() {
+            return this.args.parameters || {};
+        },
+        bodyFields() {
+            return this.args.bodyFields;
+        },
+        body() {
+            return this.args.body || {};
+        },
+        endpointParameters() {
+            if (
+                !this.apiGroup ||
+                !this.endpoint ||
+                !this.apiGroup.paths ||
+                !this.apiGroup.paths[this.endpoint] ||
+                !this.apiGroup.paths[this.endpoint]['post']
+            )
+                return [];
+            return this.apiGroup.paths[this.endpoint]['post'].parameters || [];
+        },
+        endpointBody() {
+            if (
+                !this.apiGroup ||
+                !this.endpoint ||
+                !this.apiGroup.paths ||
+                !this.apiGroup.paths[this.endpoint] ||
+                !this.apiGroup.paths[this.endpoint]['post'] ||
+                !this.apiGroup.paths[this.endpoint]['post'].requestBody
+            )
+                return [];
+
+            const endpoint =
+                this.apiGroup.paths[this.endpoint]['post'].requestBody.content['application/json'] ||
+                this.apiGroup.paths[this.endpoint]['post'].requestBody.content['multipart/form-data'];
+
+            return Object.keys(endpoint.schema.properties).map(key => {
+                const elem = endpoint.schema.properties[key];
+                return {
+                    name: key,
+                    type: elem.type === 'string' ? 'query' : elem.type,
+                    required: elem.required,
+                };
+            });
+        },
+        endpointBodyFiltered() {
+            return this.endpointBody.filter(
+                item => !this.bodyFields || !this.bodyFields.length || this.bodyFields.includes(item.name)
+            );
+        },
+        bodyFieldOptions() {
+            return this.endpointBody.map(item => ({ label: item.name, value: item.name }));
         },
     },
     methods: {
-        setEmail(email) {
-            this.$emit('update:args', { ...this.args, email });
+        setParameters(parameters) {
+            this.$emit('update:args', { ...this.args, parameters });
         },
-        setPassword(password) {
-            this.$emit('update:args', { ...this.args, password });
+        setBody(body) {
+            for (const bodyKey in body) {
+                if (!this.endpointBodyFiltered.find(field => field.name === bodyKey)) {
+                    delete body[bodyKey];
+                }
+            }
+            for (const field of this.endpointBodyFiltered) {
+                body[field.name] = body[field.name] || null;
+            }
+            this.$emit('update:args', { ...this.args, body });
+        },
+        setBodyFields(bodyFields) {
+            this.$emit('update:args', { ...this.args, bodyFields });
+            this.$nextTick(() => this.setBody({ ...this.body }));
+        },
+        async refreshInstance() {
+            try {
+                this.isLoading = true;
+                await this.plugin.fetchInstances();
+                await this.plugin.fetchInstance();
+            } catch (err) {
+                wwLib.wwLog.error(err);
+            } finally {
+                this.isLoading = false;
+            }
+        },
+        async refreshApiGroup() {
+            try {
+                this.isLoading = true;
+                this.apiGroup = await this.plugin.getApiGroup(this.apiGroupUrl);
+                if (!this.apiGroup) {
+                    wwLib.wwNotification.open({
+                        text: 'Your xano auth plugin configuration need to be updated.',
+                        color: 'yellow',
+                        duration: 5000,
+                    });
+                }
+            } catch (err) {
+                wwLib.wwLog.error(err);
+            } finally {
+                this.isLoading = false;
+            }
         },
     },
 };
