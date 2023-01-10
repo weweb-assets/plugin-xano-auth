@@ -31,6 +31,17 @@
         :model-value="body[elem.name]"
         @update:modelValue="setBody({ ...body, [elem.name]: $event })"
     />
+    <wwLoader :loading="isLoading" />
+
+    <div class="hint m-2">
+        <wwEditorIcon v-if="!apiGroup" class="hint--icon" name="warning" large />
+        <div class="hint--title label-2">The Xano Auth plugin has been updated</div>
+        <div class="hint--description body-2">
+            This does not affect existing actions in workflows. However, if you wish to update or create a Xano auth
+            action, you will need to re-enter your API key and re-select your instance, workspace, and endpoints in the
+            Xano auth plugin configuration settings.
+        </div>
+    </div>
 </template>
 
 <script>
@@ -147,7 +158,7 @@ export default {
                 this.apiGroup = await this.plugin.getApiGroup(this.apiGroupUrl);
                 if (!this.apiGroup) {
                     wwLib.wwNotification.open({
-                        text: 'Your xano auth plugin configuration need to be updated.',
+                        text: 'Xano login endpoint cannot be loaded, please check your configuration.',
                         color: 'yellow',
                         duration: 5000,
                     });
@@ -161,3 +172,31 @@ export default {
     },
 };
 </script>
+
+<style lang="scss" scoped>
+.hint {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: var(--ww-spacing-04);
+    margin-top: var(--ww-spacing-02);
+    border-radius: var(--ww-border-radius-02);
+    background-color: var(--ww-color-yellow-50);
+    color: var(--ww-color-yellow-500);
+    border: 1px solid var(--ww-color-yellow-500);
+
+    &--icon {
+        width: 48px !important;
+        height: 48px !important;
+        margin: var(--ww-spacing-02) 0;
+    }
+    &--title,
+    &--description {
+        text-align: center;
+        margin: var(--ww-spacing-01) 0;
+    }
+    &--description {
+        color: var(--ww-color-theme-dark-300);
+    }
+}
+</style>
