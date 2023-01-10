@@ -35,9 +35,11 @@
 
     <div class="hint m-2">
         <wwEditorIcon v-if="!apiGroup" class="hint--icon" name="warning" large />
-        <div class="hint--title label-2">Xano Auth has been updated!</div>
+        <div class="hint--title label-2">The Xano Auth plugin has been updated</div>
         <div class="hint--description body-2">
-            Please configure the first step of your Xano Auth Plugin to be able to update this action.
+            This does not affect existing actions in workflows. However, if you wish to update or create a Xano auth
+            action, you will need to re-enter your API key and re-select your instance, workspace, and endpoints in the
+            Xano auth plugin configuration settings.
         </div>
     </div>
 </template>

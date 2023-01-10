@@ -8,7 +8,15 @@ export default {
                 summary: () => import('./src/components/Configuration/SettingsSummary.vue'),
                 getIsValid(settings) {
                     const { loginEndpoint, getMeEndpoint, signupEndpoint } = settings.publicData;
-                    return !!loginEndpoint && !!getMeEndpoint && !!signupEndpoint;
+                    const { apiKey, instanceId, workspaceId } = settings.privateData;
+                    return (
+                        !!loginEndpoint &&
+                        !!getMeEndpoint &&
+                        !!signupEndpoint &&
+                        !!apiKey &&
+                        !!instanceId &&
+                        !!workspaceId
+                    );
                 },
             },
             {
