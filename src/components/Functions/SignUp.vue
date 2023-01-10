@@ -148,9 +148,9 @@ export default {
                 this.apiGroup = await this.plugin.getApiGroup(this.apiGroupUrl);
                 if (!this.apiGroup) {
                     wwLib.wwNotification.open({
-                        text: 'Your xano auth plugin configuration need to be updated.',
+                        text: 'Please update your xano auth plugin configuration. You need to configure your api key, instance and endpoints to be able to update this action. The action is still working.',
                         color: 'yellow',
-                        duration: 5000,
+                        duration: 8000,
                     });
                 }
             } catch (err) {
