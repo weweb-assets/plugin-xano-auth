@@ -33,8 +33,8 @@
     />
     <wwLoader :loading="isLoading" />
 
-    <div class="hint m-2">
-        <wwEditorIcon v-if="!apiGroup" class="hint--icon" name="warning" large />
+    <div class="hint m-2" v-if="!apiGroup">
+        <wwEditorIcon class="hint--icon" name="warning" large />
         <div class="hint--title label-2">The Xano Auth plugin has been updated</div>
         <div class="hint--description body-2">
             This does not affect existing actions in workflows. However, if you wish to update or create a Xano auth
@@ -63,7 +63,7 @@ export default {
     computed: {
         apiGroupUrl() {
             if (!this.plugin.settings.publicData.loginEndpoint) return null;
-            return this.plugin.settings.publicData.loginEndpoint.match(/https:\/\/.*\/api:[a-zA-Z0-9]+/g)[0] || null;
+            return this.plugin.settings.publicData.loginEndpoint.match(/https:\/\/.*\/api:[\w-]+/g)[0] || null;
         },
         endpoint() {
             if (!this.plugin.settings.publicData.loginEndpoint) return null;
