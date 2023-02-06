@@ -4,7 +4,7 @@
             <template #append-label>
                 <a
                     class="ww-editor-link ml-2"
-                    href="hhttps://docs.xano.com/building-features/authentication-sign-up-and-log-in/authentication/oauth-social-sign-in"
+                    href="https://docs.xano.com/building-features/authentication-sign-up-and-log-in/authentication/oauth-social-sign-in"
                     target="_blank"
                 >
                     Please install extensions in your Xano
