@@ -6,13 +6,20 @@
                     Find it here
                 </a>
             </template>
-            <wwEditorInputText
-                type="text"
-                name="api-key"
-                placeholder="ey**************"
-                :model-value="settings.privateData.apiKey"
-                @update:modelValue="changeApiKey"
-            />
+            <div class="xano-auth-settings-edit__password">
+                <wwEditorInputText
+                    :type="isKeyVisible ? 'text' : 'password'"
+                    name="api-key"
+                    placeholder="ey**************"
+                    :model-value="settings.privateData.apiKey"
+                    @update:modelValue="changeApiKey"
+                />
+                <wwEditorIcon
+                    class="toggle"
+                    :name="isKeyVisible ? 'eye-off' : 'eye'"
+                    @click="isKeyVisible = !isKeyVisible"
+                ></wwEditorIcon>
+            </div>
         </wwEditorFormRow>
         <wwEditorInputRow
             type="select"
@@ -80,6 +87,7 @@ export default {
     emits: ['update:settings'],
     data() {
         return {
+            isKeyVisible: false,
             isLoading: false,
             instances: null,
             instance: null,
@@ -215,6 +223,17 @@ export default {
     &__link {
         color: var(--ww-color-blue-500);
         margin-left: var(--ww-spacing-02);
+    }
+    &__password {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        input {
+            flex: auto;
+        }
+        .toggle {
+            cursor: pointer;
+        }
     }
 }
 </style>
