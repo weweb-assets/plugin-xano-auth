@@ -55,10 +55,11 @@ export default {
 
         if (!getMeEndpoint) throw new Error('No API Group Base URL defined.');
 
+        const headers = { Authorization: `Bearer ${accessToken}` };
+        if (getCurrentDataSource()) headers['X-Data-Source'] = getCurrentDataSource();
+
         try {
-            const { data: user } = await axios.get(getMeEndpoint, {
-                headers: { Authorization: `Bearer ${accessToken}`, 'X-Data-Source': getCurrentDataSource() },
-            });
+            const { data: user } = await axios.get(getMeEndpoint, { headers });
             wwLib.wwVariable.updateValue(`${this.id}-user`, user);
             wwLib.wwVariable.updateValue(`${this.id}-isAuthenticated`, true);
             return user;
@@ -74,12 +75,14 @@ export default {
 
         // support old email + password fixed parameters
         const data = body || { email, password };
+        const headers = {};
+        if (getCurrentDataSource()) headers['X-Data-Source'] = getCurrentDataSource();
         try {
             const {
                 data: { authToken },
             } = await axios.post(loginEndpoint, data, {
                 params: parameters,
-                headers: { 'X-Data-Source': getCurrentDataSource() },
+                headers,
             });
             this.storeToken(authToken);
             return await this.fetchUser();
@@ -97,11 +100,13 @@ export default {
                 ? `${window.location.origin}/${websiteId}/${redirectPage}`
                 : `${window.location.origin}${wwLib.wwPageHelper.getPagePath(redirectPage)}`;
             const endpoint = resolveOauthInitEndpoint(provider.name);
+            const headers = {};
+            if (getCurrentDataSource()) headers['X-Data-Source'] = getCurrentDataSource();
             const result = await axios.get(`${provider.api}/oauth/${provider.name.split('-')[0]}/${endpoint}`, {
                 params: {
                     redirect_uri: redirectUrl,
                 },
-                headers: { 'X-Data-Source': getCurrentDataSource() },
+                headers,
             });
             window.vm.config.globalProperties.$cookie.setCookie(PENDING_PROVIDER_LOGIN, {
                 provider,
@@ -117,6 +122,8 @@ export default {
     },
     async continueLoginProvider({ provider, type, redirectUrl }) {
         try {
+            const headers = {};
+            if (getCurrentDataSource()) headers['X-Data-Source'] = getCurrentDataSource();
             const result = await axios.get(`${provider.api}/oauth/${provider.name.split('-')[0]}/${type}`, {
                 params: {
                     code: wwLib.globalContext.browser.query.code,
@@ -124,7 +131,7 @@ export default {
                     oauth_verifier: wwLib.globalContext.browser.query.oauth_verifier,
                     redirect_uri: redirectUrl,
                 },
-                headers: { 'X-Data-Source': getCurrentDataSource() },
+                headers,
             });
             window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
             this.storeToken(parseAuthToken(provider.name, result.data));
@@ -141,12 +148,14 @@ export default {
 
         // support old email + password fixed parameters
         const data = body || { email, password, name };
+        const headers = {};
+        if (getCurrentDataSource()) headers['X-Data-Source'] = getCurrentDataSource();
         try {
             const {
                 data: { authToken },
             } = await axios.post(signupEndpoint, data, {
                 params: parameters,
-                headers: { 'X-Data-Source': getCurrentDataSource() },
+                headers,
             });
             this.storeToken(authToken);
             return await this.fetchUser();
