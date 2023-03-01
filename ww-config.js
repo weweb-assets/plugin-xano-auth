@@ -20,6 +20,14 @@ export default {
                 },
             },
             {
+                label: 'Data Source',
+                edit: () => import('./src/components/DataSource/SettingsEdit.vue'),
+                summary: () => import('./src/components/DataSource/SettingsSummary.vue'),
+                getIsValid() {
+                    return true;
+                },
+            },
+            {
                 label: 'Social login',
                 icon: 'advanced',
                 edit: () => import('./src/components/Social/SettingsEdit.vue'),
