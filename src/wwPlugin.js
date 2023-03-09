@@ -212,11 +212,16 @@ export default {
             .find(apiGroup => apiGroup.api === apiGroupUrl);
         if (!apiGroup) return;
 
-        const { data } = await axios.get(apiGroup.swaggerspec, {
-            headers: { Authorization: `Bearer ${this.settings.privateData.apiKey}` },
-        });
+        try {
+            const { data } = await axios.get(apiGroup.swaggerspec, {
+                headers: { Authorization: `Bearer ${this.settings.privateData.apiKey}` },
+            });
 
-        return data;
+            return data;
+        } catch (error) {
+            wwLib.wwLog.error(error);
+            return null;
+        }
     },
     /* wwEditor:end */
 };
