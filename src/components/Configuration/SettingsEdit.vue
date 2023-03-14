@@ -6,13 +6,19 @@
                     Find it here
                 </a>
             </template>
-            <wwEditorInputText
-                type="text"
-                name="api-key"
-                placeholder="ey**************"
-                :model-value="settings.privateData.apiKey"
-                @update:modelValue="changeApiKey"
-            />
+            <div class="flex items-center">
+                <wwEditorInputText
+                    :type="isKeyVisible ? 'text' : 'password'"
+                    name="api-key"
+                    placeholder="ey**************"
+                    :model-value="settings.privateData.apiKey"
+                    @update:modelValue="changeApiKey"
+                    class="w-full mr-3"
+                />
+                <button class="pointer" @click.prevent="isKeyVisible = !isKeyVisible">
+                    <wwEditorIcon :name="isKeyVisible ? 'eye-off' : 'eye'"></wwEditorIcon>
+                </button>
+            </div>
         </wwEditorFormRow>
         <wwEditorInputRow
             type="select"
@@ -80,6 +86,7 @@ export default {
     emits: ['update:settings'],
     data() {
         return {
+            isKeyVisible: false,
             isLoading: false,
             instances: null,
             instance: null,
