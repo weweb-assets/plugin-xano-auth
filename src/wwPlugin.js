@@ -250,7 +250,7 @@ function parseAuthUrl(provider, data) {
         case 'facebook-oauth':
             return data.facebook_authurl;
         case 'linkedin-oauth':
-            return data.linkedin_authurl;
+            return data;
         default:
             return data.authUrl;
     }
