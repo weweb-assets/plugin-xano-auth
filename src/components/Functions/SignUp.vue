@@ -32,15 +32,6 @@
         @update:modelValue="setBody({ ...body, [elem.name]: $event })"
     />
     <wwLoader :loading="isLoading" />
-    <div class="hint m-2" v-if="!apiGroup">
-        <wwEditorIcon class="hint--icon" name="warning" large />
-        <div class="hint--title label-2">The Xano Auth plugin has been updated</div>
-        <div class="hint--description body-2">
-            This does not affect existing actions in workflows. However, if you wish to update or create a Xano auth
-            action, you will need to re-enter your API key and re-select your instance, workspace, and endpoints in the
-            Xano auth plugin configuration settings.
-        </div>
-    </div>
 </template>
 
 <script>
@@ -57,7 +48,16 @@ export default {
         };
     },
     mounted() {
-        this.refreshApiGroup();
+        if (!this.plugin.isReady) {
+            const wait = setInterval(() => {
+                if (this.plugin.isReady) {
+                    this.refreshApiGroup();
+                    clearInterval(wait);
+                }
+            }, 1000);
+        } else {
+            this.refreshApiGroup();
+        }
     },
     computed: {
         apiGroupUrl() {
