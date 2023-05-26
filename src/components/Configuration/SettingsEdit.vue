@@ -119,6 +119,9 @@ export default {
         },
     },
     watch: {
+        async 'settings.privateData.apiKey'(value) {
+            this.fetchInstances(value);
+        },
         async 'settings.privateData.instanceId'(value) {
             this.loadInstance(value);
         },
@@ -144,9 +147,10 @@ export default {
             }
         },
         changeApiKey(apiKey) {
-            this.$emit('update:settings', { ...this.settings, privateData: { ...this.settings.privateData, apiKey } });
-            if (!apiKey) return;
-            this.fetchInstances(apiKey);
+            this.$emit('update:settings', {
+                ...this.settings,
+                privateData: { ...this.settings.privateData, apiKey, instanceId: null, workspaceId: null },
+            });
         },
         changeInstance(instanceId) {
             this.$emit('update:settings', {
