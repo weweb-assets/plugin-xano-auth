@@ -49,6 +49,7 @@ export default {
     },
     mounted() {
         if (!this.plugin.isReady) {
+            this.isLoading = true;
             const wait = setInterval(() => {
                 if (this.plugin.isReady) {
                     this.refreshApiGroup();
@@ -157,7 +158,7 @@ export default {
                 this.apiGroup = await this.plugin.getApiGroup(this.apiGroupUrl);
                 if (!this.apiGroup) {
                     wwLib.wwNotification.open({
-                        text: 'Xano login endpoint cannot be loaded, please check your configuration.',
+                        text: 'Xano signup endpoint cannot be loaded, please check your configuration, it can be because the swagger is disabled.',
                         color: 'yellow',
                         duration: 5000,
                     });
