@@ -18,6 +18,7 @@ const PENDING_PROVIDER_LOGIN = 'ww-auth-xano-provider-login';
 export default {
     instances: null,
     instance: null,
+    isReady: false,
     /*=============================================m_ÔÔ_m=============================================\
         Plugin API
     \================================================================================================*/
@@ -25,6 +26,7 @@ export default {
         /* wwEditor:start */
         await this.fetchInstances(settings.privateData.apiKey);
         await this.fetchInstance(settings.privateData.apiKey, settings.privateData.instanceId);
+        this.isReady = true;
         /* wwEditor:end */
         const pendingLogin = window.vm.config.globalProperties.$cookie.getCookie(PENDING_PROVIDER_LOGIN);
         const accessToken = window.vm.config.globalProperties.$cookie.getCookie(ACCESS_COOKIE_NAME);
