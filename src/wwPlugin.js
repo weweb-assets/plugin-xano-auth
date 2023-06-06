@@ -231,12 +231,21 @@ export default {
             return data;
         } catch (error) {
             wwLib.wwLog.error(error);
-            if (error && error.status === 429) {
+            if (error && error.response && error.response.status === '429') {
                 wwLib.wwNotification.open({
                     text: {
                         en: '<b>Your xano plan only support 10 requetes per 20 seconds, please wait and retry.</b>',
                     },
                     color: 'red',
+                    duration: '5000',
+                });
+            }
+            if (error && error.response && error.response.status === '404') {
+                wwLib.wwNotification.open({
+                    text: {
+                        en: `The API group "${apiGroup.name}" cannot be loaded, make sure to have the swagger documentation enabled for this API Group while you're configuring this plugin to be able to list the endpoints inside.`,
+                    },
+                    color: 'orange',
                     duration: '5000',
                 });
             }
