@@ -207,10 +207,10 @@ export default {
         },
         async loadWorkspace(workspaceId) {
             try {
-                this.isLoading = true;
                 if (!workspaceId) return;
                 const workspace = this.workspacesOptions.find(workspace => workspace.value === workspaceId);
                 if (!workspace) return;
+                this.isLoading = true;
                 const promises = workspace.apigroups.map(group => this.plugin.getApiGroup(group.api));
                 this.apiGroups = (await Promise.all(promises)).filter(group => !!group);
             } catch (err) {

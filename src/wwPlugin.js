@@ -181,6 +181,8 @@ export default {
         });
 
         this.instances = instances;
+        this.instanceCache = {};
+        this.instance = null;
         return instances;
     },
     async fetchInstance(apiKey, instanceId) {
