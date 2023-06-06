@@ -222,6 +222,15 @@ export default {
             return data;
         } catch (error) {
             wwLib.wwLog.error(error);
+            if (error && error.status === 429) {
+                wwLib.wwNotification.open({
+                    text: {
+                        en: '<b>Your xano plan only support 10 requetes per 20 seconds, please wait and retry.</b>',
+                    },
+                    color: 'red',
+                    duration: '5000',
+                });
+            }
             return null;
         }
     },
