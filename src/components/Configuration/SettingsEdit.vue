@@ -151,6 +151,9 @@ export default {
                 ...this.settings,
                 privateData: { ...this.settings.privateData, apiKey, instanceId: null, workspaceId: null },
             });
+            this.instances = null;
+            this.instance = null;
+            this.apiGroups = [];
         },
         changeInstance(instanceId) {
             this.$emit('update:settings', {
@@ -204,6 +207,7 @@ export default {
         },
         async loadWorkspace(workspaceId) {
             try {
+                this.isLoading = true;
                 if (!workspaceId) return;
                 const workspace = this.workspacesOptions.find(workspace => workspace.value === workspaceId);
                 if (!workspace) return;
@@ -211,6 +215,15 @@ export default {
                 this.apiGroups = (await Promise.all(promises)).filter(group => !!group);
             } catch (err) {
                 wwLib.wwLog.error(err);
+                if (err && err.status === 429) {
+                    wwLib.wwNotification.open({
+                        text: {
+                            en: '<b>Your xano plan only support 10 requetes per 20 seconds, please wait and retry.</b>',
+                        },
+                        color: 'red',
+                        duration: '5000',
+                    });
+                }
             } finally {
                 this.isLoading = false;
             }
