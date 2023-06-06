@@ -18,6 +18,7 @@ const PENDING_PROVIDER_LOGIN = 'ww-auth-xano-provider-login';
 export default {
     instances: null,
     instance: null,
+    instanceCache: {},
     isReady: false,
     /*=============================================m_ÔÔ_m=============================================\
         Plugin API
@@ -190,7 +191,14 @@ export default {
         const instance = this.instances.find(
             instance => `${instance.id}` === (instanceId || this.settings.privateData.instanceId)
         );
+
         if (!instance) return;
+
+        // Avoid to fetch again using the same tokenUrl
+        if (this.instanceCache[instance.id]) {
+            this.instance = this.instanceCache[instance.id];
+            return this.instance;
+        }
 
         const {
             data: { authToken, origin },
@@ -203,6 +211,7 @@ export default {
         });
 
         this.instance = workspaces;
+        this.instanceCache[instance.id] = workspaces;
         return this.instance;
     },
     async getApiGroup(apiGroupUrl) {
