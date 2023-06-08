@@ -121,7 +121,11 @@ export default {
     watch: {
         async 'settings.privateData.apiKey'(value, oldValue) {
             await this.fetchInstances(value);
-            if (this.instance && !this.instances.some(instance => instance === this.instance.id)) {
+            if (
+                this.instance &&
+                this.instances.length &&
+                !this.instances.some(instance => instance === this.instance.id)
+            ) {
                 this.changeInstance(null);
             }
         },
@@ -133,10 +137,10 @@ export default {
             if (!value || (value && oldValue)) {
                 wwLib.wwNotification.open({
                     text: {
-                        en: "You are updating your workspace ? Don't forget to review steps 2, 3 and 5 and update them if needed.",
+                        en: "You are updating your workspace ? Don't forget to review steps 2, 3 and 5 to update them if needed.",
                     },
-                    color: 'orange',
-                    duration: '5000',
+                    color: 'blue',
+                    duration: '8000',
                 });
             }
         },
