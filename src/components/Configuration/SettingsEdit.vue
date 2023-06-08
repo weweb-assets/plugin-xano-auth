@@ -128,12 +128,12 @@ export default {
         async 'settings.privateData.instanceId'(value) {
             this.loadInstance(value);
         },
-        async 'settings.privateData.workspaceId'(value) {
+        async 'settings.privateData.workspaceId'(value, oldValue) {
             await this.loadWorkspace(value);
-            if (value) {
+            if (!value || (value && oldValue)) {
                 wwLib.wwNotification.open({
                     text: {
-                        en: 'You changed your workspace, do not forget to update the other steps.',
+                        en: "You are updating your workspace ? Don't forget to review steps 2, 3 and 5 and update them if needed.",
                     },
                     color: 'orange',
                     duration: '5000',
