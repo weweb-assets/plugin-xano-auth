@@ -119,14 +119,26 @@ export default {
         },
     },
     watch: {
-        async 'settings.privateData.apiKey'(value) {
-            this.fetchInstances(value);
+        async 'settings.privateData.apiKey'(value, oldValue) {
+            await this.fetchInstances(value);
+            if (!this.instances.some(instance === this.instance.id)) {
+                this.changeInstance(null);
+            }
         },
         async 'settings.privateData.instanceId'(value) {
             this.loadInstance(value);
         },
         async 'settings.privateData.workspaceId'(value) {
-            this.loadWorkspace(value);
+            await this.loadWorkspace(value);
+            if (value) {
+                wwLib.wwNotification.open({
+                    text: {
+                        en: 'You changed your workspace, do not forget to update the other steps.',
+                    },
+                    color: 'orange',
+                    duration: '5000',
+                });
+            }
         },
     },
     async mounted() {
@@ -136,11 +148,19 @@ export default {
     },
     methods: {
         async fetchInstances(apiKey) {
+            this.instances = [];
             if (!apiKey) return;
             try {
                 this.isLoading = true;
                 this.instances = await this.plugin.fetchInstances(apiKey);
             } catch (err) {
+                wwLib.wwNotification.open({
+                    text: {
+                        en: 'Unable to fetch your instance, please verify your API key',
+                    },
+                    color: 'red',
+                    duration: '5000',
+                });
                 wwLib.wwLog.error(err);
             } finally {
                 this.isLoading = false;
@@ -149,16 +169,19 @@ export default {
         changeApiKey(apiKey) {
             this.$emit('update:settings', {
                 ...this.settings,
-                privateData: { ...this.settings.privateData, apiKey, instanceId: null, workspaceId: null },
+                privateData: { ...this.settings.privateData, apiKey },
             });
-            this.instances = null;
-            this.instance = null;
-            this.apiGroups = [];
         },
         changeInstance(instanceId) {
             this.$emit('update:settings', {
                 ...this.settings,
                 privateData: { ...this.settings.privateData, instanceId, workspaceId: null },
+                publicData: {
+                    ...this.settings.publicData,
+                    loginEndpoint: null,
+                    getMeEndpoint: null,
+                    signupEndpoint: null,
+                },
             });
         },
         changeWorkspace(value) {
@@ -195,10 +218,12 @@ export default {
             });
         },
         async loadInstance(instanceId) {
+            this.instance = null;
             if (!instanceId) return;
             try {
                 this.isLoading = true;
                 this.instance = await this.plugin.fetchInstance(this.settings.privateData.apiKey, instanceId);
+                // Si workspace id n'est pas dans les nouveaux, reset workspace et endpoints
             } catch (err) {
                 wwLib.wwLog.error(err);
             } finally {
@@ -206,6 +231,7 @@ export default {
             }
         },
         async loadWorkspace(workspaceId) {
+            this.apiGroups = [];
             try {
                 if (!workspaceId) return;
                 const workspace = this.workspacesOptions.find(workspace => workspace.value === workspaceId);
