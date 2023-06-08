@@ -121,7 +121,7 @@ export default {
     watch: {
         async 'settings.privateData.apiKey'(value, oldValue) {
             await this.fetchInstances(value);
-            if (!this.instances.some(instance === this.instance.id)) {
+            if (this.instance && !this.instances.some(instance => instance === this.instance.id)) {
                 this.changeInstance(null);
             }
         },
