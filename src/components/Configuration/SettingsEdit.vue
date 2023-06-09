@@ -124,7 +124,7 @@ export default {
             if (
                 this.settings.privateData.instanceId &&
                 this.instances.length &&
-                !this.instances.some(instance => instance.id === this.settings.privateData.instanceId)
+                !this.instances.some(instance => String(instance.id) === String(this.settings.privateData.instanceId))
             ) {
                 this.changeInstance(null);
             }
