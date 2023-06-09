@@ -122,9 +122,9 @@ export default {
         async 'settings.privateData.apiKey'(value, oldValue) {
             await this.fetchInstances(value);
             if (
-                this.instance &&
+                this.settings.privateData.instanceId &&
                 this.instances.length &&
-                !this.instances.some(instance => instance === this.instance.id)
+                !this.instances.some(instance => instance === this.settings.privateData.instanceId)
             ) {
                 this.changeInstance(null);
             }
