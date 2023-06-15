@@ -119,7 +119,7 @@ export default {
         },
     },
     watch: {
-        async 'settings.privateData.apiKey'(value, oldValue) {
+        async 'settings.privateData.apiKey'(value) {
             await this.fetchInstances(value);
             if (
                 this.settings.privateData.instanceId &&
@@ -127,6 +127,11 @@ export default {
                 !this.instances.some(instance => String(instance.id) === String(this.settings.privateData.instanceId))
             ) {
                 this.changeInstance(null);
+            } else {
+                await this.loadInstance(this.settings.privateData.instanceId);
+                if (!this.instance.some(workspace => workspace.id === this.settings.privateData.workspaceId)) {
+                    this.changeWorkspace(null);
+                }
             }
         },
         async 'settings.privateData.instanceId'(value) {
@@ -227,7 +232,6 @@ export default {
             try {
                 this.isLoading = true;
                 this.instance = await this.plugin.fetchInstance(this.settings.privateData.apiKey, instanceId);
-                // Si workspace id n'est pas dans les nouveaux, reset workspace et endpoints
             } catch (err) {
                 wwLib.wwLog.error(err);
             } finally {
