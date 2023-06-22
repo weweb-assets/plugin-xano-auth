@@ -119,11 +119,35 @@ export default {
         },
     },
     watch: {
+        async 'settings.privateData.apiKey'(value) {
+            await this.fetchInstances(value);
+            if (
+                this.settings.privateData.instanceId &&
+                this.instances.length &&
+                !this.instances.some(instance => String(instance.id) === String(this.settings.privateData.instanceId))
+            ) {
+                this.changeInstance(null);
+            } else {
+                await this.loadInstance(this.settings.privateData.instanceId);
+                if (!this.instance.some(workspace => workspace.id === this.settings.privateData.workspaceId)) {
+                    this.changeWorkspace(null);
+                }
+            }
+        },
         async 'settings.privateData.instanceId'(value) {
             this.loadInstance(value);
         },
-        async 'settings.privateData.workspaceId'(value) {
-            this.loadWorkspace(value);
+        async 'settings.privateData.workspaceId'(value, oldValue) {
+            await this.loadWorkspace(value);
+            if (!value || (value && oldValue)) {
+                wwLib.wwNotification.open({
+                    text: {
+                        en: "You are updating your workspace ? Don't forget to review steps 2, 3 and 5 to update them if needed.",
+                    },
+                    color: 'blue',
+                    duration: '8000',
+                });
+            }
         },
     },
     async mounted() {
@@ -133,25 +157,40 @@ export default {
     },
     methods: {
         async fetchInstances(apiKey) {
+            this.instances = [];
             if (!apiKey) return;
             try {
                 this.isLoading = true;
                 this.instances = await this.plugin.fetchInstances(apiKey);
             } catch (err) {
+                wwLib.wwNotification.open({
+                    text: {
+                        en: 'Unable to fetch your instance, please verify your API key',
+                    },
+                    color: 'red',
+                    duration: '5000',
+                });
                 wwLib.wwLog.error(err);
             } finally {
                 this.isLoading = false;
             }
         },
         changeApiKey(apiKey) {
-            this.$emit('update:settings', { ...this.settings, privateData: { ...this.settings.privateData, apiKey } });
-            if (!apiKey) return;
-            this.fetchInstances(apiKey);
+            this.$emit('update:settings', {
+                ...this.settings,
+                privateData: { ...this.settings.privateData, apiKey },
+            });
         },
         changeInstance(instanceId) {
             this.$emit('update:settings', {
                 ...this.settings,
                 privateData: { ...this.settings.privateData, instanceId, workspaceId: null },
+                publicData: {
+                    ...this.settings.publicData,
+                    loginEndpoint: null,
+                    getMeEndpoint: null,
+                    signupEndpoint: null,
+                },
             });
         },
         changeWorkspace(value) {
@@ -188,6 +227,7 @@ export default {
             });
         },
         async loadInstance(instanceId) {
+            this.instance = null;
             if (!instanceId) return;
             try {
                 this.isLoading = true;
@@ -199,10 +239,12 @@ export default {
             }
         },
         async loadWorkspace(workspaceId) {
+            this.apiGroups = [];
             try {
                 if (!workspaceId) return;
                 const workspace = this.workspacesOptions.find(workspace => workspace.value === workspaceId);
                 if (!workspace) return;
+                this.isLoading = true;
                 const promises = workspace.apigroups.map(group => this.plugin.getApiGroup(group.api));
                 this.apiGroups = (await Promise.all(promises)).filter(group => !!group);
             } catch (err) {

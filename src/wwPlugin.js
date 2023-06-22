@@ -18,6 +18,7 @@ const PENDING_PROVIDER_LOGIN = 'ww-auth-xano-provider-login';
 export default {
     instances: null,
     instance: null,
+    instanceCache: {},
     isReady: false,
     /*=============================================m_ÔÔ_m=============================================\
         Plugin API
@@ -180,6 +181,8 @@ export default {
         });
 
         this.instances = instances;
+        this.instanceCache = {};
+        this.instance = null;
         return instances;
     },
     async fetchInstance(apiKey, instanceId) {
@@ -190,7 +193,14 @@ export default {
         const instance = this.instances.find(
             instance => `${instance.id}` === (instanceId || this.settings.privateData.instanceId)
         );
+
         if (!instance) return;
+
+        // Avoid to fetch again using the same tokenUrl
+        if (this.instanceCache[instance.id]) {
+            this.instance = this.instanceCache[instance.id];
+            return this.instance;
+        }
 
         const {
             data: { authToken, origin },
@@ -203,6 +213,7 @@ export default {
         });
 
         this.instance = workspaces;
+        this.instanceCache[instance.id] = workspaces;
         return this.instance;
     },
     async getApiGroup(apiGroupUrl) {
@@ -222,6 +233,24 @@ export default {
             return data;
         } catch (error) {
             wwLib.wwLog.error(error);
+            if (error && error.response && error.response.status === 429) {
+                wwLib.wwNotification.open({
+                    text: {
+                        en: 'Your xano plan only support 10 requetes per 20 seconds, please wait and retry.',
+                    },
+                    color: 'red',
+                    duration: '5000',
+                });
+            }
+            if (error && error.response && error.response.status === 404) {
+                wwLib.wwNotification.open({
+                    text: {
+                        en: `The endpoints inside the API group "${apiGroup.name}" cannot be loaded, make sure to have the swagger documentation enabled for this API Group while you're configuring this plugin if you need them.`,
+                    },
+                    color: 'orange',
+                    duration: '8000',
+                });
+            }
             return null;
         }
     },
