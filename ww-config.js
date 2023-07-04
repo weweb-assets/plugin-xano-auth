@@ -94,6 +94,10 @@ export default {
             isAsync: true,
         },
         {
+            name: 'Store Auth Token',
+            code: 'storeToken',
+        },
+        {
             name: 'Logout',
             code: 'logout',
         },
