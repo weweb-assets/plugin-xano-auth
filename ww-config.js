@@ -91,6 +91,7 @@ export default {
         {
             name: 'Fetch User',
             code: 'fetchUser',
+            edit: () => import('./src/components/Functions/FetchUser.vue'),
             isAsync: true,
         },
         {

@@ -11,6 +11,7 @@ import './components/Functions/Login.vue';
 import './components/Functions/SignUp.vue';
 import './components/Functions/LoginProvider.vue';
 import './components/Functions/StoreAuthToken.vue';
+import './components/Functions/FetchUser.vue';
 /* wwEditor:end */
 
 const ACCESS_COOKIE_NAME = 'ww-auth-access-token';
@@ -53,17 +54,16 @@ export default {
         window.vm.config.globalProperties.$cookie.removeCookie(ACCESS_COOKIE_NAME);
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, null);
     },
-    async fetchUser() {
+    async fetchUser({ headers }) {
         const { getMeEndpoint } = this.settings.publicData;
         const accessToken = wwLib.wwVariable.getValue(`${this.id}-accessToken`);
 
         if (!getMeEndpoint) throw new Error('No API Group Base URL defined.');
 
-        const headers = { Authorization: `Bearer ${accessToken}` };
-        if (getCurrentDataSource()) headers['X-Data-Source'] = getCurrentDataSource();
-
         try {
-            const { data: user } = await axios.get(getMeEndpoint, { headers });
+            const { data: user } = await axios.get(getMeEndpoint, {
+                headers: buildXanoHeaders({ accessToken }, headers),
+            });
             wwLib.wwVariable.updateValue(`${this.id}-user`, user);
             wwLib.wwVariable.updateValue(`${this.id}-isAuthenticated`, true);
             return user;
@@ -72,21 +72,20 @@ export default {
             throw err;
         }
     },
-    async login({ parameters = null, body = null, email = null, password = null }) {
+    async login({ headers, parameters = null, body = null, email = null, password = null }) {
         const { loginEndpoint } = this.settings.publicData;
 
         if (!loginEndpoint) throw new Error('No API Group Base URL defined.');
 
         // support old email + password fixed parameters
         const data = body || { email, password };
-        const headers = {};
-        if (getCurrentDataSource()) headers['X-Data-Source'] = getCurrentDataSource();
+
         try {
             const {
                 data: { authToken },
             } = await axios.post(loginEndpoint, data, {
                 params: parameters,
-                headers,
+                headers: buildXanoHeaders({}, headers),
             });
             this.storeToken(authToken);
             return await this.fetchUser();
@@ -95,7 +94,7 @@ export default {
             throw err;
         }
     },
-    async loginProvider({ provider: providerName, type, redirectPage }) {
+    async loginProvider({ headers, provider: providerName, type, redirectPage }) {
         try {
             const provider = this.settings.publicData.socialProviders[providerName];
             if (!provider) return;
@@ -104,18 +103,18 @@ export default {
                 ? `${window.location.origin}/${websiteId}/${redirectPage}`
                 : `${window.location.origin}${wwLib.wwPageHelper.getPagePath(redirectPage)}`;
             const endpoint = resolveOauthInitEndpoint(provider.name);
-            const headers = {};
-            if (getCurrentDataSource()) headers['X-Data-Source'] = getCurrentDataSource();
+
             const result = await axios.get(`${provider.api}/oauth/${provider.name.split('-')[0]}/${endpoint}`, {
                 params: {
                     redirect_uri: redirectUrl,
                 },
-                headers,
+                headers: buildXanoHeaders({}, headers),
             });
             window.vm.config.globalProperties.$cookie.setCookie(PENDING_PROVIDER_LOGIN, {
                 provider,
                 type,
                 redirectUrl,
+                headers: buildXanoHeaders({}, headers),
             });
             window.open(parseAuthUrl(provider.name, result.data), '_self');
         } catch (err) {
@@ -124,10 +123,8 @@ export default {
             throw err;
         }
     },
-    async continueLoginProvider({ provider, type, redirectUrl }) {
+    async continueLoginProvider({ headers, provider, type, redirectUrl }) {
         try {
-            const headers = {};
-            if (getCurrentDataSource()) headers['X-Data-Source'] = getCurrentDataSource();
             const result = await axios.get(`${provider.api}/oauth/${provider.name.split('-')[0]}/${type}`, {
                 params: {
                     code: wwLib.globalContext.browser.query.code,
@@ -145,21 +142,20 @@ export default {
             throw error;
         }
     },
-    async signUp({ body, parameters, email, password, name }) {
+    async signUp({ headers, body, parameters, email, password, name }) {
         const { signupEndpoint } = this.settings.publicData;
 
         if (!signupEndpoint) throw new Error('No API Group Base URL defined.');
 
         // support old email + password fixed parameters
         const data = body || { email, password, name };
-        const headers = {};
-        if (getCurrentDataSource()) headers['X-Data-Source'] = getCurrentDataSource();
+
         try {
             const {
                 data: { authToken },
             } = await axios.post(signupEndpoint, data, {
                 params: parameters,
-                headers,
+                headers: buildXanoHeaders({}, headers),
             });
             this.storeToken(authToken);
             return await this.fetchUser();
@@ -304,4 +300,15 @@ function getCurrentDataSource() {
         default:
             return null;
     }
+}
+
+function buildXanoHeaders({ xDataSource = getCurrentDataSource(), authToken, dataType }, customHeaders = []) {
+    return {
+        ...(xDataSource ? { 'X-Data-Source': xDataSource } : {}),
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        ...(dataType ? { 'Content-Type': dataType } : {}),
+        ...(Array.isArray(customHeaders) ? customHeaders : [])
+            .filter(header => !!header && !!header.key)
+            .reduce((curr, next) => ({ ...curr, [next.key]: next.value }), {}),
+    };
 }

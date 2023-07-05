@@ -1,5 +1,34 @@
 <template>
     <wwEditorInputRow
+        label="Headers"
+        type="array"
+        :model-value="headers"
+        bindable
+        @update:modelValue="setHeaders"
+        @add-item="setHeaders([...(headers || []), {}])"
+    >
+        <template #default="{ item, setItem }">
+            <wwEditorInputRow
+                type="query"
+                :model-value="item.key"
+                label="Key"
+                placeholder="Enter a value"
+                bindable
+                small
+                @update:modelValue="setItem({ ...item, key: $event })"
+            />
+            <wwEditorInputRow
+                type="query"
+                :model-value="item.value"
+                label="Value"
+                placeholder="Enter a value"
+                bindable
+                small
+                @update:modelValue="setItem({ ...item, value: $event })"
+            />
+        </template>
+    </wwEditorInputRow>
+    <wwEditorInputRow
         v-for="(parameter, index) in endpointParameters"
         :key="index"
         :label="parameter.name"
@@ -72,6 +101,9 @@ export default {
         parameters() {
             return this.args.parameters || {};
         },
+        headers() {
+            return this.args.headers || [];
+        },
         bodyFields() {
             return this.args.bodyFields;
         },
@@ -125,6 +157,9 @@ export default {
     methods: {
         setParameters(parameters) {
             this.$emit('update:args', { ...this.args, parameters });
+        },
+        setHeaders(headers) {
+            this.$emit('update:args', { ...this.args, headers });
         },
         setBody(body) {
             for (const bodyKey in body) {
