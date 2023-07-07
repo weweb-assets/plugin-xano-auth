@@ -172,6 +172,9 @@ export default {
         wwLib.wwVariable.updateValue(`${this.id}-user`, null);
         wwLib.wwVariable.updateValue(`${this.id}-isAuthenticated`, false);
     },
+    storeAuthToken({ authToken }) {
+        this.storeToken(authToken);
+    },
     /* wwEditor:start */
     async fetchInstances(apiKey) {
         if (!apiKey && !this.settings.privateData.apiKey) return;

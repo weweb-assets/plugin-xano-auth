@@ -95,7 +95,7 @@ export default {
         },
         {
             name: 'Store Auth Token',
-            code: 'storeToken',
+            code: 'storeAuthToken',
         },
         {
             name: 'Logout',
