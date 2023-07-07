@@ -10,6 +10,7 @@ import './components/DataSource/SettingsSummary.vue';
 import './components/Functions/Login.vue';
 import './components/Functions/SignUp.vue';
 import './components/Functions/LoginProvider.vue';
+import './components/Functions/StoreAuthToken.vue';
 /* wwEditor:end */
 
 const ACCESS_COOKIE_NAME = 'ww-auth-access-token';

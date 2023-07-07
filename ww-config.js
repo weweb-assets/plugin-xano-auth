@@ -96,6 +96,7 @@ export default {
         {
             name: 'Store Auth Token',
             code: 'storeAuthToken',
+            edit: () => import('./src/components/Functions/StoreAuthToken.vue'),
         },
         {
             name: 'Logout',
