@@ -129,7 +129,7 @@ export default {
                 this.changeInstance(null);
             } else {
                 await this.loadInstance(this.settings.privateData.instanceId);
-                if (!this.instance.some(workspace => workspace.id === this.settings.privateData.workspaceId)) {
+                if (!this.instance?.some(workspace => workspace.id === this.settings.privateData.workspaceId)) {
                     this.changeWorkspace(null);
                 }
             }
