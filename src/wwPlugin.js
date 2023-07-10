@@ -61,7 +61,7 @@ export default {
         if (!getMeEndpoint) throw new Error('No API Group Base URL defined.');
 
         try {
-            const { data: user } = await axios.get(getMeEndpoint, {
+            const { data: user } = await this.request(getMeEndpoint, {
                 headers: buildXanoHeaders({ accessToken }, headers),
             });
             wwLib.wwVariable.updateValue(`${this.id}-user`, user);
@@ -83,7 +83,9 @@ export default {
         try {
             const {
                 data: { authToken },
-            } = await axios.post(loginEndpoint, data, {
+            } = await await this.request(loginEndpoint, {
+                method: 'post',
+                data,
                 params: parameters,
                 headers: buildXanoHeaders({}, headers),
             });
@@ -104,7 +106,7 @@ export default {
                 : `${window.location.origin}${wwLib.wwPageHelper.getPagePath(redirectPage)}`;
             const endpoint = resolveOauthInitEndpoint(provider.name);
 
-            const result = await axios.get(`${provider.api}/oauth/${provider.name.split('-')[0]}/${endpoint}`, {
+            const result = await this.request(`${provider.api}/oauth/${provider.name.split('-')[0]}/${endpoint}`, {
                 params: {
                     redirect_uri: redirectUrl,
                 },
@@ -125,7 +127,7 @@ export default {
     },
     async continueLoginProvider({ headers, provider, type, redirectUrl }) {
         try {
-            const result = await axios.get(`${provider.api}/oauth/${provider.name.split('-')[0]}/${type}`, {
+            const result = await this.request(`${provider.api}/oauth/${provider.name.split('-')[0]}/${type}`, {
                 params: {
                     code: wwLib.globalContext.browser.query.code,
                     oauth_token: wwLib.globalContext.browser.query.oauth_token,
@@ -153,7 +155,9 @@ export default {
         try {
             const {
                 data: { authToken },
-            } = await axios.post(signupEndpoint, data, {
+            } = await this.request(signupEndpoint, {
+                method: 'post',
+                data,
                 params: parameters,
                 headers: buildXanoHeaders({}, headers),
             });
@@ -171,6 +175,12 @@ export default {
     },
     storeAuthToken({ authToken }) {
         this.storeToken(authToken);
+    },
+    async request(to, config) {
+        const url = new URL(to);
+        url.hostname = this.settings.publicData.customDomain || url.hostname;
+        config.url = url.href;
+        return axios(config);
     },
     /* wwEditor:start */
     async fetchInstances(apiKey) {

@@ -31,6 +31,14 @@
             @update:modelValue="changeInstance"
         />
         <wwEditorInputRow
+            type="query"
+            :placeholder="'Default: ' + defaultDomain"
+            :model-value="settings.publicData.customDomain"
+            :disabled="!settings.privateData.instanceId"
+            label="Instance domain"
+            @update:modelValue="setCustomDomain"
+        />
+        <wwEditorInputRow
             label="Workspace"
             type="select"
             placeholder="Select a workspace"
@@ -116,6 +124,10 @@ export default {
                         .flat()
                 )
                 .flat();
+        },
+        defaultDomain() {
+            if (!this.instances || !this.settings.privateData.instanceId) return null;
+            return this.instances.find(instance => instance.id === this.settings.privateData.instanceId)?.host;
         },
     },
     watch: {
@@ -206,6 +218,12 @@ export default {
                     getMeEndpoint: null,
                     signupEndpoint: null,
                 },
+            });
+        },
+        setCustomDomain(value) {
+            this.$emit('update:settings', {
+                ...this.settings,
+                publicData: { ...this.settings.publicData, customDomain: value },
             });
         },
         setLoginEndpoint(value) {
