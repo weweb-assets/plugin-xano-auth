@@ -104,7 +104,7 @@ export default {
     computed: {
         instancesOptions() {
             if (!this.instances) return [];
-            return this.instances.map(instance => ({ label: instance.display, value: `${instance.id}` }));
+            return this.instances.map(instance => ({ label: instance.display, value: String(instance.id) }));
         },
         workspacesOptions() {
             if (!this.instance) return [];
@@ -128,7 +128,7 @@ export default {
         defaultDomain() {
             return (
                 this.settings.publicData.domain ||
-                this.instances?.find(instance => instance.id === this.settings.privateData.instanceId)?.host
+                this.instances?.find(instance => String(instance.id) === this.settings.privateData.instanceId)?.host
             );
         },
     },
@@ -205,7 +205,7 @@ export default {
                 },
                 publicData: {
                     ...this.settings.publicData,
-                    domain: this.instances.find(instance => instance.id === instanceId)?.host,
+                    domain: this.instances.find(instance => String(instance.id) === instanceId)?.host,
                     loginEndpoint: null,
                     getMeEndpoint: null,
                     signupEndpoint: null,
