@@ -178,7 +178,7 @@ export default {
     },
     async request(to, config) {
         const url = new URL(to);
-        url.hostname = this.settings.publicData.customDomain || url.hostname;
+        url.hostname = this.settings.publicData.customDomain || this.settings.publicData.domain || url.hostname;
         config.url = url.href;
         return axios(config);
     },

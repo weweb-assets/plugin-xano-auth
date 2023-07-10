@@ -126,8 +126,10 @@ export default {
                 .flat();
         },
         defaultDomain() {
-            if (!this.instances || !this.settings.privateData.instanceId) return null;
-            return this.instances.find(instance => instance.id === this.settings.privateData.instanceId)?.host;
+            return (
+                this.settings.publicData.domain ||
+                this.instances?.find(instance => instance.id === this.settings.privateData.instanceId)?.host
+            );
         },
     },
     watch: {
@@ -196,9 +198,14 @@ export default {
         changeInstance(instanceId) {
             this.$emit('update:settings', {
                 ...this.settings,
-                privateData: { ...this.settings.privateData, instanceId, workspaceId: null },
+                privateData: {
+                    ...this.settings.privateData,
+                    instanceId,
+                    workspaceId: null,
+                },
                 publicData: {
                     ...this.settings.publicData,
+                    domain: this.instances.find(instance => instance.id === instanceId)?.host,
                     loginEndpoint: null,
                     getMeEndpoint: null,
                     signupEndpoint: null,
