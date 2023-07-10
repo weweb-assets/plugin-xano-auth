@@ -54,7 +54,7 @@ export default {
         window.vm.config.globalProperties.$cookie.removeCookie(ACCESS_COOKIE_NAME);
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, null);
     },
-    async fetchUser({ headers }) {
+    async fetchUser({ headers } = {}) {
         const { getMeEndpoint } = this.settings.publicData;
         const accessToken = wwLib.wwVariable.getValue(`${this.id}-accessToken`);
 
