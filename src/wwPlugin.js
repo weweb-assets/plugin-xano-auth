@@ -56,13 +56,13 @@ export default {
     },
     async fetchUser({ headers } = {}) {
         const { getMeEndpoint } = this.settings.publicData;
-        const accessToken = wwLib.wwVariable.getValue(`${this.id}-accessToken`);
+        const authToken = wwLib.wwVariable.getValue(`${this.id}-accessToken`);
 
         if (!getMeEndpoint) throw new Error('No API Group Base URL defined.');
 
         try {
             const { data: user } = await this.request(getMeEndpoint, {
-                headers: buildXanoHeaders({ accessToken }, headers),
+                headers: buildXanoHeaders({ authToken }, headers),
             });
             wwLib.wwVariable.updateValue(`${this.id}-user`, user);
             wwLib.wwVariable.updateValue(`${this.id}-isAuthenticated`, true);
