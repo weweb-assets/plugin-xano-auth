@@ -127,11 +127,12 @@ export default {
     },
     async continueLoginProvider({ headers, provider, type, redirectUrl }) {
         try {
+            const codePayload = parseAuthCode(wwLib.globalContext.browser.query);
+            if (!codePayload) throw new Error('No code provided for social login');
+
             const result = await this.request(`${provider.api}/oauth/${provider.name.split('-')[0]}/${type}`, {
                 params: {
-                    code: wwLib.globalContext.browser.query.code,
-                    oauth_token: wwLib.globalContext.browser.query.oauth_token,
-                    oauth_verifier: wwLib.globalContext.browser.query.oauth_verifier,
+                    ...codePayload,
                     redirect_uri: redirectUrl,
                 },
                 headers,
@@ -276,6 +277,12 @@ function resolveOauthInitEndpoint(provider) {
     }
 }
 
+function parseAuthCode(query) {
+    if (query.code) return { code: query.code };
+    else if (query.oauth_token) return { oauth_token: query.oauth_token };
+    else if (query.oauth_verifier) return { oauth_verifier: query.oauth_verifier };
+    else return null;
+}
 function parseAuthToken(provider, data) {
     switch (provider) {
         case 'twitter-oauth':
