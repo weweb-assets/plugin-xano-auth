@@ -20,7 +20,7 @@ export default {
                 },
             },
             {
-                label: 'Data Source',
+                label: 'Data Source & Headers',
                 edit: () => import('./src/components/DataSource/SettingsEdit.vue'),
                 summary: () => import('./src/components/DataSource/SettingsSummary.vue'),
                 getIsValid() {

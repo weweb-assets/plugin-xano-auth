@@ -302,11 +302,17 @@ function getCurrentDataSource() {
     }
 }
 
-function buildXanoHeaders({ xDataSource = getCurrentDataSource(), authToken, dataType }, customHeaders = []) {
+function buildXanoHeaders(
+    { xDataSource = getCurrentDataSource(), authToken, dataType, globalHeaders = settings.publicData.globalHeaders },
+    customHeaders = []
+) {
     return {
         ...(xDataSource ? { 'X-Data-Source': xDataSource } : {}),
         ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         ...(dataType ? { 'Content-Type': dataType } : {}),
+        ...(Array.isArray(globalHeaders) ? globalHeaders : [])
+            .filter(header => !!header && !!header.key)
+            .reduce((curr, next) => ({ ...curr, [next.key]: next.value }), {}),
         ...(Array.isArray(customHeaders) ? customHeaders : [])
             .filter(header => !!header && !!header.key)
             .reduce((curr, next) => ({ ...curr, [next.key]: next.value }), {}),
