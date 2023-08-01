@@ -177,10 +177,15 @@ export default {
         this.storeToken(authToken);
     },
     async request(to, config) {
-        const url = new URL(to);
-        url.hostname = this.settings.publicData.customDomain || this.settings.publicData.domain || url.hostname;
-        config.url = url.href;
+        config.url = this.resolveUrl(to);
         return axios(config);
+    },
+    // Ensure everything use the right base domain
+    resolveUrl(url) {
+        const _url = new URL(url);
+        _url.hostname = this.settings.publicData.customDomain || this.settings.publicData.domain || _url.hostname;
+
+        return _url.href;
     },
     /* wwEditor:start */
     async fetchInstances(apiKey) {

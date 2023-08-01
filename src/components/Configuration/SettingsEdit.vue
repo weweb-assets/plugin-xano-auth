@@ -54,7 +54,7 @@
             full
             placeholder="Select an endpoint"
             required
-            :model-value="settings.publicData.getMeEndpoint"
+            :model-value="getMeEndpoint"
             :disabled="!settings.privateData.workspaceId"
             :options="endpointsOptions.filter(endpoint => endpoint.label.startsWith('GET'))"
             @update:modelValue="setGetMeEndpoint"
@@ -65,7 +65,7 @@
             full
             placeholder="Select an endpoint"
             required
-            :model-value="settings.publicData.loginEndpoint"
+            :model-value="loginEndpoint"
             :disabled="!settings.privateData.workspaceId"
             :options="endpointsOptions.filter(endpoint => endpoint.label.startsWith('POST'))"
             @update:modelValue="setLoginEndpoint"
@@ -76,7 +76,7 @@
             full
             placeholder="Select an endpoint"
             required
-            :model-value="settings.publicData.signupEndpoint"
+            :model-value="signupEndpoint"
             :disabled="!settings.privateData.workspaceId"
             :options="endpointsOptions.filter(endpoint => endpoint.label.startsWith('POST'))"
             @update:modelValue="setSignupEndpoint"
@@ -102,6 +102,15 @@ export default {
         };
     },
     computed: {
+        getMeEndpoint() {
+            return this.resolveUrl(settings.publicData.getMeEndpoint);
+        },
+        loginEndpoint() {
+            return this.resolveUrl(settings.publicData.loginEndpoint);
+        },
+        signupEndpoint() {
+            return this.resolveUrl(settings.publicData.signupEndpoint);
+        },
         instancesOptions() {
             if (!this.instances) return [];
             return this.instances.map(instance => ({ label: instance.display, value: String(instance.id) }));
@@ -118,7 +127,7 @@ export default {
                         .map(path =>
                             Object.keys(group.paths[path]).map(method => ({
                                 label: `${method.toUpperCase()} ${path}`,
-                                value: group.servers[0].url + path,
+                                value: this.resolveUrl(group.servers[0].url + path),
                             }))
                         )
                         .flat()
