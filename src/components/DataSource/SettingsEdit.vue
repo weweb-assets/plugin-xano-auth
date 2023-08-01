@@ -32,13 +32,12 @@
         @update:modelValue="updatePublicSettings('xDataSourceEditor', $event)"
         small
     />
-    <p class="label mt-3">Custom Headers</p>
-    <p class="mb-3 label-sm">
-        Global headers will be used for every request to your Xano made browser side. Secure headers will be used for
-        checking user information when accessing private page.
+    <p class="mb-1 label-md mt-3">Custom Headers</p>
+    <p class="mb-3 label-sm text-dark-600">
+        Global headers will be applied to each request made to your Xano server from the browser side.
     </p>
     <wwEditorInputRow
-        label="Global headers"
+        label="Headers"
         type="array"
         :model-value="settings.publicData.globalHeaders"
         bindable
@@ -66,32 +65,6 @@
             />
         </template>
     </wwEditorInputRow>
-    <wwEditorInputRow
-        label="Secure headers"
-        type="array"
-        :model-value="settings.privateData.secureHeaders"
-        @update:modelValue="updatePrivateSettings('secureHeaders', $event)"
-        @add-item="updatePrivateSettings('secureHeaders', [...(settings.privateData.secureHeaders || []), {}])"
-    >
-        <template #default="{ item, setItem }">
-            <wwEditorInputRow
-                type="query"
-                :model-value="item.key"
-                label="Key"
-                placeholder="Enter a value"
-                small
-                @update:modelValue="setItem({ ...item, key: $event })"
-            />
-            <wwEditorInputRow
-                type="query"
-                :model-value="item.value"
-                label="Value"
-                placeholder="Enter a value"
-                small
-                @update:modelValue="setItem({ ...item, value: $event })"
-            />
-        </template>
-    </wwEditorInputRow>
 </template>
 
 <script>
@@ -109,12 +82,6 @@ export default {
             this.$emit('update:settings', {
                 ...this.settings,
                 publicData: { ...this.settings.publicData, [key]: value },
-            });
-        },
-        async updatePrivateSettings(key, value) {
-            this.$emit('update:settings', {
-                ...this.settings,
-                privateData: { ...this.settings.privateData, [key]: value },
             });
         },
     },
