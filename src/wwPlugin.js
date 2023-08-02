@@ -56,13 +56,13 @@ export default {
     },
     async fetchUser({ headers } = {}) {
         const { getMeEndpoint } = this.settings.publicData;
-        const accessToken = wwLib.wwVariable.getValue(`${this.id}-accessToken`);
+        const authToken = wwLib.wwVariable.getValue(`${this.id}-accessToken`);
 
         if (!getMeEndpoint) throw new Error('No API Group Base URL defined.');
 
         try {
-            const { data: user } = await axios.get(getMeEndpoint, {
-                headers: buildXanoHeaders({ accessToken }, headers),
+            const { data: user } = await this.request(getMeEndpoint, {
+                headers: buildXanoHeaders({ authToken }, headers),
             });
             wwLib.wwVariable.updateValue(`${this.id}-user`, user);
             wwLib.wwVariable.updateValue(`${this.id}-isAuthenticated`, true);
@@ -83,7 +83,9 @@ export default {
         try {
             const {
                 data: { authToken },
-            } = await axios.post(loginEndpoint, data, {
+            } = await await this.request(loginEndpoint, {
+                method: 'post',
+                data,
                 params: parameters,
                 headers: buildXanoHeaders({}, headers),
             });
@@ -104,7 +106,7 @@ export default {
                 : `${window.location.origin}${wwLib.wwPageHelper.getPagePath(redirectPage)}`;
             const endpoint = resolveOauthInitEndpoint(provider.name);
 
-            const result = await axios.get(`${provider.api}/oauth/${provider.name.split('-')[0]}/${endpoint}`, {
+            const result = await this.request(`${provider.api}/oauth/${provider.name.split('-')[0]}/${endpoint}`, {
                 params: {
                     redirect_uri: redirectUrl,
                 },
@@ -125,11 +127,12 @@ export default {
     },
     async continueLoginProvider({ headers, provider, type, redirectUrl }) {
         try {
-            const result = await axios.get(`${provider.api}/oauth/${provider.name.split('-')[0]}/${type}`, {
+            const codePayload = parseAuthCode(wwLib.globalContext.browser.query);
+            if (!codePayload) throw new Error('No code provided for social login');
+
+            const result = await this.request(`${provider.api}/oauth/${provider.name.split('-')[0]}/${type}`, {
                 params: {
-                    code: wwLib.globalContext.browser.query.code,
-                    oauth_token: wwLib.globalContext.browser.query.oauth_token,
-                    oauth_verifier: wwLib.globalContext.browser.query.oauth_verifier,
+                    ...codePayload,
                     redirect_uri: redirectUrl,
                 },
                 headers,
@@ -153,7 +156,9 @@ export default {
         try {
             const {
                 data: { authToken },
-            } = await axios.post(signupEndpoint, data, {
+            } = await this.request(signupEndpoint, {
+                method: 'post',
+                data,
                 params: parameters,
                 headers: buildXanoHeaders({}, headers),
             });
@@ -171,6 +176,17 @@ export default {
     },
     storeAuthToken({ authToken }) {
         this.storeToken(authToken);
+    },
+    async request(to, config) {
+        config.url = this.resolveUrl(to);
+        return axios(config);
+    },
+    // Ensure everything use the right base domain
+    resolveUrl(url) {
+        const _url = new URL(url);
+        _url.hostname = this.settings.publicData.customDomain || this.settings.publicData.domain || _url.hostname;
+
+        return _url.href;
     },
     /* wwEditor:start */
     async fetchInstances(apiKey) {
@@ -266,6 +282,12 @@ function resolveOauthInitEndpoint(provider) {
     }
 }
 
+function parseAuthCode(query) {
+    if (query.code) return { code: query.code };
+    else if (query.oauth_token) return { oauth_token: query.oauth_token };
+    else if (query.oauth_verifier) return { oauth_verifier: query.oauth_verifier };
+    else return null;
+}
 function parseAuthToken(provider, data) {
     switch (provider) {
         case 'twitter-oauth':
