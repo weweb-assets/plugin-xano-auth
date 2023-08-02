@@ -1,16 +1,19 @@
 <template>
-    <p class="mb-3">
+    <p class="mb-1 label">
         X-Data-Source Header
         <a class="xano-settings-edit__link" href="https://docs.xano.com/database/data-sources" target="_blank">
             Learn more
         </a>
+    </p>
+    <p class="mb-3 label-sm">
+        This will only affect Dynamic collections. Static and Cached collections will always use the Production value.
     </p>
     <wwEditorInputRow
         type="query"
         placeholder="Default to live data"
         :model-value="settings.publicData.xDataSourceProd"
         label="In production"
-        @update:modelValue="changeXDataSource('xDataSourceProd', $event)"
+        @update:modelValue="updatePublicSettings('xDataSourceProd', $event)"
         small
     />
     <wwEditorInputRow
@@ -18,7 +21,7 @@
         placeholder="Default to live data"
         :model-value="settings.publicData.xDataSourceStaging"
         label="In staging"
-        @update:modelValue="changeXDataSource('xDataSourceStaging', $event)"
+        @update:modelValue="updatePublicSettings('xDataSourceStaging', $event)"
         small
     />
     <wwEditorInputRow
@@ -26,9 +29,42 @@
         placeholder="Default to live data"
         :model-value="settings.publicData.xDataSourceEditor"
         label="In editor"
-        @update:modelValue="changeXDataSource('xDataSourceEditor', $event)"
+        @update:modelValue="updatePublicSettings('xDataSourceEditor', $event)"
         small
     />
+    <p class="mb-1 label-md mt-3">Custom Headers</p>
+    <p class="mb-3 label-sm text-dark-600">
+        Global headers will be applied to each request made to your Xano server from the browser side.
+    </p>
+    <wwEditorInputRow
+        label="Headers"
+        type="array"
+        :model-value="settings.publicData.globalHeaders"
+        bindable
+        @update:modelValue="updatePublicSettings('globalHeaders', $event)"
+        @add-item="updatePublicSettings('globalHeaders', [...(settings.publicData.globalHeaders || []), {}])"
+    >
+        <template #default="{ item, setItem }">
+            <wwEditorInputRow
+                type="query"
+                :model-value="item.key"
+                label="Key"
+                placeholder="Enter a value"
+                small
+                bindable
+                @update:modelValue="setItem({ ...item, key: $event })"
+            />
+            <wwEditorInputRow
+                type="query"
+                :model-value="item.value"
+                label="Value"
+                placeholder="Enter a value"
+                small
+                bindable
+                @update:modelValue="setItem({ ...item, value: $event })"
+            />
+        </template>
+    </wwEditorInputRow>
 </template>
 
 <script>
@@ -37,9 +73,12 @@ export default {
         plugin: { type: Object, required: true },
         settings: { type: Object, required: true },
     },
+    data: () => ({
+        showHeaders: false,
+    }),
     emits: ['update:settings'],
     methods: {
-        async changeXDataSource(key, value) {
+        async updatePublicSettings(key, value) {
             this.$emit('update:settings', {
                 ...this.settings,
                 publicData: { ...this.settings.publicData, [key]: value },
