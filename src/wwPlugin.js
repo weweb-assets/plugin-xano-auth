@@ -324,8 +324,12 @@ function getCurrentDataSource() {
     }
 }
 
+function getGlobalHeaders() {
+    return wwLib.wwPlugins.xanoAuth.settings.publicData.globalHeaders;
+}
+
 function buildXanoHeaders(
-    { xDataSource = getCurrentDataSource(), authToken, dataType, globalHeaders = settings.publicData.globalHeaders },
+    { xDataSource = getCurrentDataSource(), authToken, dataType, globalHeaders = getGlobalHeaders() },
     customHeaders = []
 ) {
     return {
