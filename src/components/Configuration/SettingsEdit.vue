@@ -103,13 +103,13 @@ export default {
     },
     computed: {
         getMeEndpoint() {
-            return this.resolveUrl(settings.publicData.getMeEndpoint);
+            return this.plugin.resolveUrl(this.settings.publicData.getMeEndpoint);
         },
         loginEndpoint() {
-            return this.resolveUrl(settings.publicData.loginEndpoint);
+            return this.plugin.resolveUrl(this.settings.publicData.loginEndpoint);
         },
         signupEndpoint() {
-            return this.resolveUrl(settings.publicData.signupEndpoint);
+            return this.plugin.resolveUrl(this.settings.publicData.signupEndpoint);
         },
         instancesOptions() {
             if (!this.instances) return [];
@@ -127,7 +127,7 @@ export default {
                         .map(path =>
                             Object.keys(group.paths[path]).map(method => ({
                                 label: `${method.toUpperCase()} ${path}`,
-                                value: this.resolveUrl(group.servers[0].url + path),
+                                value: this.plugin.resolveUrl(group.servers[0].url + path),
                             }))
                         )
                         .flat()
