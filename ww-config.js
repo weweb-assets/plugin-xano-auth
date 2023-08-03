@@ -7,7 +7,7 @@ export default {
                 edit: () => import('./src/components/Configuration/SettingsEdit.vue'),
                 summary: () => import('./src/components/Configuration/SettingsSummary.vue'),
                 getIsValid(settings) {
-                    const { loginEndpoint, getMeEndpoint, signupEndpoint } = settings.publicData;
+                    const { loginEndpoint, getMeEndpoint, signupEndpoint, customDomain = '' } = settings.publicData;
                     const { apiKey, instanceId, workspaceId } = settings.privateData;
                     return (
                         !!loginEndpoint &&
@@ -15,7 +15,8 @@ export default {
                         !!signupEndpoint &&
                         !!apiKey &&
                         !!instanceId &&
-                        !!workspaceId
+                        !!workspaceId &&
+                        !customDomain.includes('http')
                     );
                 },
             },
