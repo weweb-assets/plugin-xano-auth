@@ -32,39 +32,6 @@
         @update:modelValue="updatePublicSettings('xDataSourceEditor', $event)"
         small
     />
-    <p class="mb-1 label-md mt-3">Custom Headers</p>
-    <p class="mb-3 label-sm text-dark-600">
-        Global headers will be applied to each request made to your Xano server from the browser side.
-    </p>
-    <wwEditorInputRow
-        label="Headers"
-        type="array"
-        :model-value="settings.publicData.globalHeaders"
-        bindable
-        @update:modelValue="updatePublicSettings('globalHeaders', $event)"
-        @add-item="updatePublicSettings('globalHeaders', [...(settings.publicData.globalHeaders || []), {}])"
-    >
-        <template #default="{ item, setItem }">
-            <wwEditorInputRow
-                type="query"
-                :model-value="item.key"
-                label="Key"
-                placeholder="Enter a value"
-                small
-                bindable
-                @update:modelValue="setItem({ ...item, key: $event })"
-            />
-            <wwEditorInputRow
-                type="query"
-                :model-value="item.value"
-                label="Value"
-                placeholder="Enter a value"
-                small
-                bindable
-                @update:modelValue="setItem({ ...item, value: $event })"
-            />
-        </template>
-    </wwEditorInputRow>
 </template>
 
 <script>
