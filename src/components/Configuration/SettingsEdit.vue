@@ -38,9 +38,9 @@
             label="Instance domain"
             @update:modelValue="setCustomDomain"
         />
-        <p v-if="incorrectCustomDomain" class="flex text-error-500 mt-2">
-            <wwEditorIcon name="warning" small />
-            Custom domain must not contain the protocol (http(s)://)
+        <p v-if="incorrectCustomDomain" class="label-sm flex items-center text-red-500 mb-3">
+            <wwEditorIcon class="mr-1" name="warning" small />
+            The custom domain must not include the protocol (http(s)://)
         </p>
         <wwEditorInputRow
             label="Workspace"
