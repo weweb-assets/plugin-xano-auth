@@ -183,6 +183,7 @@ export default {
     },
     // Ensure everything use the right base domain
     resolveUrl(url) {
+        if (!url) return null;
         const _url = new URL(url);
         _url.hostname = this.settings.publicData.customDomain || this.settings.publicData.domain || _url.hostname;
 
