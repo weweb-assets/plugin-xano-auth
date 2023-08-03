@@ -239,7 +239,7 @@ export default {
         const apiGroup = this.instance
             .map(({ apigroups }) => apigroups)
             .flat()
-            .find(apiGroup => apiGroup.api === apiGroupUrl);
+            .find(apiGroup => this.resolveUrl(apiGroup.api) === this.resolveUrl(apiGroupUrl));
         if (!apiGroup) return;
 
         try {
