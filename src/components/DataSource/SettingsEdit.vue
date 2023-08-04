@@ -1,5 +1,5 @@
 <template>
-    <div class="mb-1 label-md">
+    <div class="mb-2 label-md">
         X-Data-Source Header
         <a class="xano-settings-edit__link" href="https://docs.xano.com/database/data-sources" target="_blank">
             Learn more

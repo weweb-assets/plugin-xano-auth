@@ -1,5 +1,5 @@
 <template>
-    <div class="mb-1 label-md">
+    <div class="mb-2 label-md">
         X-Branch Header
         <a class="xano-settings-edit__link" href="https://docs.xano.com/api/branches-and-merging" target="_blank">
             Learn more
