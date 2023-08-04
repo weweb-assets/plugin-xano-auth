@@ -183,6 +183,7 @@ export default {
     },
     async request(to, config) {
         config.url = this.resolveUrl(to);
+        config.withCredentials = this.settings.publicData.withCredentials || false;
         return axios(config);
     },
     // Ensure everything use the right base domain

@@ -3,7 +3,7 @@
         Global headers will be applied to each request made to your Xano server from the browser side.
     </div>
     <wwEditorInputRow
-        label="Headers"
+        label="Global headers"
         type="array"
         :model-value="settings.publicData.globalHeaders"
         bindable
@@ -35,6 +35,18 @@
         <wwEditorIcon name="information-circle" class="mr-1"></wwEditorIcon>
         Format => [{key: 'MyHeaderName', value: 'MyHeaderValue'}]
     </div>
+    <div class="my-3 label-sm text-stale-500">
+        If toggled, cookies will be sent with each request made to your Xano server from the browser side.
+    </div>
+    <wwEditorFormRow>
+        <div class="flex items-center">
+            <wwEditorInputSwitch
+                :model-value="settings.publicData.withCredentials"
+                @update:modelValue="updatePublicSettings('withCredentials', $event)"
+            />
+            <div class="body-2 ml-2">Send credentials</div>
+        </div>
+    </wwEditorFormRow>
 </template>
 
 <script>

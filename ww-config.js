@@ -37,7 +37,7 @@ export default {
                 },
             },
             {
-                label: 'Global Headers',
+                label: 'Headers & Cookies',
                 edit: () => import('./src/components/GlobalHeaders/SettingsEdit.vue'),
                 summary: () => import('./src/components/GlobalHeaders/SettingsSummary.vue'),
                 getIsValid() {
