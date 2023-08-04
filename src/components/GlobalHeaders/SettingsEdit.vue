@@ -31,6 +31,10 @@
             />
         </template>
     </wwEditorInputRow>
+    <div v-if="isBound" class="mb-3 label-sm text-blue-500 flex items-center">
+        <wwEditorIcon name="information-circle" class="mr-1"></wwEditorIcon>
+        Format => [{key: 'MyHeaderName', value: 'MyHeaderValue'}]
+    </div>
 </template>
 
 <script>
@@ -40,6 +44,11 @@ export default {
         settings: { type: Object, required: true },
     },
     emits: ['update:settings'],
+    computed: {
+        isBound() {
+            return this.settings.publicData.globalHeaders && !Array.isArray(this.settings.publicData.globalHeaders);
+        },
+    },
     methods: {
         async updatePublicSettings(key, value) {
             this.$emit('update:settings', {
