@@ -1,5 +1,5 @@
 <template>
-    <div class="mb-3 label-sm text-dark-500">
+    <div class="mb-3 label-sm text-stale-500">
         Global headers will be applied to each request made to your Xano server from the browser side.
     </div>
     <wwEditorInputRow

@@ -1,15 +1,15 @@
 <template>
     <div class="flex items-center caption-m">
         <wwEditorIcon name="data" class="mr-2"></wwEditorIcon>
-        Production : {{ dataSources.production }}
+        Production: {{ dataSources.production }}
     </div>
     <div class="flex items-center caption-m">
         <wwEditorIcon name="data" class="mr-2"></wwEditorIcon>
-        Staging : {{ dataSources.staging }}
+        Staging: {{ dataSources.staging }}
     </div>
     <div class="flex items-center caption-m">
         <wwEditorIcon name="data" class="mr-2"></wwEditorIcon>
-        Editor : {{ dataSources.editor }}
+        Editor: {{ dataSources.editor }}
     </div>
 </template>
 

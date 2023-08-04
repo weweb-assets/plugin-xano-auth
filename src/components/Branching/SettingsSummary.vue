@@ -1,15 +1,15 @@
 <template>
     <div class="flex items-center caption-m">
         <wwEditorIcon name="code-branch" class="mr-2"></wwEditorIcon>
-        Production : {{ branching.production }}
+        Production: {{ branching.production }}
     </div>
     <div class="flex items-center caption-m">
         <wwEditorIcon name="code-branch" class="mr-2"></wwEditorIcon>
-        Staging : {{ branching.staging }}
+        Staging: {{ branching.staging }}
     </div>
     <div class="flex items-center caption-m">
         <wwEditorIcon name="code-branch" class="mr-2"></wwEditorIcon>
-        Editor : {{ branching.editor }}
+        Editor: {{ branching.editor }}
     </div>
 </template>
 

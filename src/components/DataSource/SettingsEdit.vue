@@ -7,7 +7,7 @@
     </div>
     <div class="mb-3 label-sm text-yellow-500 flex items-center">
         <wwEditorIcon class="mr-1" name="warning" small />
-        Static and Cached collections will always use the Production value.
+        Static and cached collections will always use the production setting.
     </div>
     <wwEditorInputRow
         type="query"
