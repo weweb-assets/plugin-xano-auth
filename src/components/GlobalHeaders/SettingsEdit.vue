@@ -1,8 +1,8 @@
 <template>
-    <p class="mb-1 label-md mt-3">Custom Headers</p>
-    <p class="mb-3 label-sm text-dark-600">
+    <div class="mb-1 label-md mt-3">Custom Headers</div>
+    <div class="mb-3 label-sm text-dark-600">
         Global headers will be applied to each request made to your Xano server from the browser side.
-    </p>
+    </div>
     <wwEditorInputRow
         label="Headers"
         type="array"

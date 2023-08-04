@@ -1,16 +1,17 @@
 <template>
-    <p class="mb-1 label-md">
+    <div class="mb-1 label-md">
         X-Branch Header
         <a class="xano-settings-edit__link" href="https://docs.xano.com/api/branches-and-merging" target="_blank">
             Learn more
         </a>
-    </p>
-    <p class="mb-3 label-sm text-dark-600">
-        This will only affect Dynamic collections. Static and Cached collections will always use the Production value.
-    </p>
+    </div>
+    <div class="mb-3 label-sm text-yellow-500 flex items-center">
+        <wwEditorIcon class="mr-1" name="warning" small />
+        Static and Cached collections will always use the Production value.
+    </div>
     <wwEditorInputRow
         type="query"
-        placeholder="Default to live data"
+        placeholder="Default to live branch"
         :model-value="settings.publicData.xBranchProd"
         label="In production"
         @update:modelValue="updatePublicSettings('xBranchProd', $event)"
@@ -18,7 +19,7 @@
     />
     <wwEditorInputRow
         type="query"
-        placeholder="Default to live data"
+        placeholder="Default to live branch"
         :model-value="settings.publicData.xBranchStaging"
         label="In staging"
         @update:modelValue="updatePublicSettings('xBranchStaging', $event)"
@@ -26,7 +27,7 @@
     />
     <wwEditorInputRow
         type="query"
-        placeholder="Default to live data"
+        placeholder="Default to live branch"
         :model-value="settings.publicData.xBranchEditor"
         label="In editor"
         @update:modelValue="updatePublicSettings('xBranchEditor', $event)"
