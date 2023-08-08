@@ -1,7 +1,7 @@
 <template>
     <div class="mb-2 label-md">
-        X-Data-Source Header
-        <a class="xano-settings-edit__link" href="https://docs.xano.com/database/data-sources" target="_blank">
+        X-Branch Header
+        <a class="xano-settings-edit__link" href="https://docs.xano.com/api/branches-and-merging" target="_blank">
             Learn more
         </a>
     </div>
@@ -11,26 +11,26 @@
     </div>
     <wwEditorInputRow
         type="query"
-        placeholder="Default to live data"
-        :model-value="settings.publicData.xDataSourceProd"
+        placeholder="Default to live branch"
+        :model-value="settings.publicData.xBranchProd"
         label="In production"
-        @update:modelValue="updatePublicSettings('xDataSourceProd', $event)"
+        @update:modelValue="updatePublicSettings('xBranchProd', $event)"
         small
     />
     <wwEditorInputRow
         type="query"
-        placeholder="Default to live data"
-        :model-value="settings.publicData.xDataSourceStaging"
+        placeholder="Default to live branch"
+        :model-value="settings.publicData.xBranchStaging"
         label="In staging"
-        @update:modelValue="updatePublicSettings('xDataSourceStaging', $event)"
+        @update:modelValue="updatePublicSettings('xBranchStaging', $event)"
         small
     />
     <wwEditorInputRow
         type="query"
-        placeholder="Default to live data"
-        :model-value="settings.publicData.xDataSourceEditor"
+        placeholder="Default to live branch"
+        :model-value="settings.publicData.xBranchEditor"
         label="In editor"
-        @update:modelValue="updatePublicSettings('xDataSourceEditor', $event)"
+        @update:modelValue="updatePublicSettings('xBranchEditor', $event)"
         small
     />
 </template>

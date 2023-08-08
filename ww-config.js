@@ -21,9 +21,25 @@ export default {
                 },
             },
             {
-                label: 'Data Source & Headers',
+                label: 'Data Source',
                 edit: () => import('./src/components/DataSource/SettingsEdit.vue'),
                 summary: () => import('./src/components/DataSource/SettingsSummary.vue'),
+                getIsValid() {
+                    return true;
+                },
+            },
+            {
+                label: 'Branching',
+                edit: () => import('./src/components/Branching/SettingsEdit.vue'),
+                summary: () => import('./src/components/Branching/SettingsSummary.vue'),
+                getIsValid() {
+                    return true;
+                },
+            },
+            {
+                label: 'Global Headers',
+                edit: () => import('./src/components/GlobalHeaders/SettingsEdit.vue'),
+                summary: () => import('./src/components/GlobalHeaders/SettingsSummary.vue'),
                 getIsValid() {
                     return true;
                 },
