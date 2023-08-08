@@ -31,6 +31,18 @@
             @update:modelValue="changeInstance"
         />
         <wwEditorInputRow
+            type="query"
+            :placeholder="'Default: ' + defaultDomain"
+            :model-value="settings.publicData.customDomain"
+            :disabled="!settings.privateData.instanceId"
+            label="Instance domain"
+            @update:modelValue="setCustomDomain"
+        />
+        <p v-if="incorrectCustomDomain" class="label-sm flex items-center text-red-500 mb-3">
+            <wwEditorIcon class="mr-1" name="warning" small />
+            The custom domain must not include the protocol (http(s)://)
+        </p>
+        <wwEditorInputRow
             label="Workspace"
             type="select"
             placeholder="Select a workspace"
@@ -46,7 +58,7 @@
             full
             placeholder="Select an endpoint"
             required
-            :model-value="settings.publicData.getMeEndpoint"
+            :model-value="getMeEndpoint"
             :disabled="!settings.privateData.workspaceId"
             :options="endpointsOptions.filter(endpoint => endpoint.label.startsWith('GET'))"
             @update:modelValue="setGetMeEndpoint"
@@ -57,7 +69,7 @@
             full
             placeholder="Select an endpoint"
             required
-            :model-value="settings.publicData.loginEndpoint"
+            :model-value="loginEndpoint"
             :disabled="!settings.privateData.workspaceId"
             :options="endpointsOptions.filter(endpoint => endpoint.label.startsWith('POST'))"
             @update:modelValue="setLoginEndpoint"
@@ -68,7 +80,7 @@
             full
             placeholder="Select an endpoint"
             required
-            :model-value="settings.publicData.signupEndpoint"
+            :model-value="signupEndpoint"
             :disabled="!settings.privateData.workspaceId"
             :options="endpointsOptions.filter(endpoint => endpoint.label.startsWith('POST'))"
             @update:modelValue="setSignupEndpoint"
@@ -94,9 +106,18 @@ export default {
         };
     },
     computed: {
+        getMeEndpoint() {
+            return this.plugin.resolveUrl(this.settings.publicData.getMeEndpoint);
+        },
+        loginEndpoint() {
+            return this.plugin.resolveUrl(this.settings.publicData.loginEndpoint);
+        },
+        signupEndpoint() {
+            return this.plugin.resolveUrl(this.settings.publicData.signupEndpoint);
+        },
         instancesOptions() {
             if (!this.instances) return [];
-            return this.instances.map(instance => ({ label: instance.display, value: `${instance.id}` }));
+            return this.instances.map(instance => ({ label: instance.display, value: String(instance.id) }));
         },
         workspacesOptions() {
             if (!this.instance) return [];
@@ -110,12 +131,21 @@ export default {
                         .map(path =>
                             Object.keys(group.paths[path]).map(method => ({
                                 label: `${method.toUpperCase()} ${path}`,
-                                value: group.servers[0].url + path,
+                                value: this.plugin.resolveUrl(group.servers[0].url + path),
                             }))
                         )
                         .flat()
                 )
                 .flat();
+        },
+        defaultDomain() {
+            return (
+                this.settings.publicData.domain ||
+                this.instances?.find(instance => String(instance.id) === this.settings.privateData.instanceId)?.host
+            );
+        },
+        incorrectCustomDomain() {
+            return (this.settings.publicData.customDomain || '').includes('http');
         },
     },
     watch: {
@@ -129,7 +159,7 @@ export default {
                 this.changeInstance(null);
             } else {
                 await this.loadInstance(this.settings.privateData.instanceId);
-                if (!this.instance.some(workspace => workspace.id === this.settings.privateData.workspaceId)) {
+                if (!this.instance?.some(workspace => workspace.id === this.settings.privateData.workspaceId)) {
                     this.changeWorkspace(null);
                 }
             }
@@ -184,9 +214,14 @@ export default {
         changeInstance(instanceId) {
             this.$emit('update:settings', {
                 ...this.settings,
-                privateData: { ...this.settings.privateData, instanceId, workspaceId: null },
+                privateData: {
+                    ...this.settings.privateData,
+                    instanceId,
+                    workspaceId: null,
+                },
                 publicData: {
                     ...this.settings.publicData,
+                    domain: this.instances.find(instance => String(instance.id) === instanceId)?.host,
                     loginEndpoint: null,
                     getMeEndpoint: null,
                     signupEndpoint: null,
@@ -206,6 +241,12 @@ export default {
                     getMeEndpoint: null,
                     signupEndpoint: null,
                 },
+            });
+        },
+        setCustomDomain(value) {
+            this.$emit('update:settings', {
+                ...this.settings,
+                publicData: { ...this.settings.publicData, customDomain: value },
             });
         },
         setLoginEndpoint(value) {
