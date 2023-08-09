@@ -50,15 +50,9 @@ export default {
     },
     async getApiGroup(apiGroupUrl, workspaceId = this.workspaceId, apiKey = this.apiKey) {
         if (!workspaceId || !apiGroupUrl) return;
-
-        const apiGroup = this.workspacesCache[workspaceId]
-            .map(({ apigroups }) => apigroups)
-            .flat()
-            .find(apiGroup => this.pathIsEqual(apiGroup.api, apiGroupUrl));
-        if (!apiGroup) return;
-
+        const specUrl = apiGroupUrl.replace('/api:', '/apispec:') + '?type=json';
         try {
-            const { data } = await axios.get(apiGroup.swaggerspec, {
+            const { data } = await axios.get(specUrl, {
                 headers: { Authorization: `Bearer ${apiKey}` },
             });
 
