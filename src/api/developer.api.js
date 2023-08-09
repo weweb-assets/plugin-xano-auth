@@ -48,8 +48,8 @@ export default {
         this.workspacesCache[instanceId] = workspaces;
         return workspaces;
     },
-    async fetchApiGroups(instanceId = this.instanceId, workspaceId = this.workspaceId, apiKey = this.apiKey) {
-        const workspace = await this.fetchWorkspaces(instanceId).find(
+    async fetchApiGroups(workspaceId = this.workspaceId, instanceId = this.instanceId, apiKey = this.apiKey) {
+        const workspace = this.workspacesCache[instanceId].find(
             workspace => String(workspace.id) === String(workspaceId)
         );
         if (!workspace) return [];
@@ -88,12 +88,9 @@ export default {
         }
     },
     async getSocialProvider(workspaceId = this.workspaceId) {
-        if (!this.instances) await this.fetchInstances();
-        const workspaces = await this.fetchWorkspaces();
-        if (!workspaces || !workspaceId) return null;
-        const workspace = workspaces.filter(workspace => workspace.id === workspaceId);
-        if (!workspace) return;
-        const groups = workspace[0].apigroups.filter(group => group.name.match('-oauth'));
+        if (!workspaceId) return null;
+        const apiGroups = this.fetchApiGroups(workspaceId);
+        const groups = apiGroups.filter(group => group.name.match('-oauth'));
         const socialProviders = groups.reduce((providers, group) => ({ ...providers, [group.name]: group }), {});
         return socialProviders;
     },

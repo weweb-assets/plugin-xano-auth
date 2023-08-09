@@ -168,7 +168,7 @@ export default {
             this.loadWorkspaces(value);
         },
         async 'settings.privateData.workspaceId'(value, oldValue) {
-            await this.loadWorkspace(value);
+            await this.loadApiGroups(this.settings.privateData.instanceId, value);
             if (!value || (value && oldValue)) {
                 wwLib.wwNotification.open({
                     text: {
@@ -183,7 +183,7 @@ export default {
     async mounted() {
         await this.loadInstances(this.settings.privateData.apiKey);
         await this.loadWorkspaces(this.settings.privateData.instanceId);
-        await this.loadWorkspace(this.settings.privateData.workspaceId);
+        await this.loadApiGroups(this.settings.privateData.instanceId, this.settings.privateData.workspaceId);
     },
     methods: {
         async loadInstances(apiKey) {
@@ -279,14 +279,13 @@ export default {
                 this.isLoading = false;
             }
         },
-        async loadWorkspace(workspaceId) {
+        async loadApiGroups(instanceId, workspaceId) {
             this.apiGroups = [];
             try {
-                if (!workspaceId) return;
-                const workspace = this.workspacesOptions.find(workspace => workspace.value === workspaceId);
-                if (!workspace) return;
                 this.isLoading = true;
-                const promises = workspace.apigroups.map(group =>
+                const apigroups = await this.plugin.api.fetchApiGroups(workspaceId, instanceId);
+
+                const promises = apigroups.map(group =>
                     this.plugin.api.getApiGroup(group.api, workspaceId, this.settings.privateData.apiKey)
                 );
                 this.apiGroups = (await Promise.all(promises)).filter(group => !!group);
