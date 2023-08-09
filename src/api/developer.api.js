@@ -87,9 +87,9 @@ export default {
             return null;
         }
     },
-    async getSocialProvider(workspaceId = this.workspaceId) {
+    async getSocialProviders(workspaceId = this.workspaceId) {
         if (!workspaceId) return null;
-        const apiGroups = this.fetchApiGroups(workspaceId);
+        const apiGroups = await this.fetchApiGroups(workspaceId);
         const groups = apiGroups.filter(group => group.name.match('-oauth'));
         const socialProviders = groups.reduce((providers, group) => ({ ...providers, [group.name]: group }), {});
         return socialProviders;
