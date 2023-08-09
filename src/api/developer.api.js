@@ -48,6 +48,13 @@ export default {
         this.workspacesCache[instanceId] = workspaces;
         return workspaces;
     },
+    async fetchApiGroups(instanceId = this.instanceId, workspaceId = this.workspaceId, apiKey = this.apiKey) {
+        const workspace = await this.fetchWorkspaces(instanceId).find(
+            workspace => String(workspace.id) === String(workspaceId)
+        );
+        if (!workspace) return [];
+        return workspace.apigroups.map(group => ({ id: group.id, name: group.name, api: group.api }));
+    },
     async getApiGroup(apiGroupUrl, workspaceId = this.workspaceId, apiKey = this.apiKey) {
         if (!workspaceId || !apiGroupUrl) return;
         const specUrl = apiGroupUrl.replace('/api:', '/apispec:') + '?type=json';
@@ -89,11 +96,5 @@ export default {
         const groups = workspace[0].apigroups.filter(group => group.name.match('-oauth'));
         const socialProviders = groups.reduce((providers, group) => ({ ...providers, [group.name]: group }), {});
         return socialProviders;
-    },
-    // base domain can change over time
-    pathIsEqual(endpointA, endpointB) {
-        const urlA = new URL(endpointA);
-        const urlB = new URL(endpointB);
-        return urlA.pathname === urlB.pathname;
     },
 };
