@@ -168,7 +168,7 @@ export default {
             this.loadWorkspaces(value);
         },
         async 'settings.privateData.workspaceId'(value, oldValue) {
-            await this.loadApiGroups(this.settings.privateData.instanceId, value);
+            await this.loadApiGroups(value);
             if (!value || (value && oldValue)) {
                 wwLib.wwNotification.open({
                     text: {
@@ -183,7 +183,7 @@ export default {
     async mounted() {
         await this.loadInstances(this.settings.privateData.apiKey);
         await this.loadWorkspaces(this.settings.privateData.instanceId);
-        await this.loadApiGroups(this.settings.privateData.instanceId, this.settings.privateData.workspaceId);
+        await this.loadApiGroups(this.settings.privateData.workspaceId);
     },
     methods: {
         async loadInstances(apiKey) {
@@ -279,11 +279,15 @@ export default {
                 this.isLoading = false;
             }
         },
-        async loadApiGroups(instanceId, workspaceId) {
+        async loadApiGroups(workspaceId) {
             this.apiGroups = [];
             try {
                 this.isLoading = true;
-                const apigroups = await this.plugin.api.fetchApiGroups(workspaceId, instanceId);
+                const apigroups = await this.plugin.api.fetchApiGroups(
+                    workspaceId,
+                    this.settings.privateData.instanceId,
+                    this.settings.privateData.apiKey
+                );
 
                 const promises = apigroups.map(group =>
                     this.plugin.api.getApiGroup(group.api, workspaceId, this.settings.privateData.apiKey)
