@@ -51,18 +51,7 @@ export default {
         async loadProviders() {
             try {
                 this.isLoading = true;
-                await this.plugin.fetchInstances();
-                await this.plugin.fetchInstance();
-                if (!this.plugin.instance || !this.settings.privateData.workspaceId) return;
-                const workspace = this.plugin.instance.filter(
-                    workspace => workspace.id === this.settings.privateData.workspaceId
-                );
-                if (!workspace) return;
-                const groups = workspace[0].apigroups.filter(group => group.name.match('-oauth'));
-                const socialProviders = groups.reduce(
-                    (providers, group) => ({ ...providers, [group.name]: group }),
-                    {}
-                );
+                const socialProviders = await this.plugin.api.getSocialProviders();
                 this.$emit('update:settings', {
                     ...this.settings,
                     publicData: {

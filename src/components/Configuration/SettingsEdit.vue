@@ -101,7 +101,7 @@ export default {
             isKeyVisible: false,
             isLoading: false,
             instances: null,
-            instance: null,
+            workspaces: null,
             apiGroups: [],
         };
     },
@@ -120,8 +120,8 @@ export default {
             return this.instances.map(instance => ({ label: instance.display, value: String(instance.id) }));
         },
         workspacesOptions() {
-            if (!this.instance) return [];
-            return this.instance.map(workspace => ({ label: workspace.name, value: workspace.id, ...workspace }));
+            if (!this.workspaces) return [];
+            return this.workspaces.map(workspace => ({ label: workspace.name, value: workspace.id, ...workspace }));
         },
         endpointsOptions() {
             if (!this.apiGroups) return [];
@@ -150,7 +150,7 @@ export default {
     },
     watch: {
         async 'settings.privateData.apiKey'(value) {
-            await this.fetchInstances(value);
+            await this.loadInstances(value);
             if (
                 this.settings.privateData.instanceId &&
                 this.instances.length &&
@@ -158,14 +158,14 @@ export default {
             ) {
                 this.changeInstance(null);
             } else {
-                await this.loadInstance(this.settings.privateData.instanceId);
-                if (!this.instance?.some(workspace => workspace.id === this.settings.privateData.workspaceId)) {
+                await this.loadWorkspaces(this.settings.privateData.instanceId);
+                if (!this.workspaces?.some(workspace => workspace.id === this.settings.privateData.workspaceId)) {
                     this.changeWorkspace(null);
                 }
             }
         },
         async 'settings.privateData.instanceId'(value) {
-            this.loadInstance(value);
+            this.loadWorkspaces(value);
         },
         async 'settings.privateData.workspaceId'(value, oldValue) {
             await this.loadWorkspace(value);
@@ -181,17 +181,17 @@ export default {
         },
     },
     async mounted() {
-        await this.fetchInstances(this.settings.privateData.apiKey);
-        await this.loadInstance(this.settings.privateData.instanceId);
+        await this.loadInstances(this.settings.privateData.apiKey);
+        await this.loadWorkspaces(this.settings.privateData.instanceId);
         await this.loadWorkspace(this.settings.privateData.workspaceId);
     },
     methods: {
-        async fetchInstances(apiKey) {
+        async loadInstances(apiKey) {
             this.instances = [];
             if (!apiKey) return;
             try {
                 this.isLoading = true;
-                this.instances = await this.plugin.fetchInstances(apiKey);
+                this.instances = await this.plugin.api.fetchInstances(apiKey);
             } catch (err) {
                 wwLib.wwNotification.open({
                     text: {
@@ -267,12 +267,12 @@ export default {
                 publicData: { ...this.settings.publicData, signupEndpoint: value },
             });
         },
-        async loadInstance(instanceId) {
-            this.instance = null;
+        async loadWorkspaces(instanceId) {
+            this.workspaces = null;
             if (!instanceId) return;
             try {
                 this.isLoading = true;
-                this.instance = await this.plugin.fetchInstance(this.settings.privateData.apiKey, instanceId);
+                this.workspaces = await this.plugin.api.fetchWorkspaces(instanceId, this.settings.privateData.apiKey);
             } catch (err) {
                 wwLib.wwLog.error(err);
             } finally {
@@ -286,7 +286,9 @@ export default {
                 const workspace = this.workspacesOptions.find(workspace => workspace.value === workspaceId);
                 if (!workspace) return;
                 this.isLoading = true;
-                const promises = workspace.apigroups.map(group => this.plugin.getApiGroup(group.api));
+                const promises = workspace.apigroups.map(group =>
+                    this.plugin.api.getApiGroup(group.api, workspaceId, this.settings.privateData.apiKey)
+                );
                 this.apiGroups = (await Promise.all(promises)).filter(group => !!group);
             } catch (err) {
                 wwLib.wwLog.error(err);
