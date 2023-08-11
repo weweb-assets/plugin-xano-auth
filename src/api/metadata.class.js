@@ -1,11 +1,15 @@
 export default class {
+    #apiKey = null;
+    #instanceId = null;
+    #workspaceId = null;
+    #instances = [];
+    #workspaces = [];
+    #apiGroups = [];
+
     constructor(apiKey, instanceId, workspaceId) {
         this.#apiKey = apiKey;
         this.#instanceId = instanceId;
         this.#workspaceId = workspaceId;
-        this.#instances = [];
-        this.#workspaces = [];
-        this.#apigroups = [];
     }
 
     async init() {
@@ -22,7 +26,7 @@ export default class {
         if (!this.#apiKey) return;
 
         const { data: instances } = await axios.get('https://app.xano.com/api:meta/instance', {
-            headers: { Authorization: `Bearer ${apiKey}` },
+            headers: { Authorization: `Bearer ${this.#apiKey}` },
         });
 
         this.#instances = instances;
@@ -36,13 +40,13 @@ export default class {
         if (!instance) return;
 
         const { data: workspaces } = await axios.get(`${instance.baseDomain}/api:meta/workspace`, {
-            headers: { Authorization: `Bearer ${auth}` },
+            headers: { Authorization: `Bearer ${this.#apiKey}` },
         });
 
         this.#workspaces = workspaces;
     }
     async #loadApiGroups() {
-        this.#apigroups = [];
+        this.#apiGroups = [];
         const instance = this.getInstance();
         const workspace = this.getWorkspace();
         if (!instance || !workspace) return;

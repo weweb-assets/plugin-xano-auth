@@ -1,12 +1,16 @@
 export default class {
+    #apiKey = null;
+    #instanceId = null;
+    #workspaceId = null;
+    #instances = [];
+    #workspacesCache = {};
+    #workspaces = [];
+    #apiGroups = [];
+
     constructor(apiKey, instanceId, workspaceId) {
         this.#apiKey = apiKey;
         this.#instanceId = instanceId;
         this.#workspaceId = workspaceId;
-        this.#instances = [];
-        this.#workspacesCache = {};
-        this.#workspaces = [];
-        this.#apigroups = [];
     }
 
     async init() {
@@ -56,7 +60,7 @@ export default class {
         this.#workspacesCache[this.#instanceId] = workspaces;
     }
     async #loadApiGroups() {
-        this.#apigroups = [];
+        this.#apiGroups = [];
         const workspace = this.getWorkspace();
         if (!workspace) return;
         this.#apiGroups = workspace.apigroups;
