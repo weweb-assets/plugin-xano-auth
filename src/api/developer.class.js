@@ -75,6 +75,7 @@ export default class {
             name: instance.display,
             baseDomain: instance.host,
             customDomain: null,
+            tokenUrl: instance.tokenUrl,
         }));
     }
     getInstance() {
