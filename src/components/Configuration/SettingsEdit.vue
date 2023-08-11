@@ -169,15 +169,19 @@ export default {
     },
     methods: {
         async initApi(settings) {
+            this.isLoading = true;
             xanoApi = this.plugin.createApi(settings);
             await xanoApi.init();
             await this.sync();
+            this.isLoading = false;
         },
         async sync() {
+            this.isLoading = true;
+            await this.loadApiSpec();
             this.instances = xanoApi.getInstances();
             this.workspaces = xanoApi.getWorkspaces();
             this.defaultDomain = xanoApi.getBaseDomain();
-            await this.loadApiSpec();
+            this.isLoading = false;
         },
         async changeApiKey(apiKey) {
             this.isLoading = true;
@@ -193,7 +197,7 @@ export default {
             this.isLoading = true;
             const newSettings = {
                 ...this.settings,
-                privateData: { ...this.settings.privateData, metaApiKey },
+                privateData: { ...this.settings.privateData, apiKey: null, metaApiKey },
             };
 
             if (!this.useMetaApi) {
