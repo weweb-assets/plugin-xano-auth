@@ -52,7 +52,7 @@ export default {
     },
     async createApi(settings) {
         const xanoApi = settings.privateData.metaApiKey ? MetaApi : DevApi;
-        return await new xanoApi(
+        return new xanoApi(
             settings.privateData.apiKey,
             settings.privateData.instanceId,
             settings.privateData.workspaceId
