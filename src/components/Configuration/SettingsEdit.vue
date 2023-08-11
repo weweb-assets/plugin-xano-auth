@@ -1,6 +1,6 @@
 <template>
     <div class="xano-auth-settings-edit">
-        <wwEditorFormRow required label="Developer API key" v-if="showOldKey">
+        <wwEditorFormRow required label="Developer API key" v-if="!useMetaApi">
             <template #append-label>
                 <a class="xano-auth-settings-edit__link" href="https://docs.xano.com/developer-api" target="_blank">
                     Find it here
@@ -120,12 +120,11 @@ export default {
     emits: ['update:settings'],
     data() {
         return {
-            showOldKey: false,
+            useMetaApi: false,
             isKeyVisible: false,
             isLoading: false,
             instances: [],
             workspaces: [],
-            apiGroups: [],
             apiSpec: [],
             defaultDomain: null,
         };
@@ -165,18 +164,20 @@ export default {
         },
     },
     async mounted() {
-        this.showOldKey = !this.settings.privateData.metaApiKey;
-        xanoApi = this.plugin.createApi(this.settings);
-        await xanoApi.init();
-        await this.sync();
+        this.useMetaApi = !!this.settings.privateData.metaApiKey;
+        this.initApi(this.settings);
     },
     methods: {
+        async initApi(settings) {
+            xanoApi = this.plugin.createApi(settings);
+            await xanoApi.init();
+            await this.sync();
+        },
         async sync() {
             this.instances = xanoApi.getInstances();
             this.workspaces = xanoApi.getWorkspaces();
-            this.apiGroups = xanoApi.getApiGroups();
             this.defaultDomain = xanoApi.getBaseDomain();
-            this.apiSpec = await this.loadApiSpec();
+            await this.loadApiSpec();
         },
         async changeApiKey(apiKey) {
             this.isLoading = true;
@@ -190,12 +191,20 @@ export default {
         },
         async changeMetaApiKey(metaApiKey) {
             this.isLoading = true;
-            await xanoApi.changeApiKey(apiKey);
-            await this.sync();
-            this.$emit('update:settings', {
+            const newSettings = {
                 ...this.settings,
                 privateData: { ...this.settings.privateData, metaApiKey },
-            });
+            };
+
+            if (!this.useMetaApi) {
+                await this.initApi(newSettings);
+                this.useMetaApi = true;
+            } else {
+                await xanoApi.changeApiKey(apiKey);
+                await this.sync();
+            }
+
+            this.$emit('update:settings', newSettings);
             this.isLoading = false;
         },
         async changeInstance(instanceId) {
@@ -267,7 +276,7 @@ export default {
             this.apiSpec = [];
             try {
                 this.isLoading = true;
-                const promises = this.apigroups.map(group => xanoApi.fetchApiGroupSpec(group.api));
+                const promises = xanoApi.getApiGroups().map(group => xanoApi.fetchApiGroupSpec(group.api));
                 this.apiSpec = (await Promise.all(promises)).filter(group => !!group);
             } catch (err) {
                 wwLib.wwLog.error(err);
