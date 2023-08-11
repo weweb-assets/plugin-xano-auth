@@ -46,7 +46,8 @@ export default {
     /* wwEditor:start */
     async initApi(settings) {
         this.isReady = false;
-        this.api = await this.createApi(settings);
+        this.api = this.createApi(settings);
+        await this.api.init();
         this.isReady = true;
     },
     async createApi(settings) {
@@ -55,7 +56,7 @@ export default {
             settings.privateData.apiKey,
             settings.privateData.instanceId,
             settings.privateData.workspaceId
-        ).init();
+        );
     },
     /* wwEditor:end */
     /*=============================================m_ÔÔ_m=============================================\

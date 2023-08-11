@@ -163,7 +163,8 @@ export default {
         },
     },
     async mounted() {
-        this.api = await this.plugin.createApi(this.settings);
+        this.api = this.plugin.createApi(this.settings);
+        await this.api.init();
         this.sync();
     },
     methods: {
