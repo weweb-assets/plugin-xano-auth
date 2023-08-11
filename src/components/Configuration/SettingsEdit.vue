@@ -176,7 +176,7 @@ export default {
         },
         async changeApiKey(apiKey) {
             this.isLoading = true;
-            await xanoApi.changeApiKey(value);
+            await xanoApi.changeApiKey(apiKey);
             this.sync();
             this.$emit('update:settings', {
                 ...this.settings,
@@ -186,7 +186,7 @@ export default {
         },
         async changeInstance(instanceId) {
             this.isLoading = true;
-            await xanoApi.changeInstance(value);
+            await xanoApi.changeInstance(instanceId);
             this.sync();
             this.$emit('update:settings', {
                 ...this.settings,
