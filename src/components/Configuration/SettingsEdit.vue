@@ -12,6 +12,26 @@
                     name="api-key"
                     placeholder="ey**************"
                     :model-value="settings.privateData.apiKey"
+                    class="w-full mr-3"
+                    disabled
+                />
+                <button class="pointer" @click.prevent="isKeyVisible = !isKeyVisible">
+                    <wwEditorIcon :name="isKeyVisible ? 'eye-off' : 'eye'"></wwEditorIcon>
+                </button>
+            </div>
+        </wwEditorFormRow>
+        <wwEditorFormRow required label="Metadata API Key">
+            <template #append-label>
+                <a class="xano-auth-settings-edit__link" href="https://docs.xano.com/metadata-api" target="_blank">
+                    Find it here
+                </a>
+            </template>
+            <div class="flex items-center">
+                <wwEditorInputText
+                    :type="isKeyVisible ? 'text' : 'password'"
+                    name="api-key"
+                    placeholder="ey**************"
+                    :model-value="settings.privateData.metaApiKey"
                     @update:modelValue="changeApiKey"
                     class="w-full mr-3"
                 />
@@ -24,7 +44,7 @@
             type="select"
             placeholder="Select an instance"
             :model-value="settings.privateData.instanceId"
-            :disabled="!settings.privateData.apiKey"
+            :disabled="!settings.privateData.apiKey && !settings.privateData.metaApiKey"
             :options="instancesOptions"
             required
             label="Instance"
@@ -32,7 +52,7 @@
         />
         <wwEditorInputRow
             type="query"
-            :placeholder="'Default: ' + defaultDomain"
+            :placeholder="'Default: ' + baseDomain"
             :model-value="settings.publicData.customDomain"
             :disabled="!settings.privateData.instanceId"
             label="Instance domain"
@@ -100,9 +120,12 @@ export default {
         return {
             isKeyVisible: false,
             isLoading: false,
-            instances: null,
-            workspaces: null,
+            instances: [],
+            workspaces: [],
             apiGroups: [],
+            apiSpec: [],
+            defaultDomain: null,
+            api: null,
         };
     },
     computed: {
@@ -116,16 +139,13 @@ export default {
             return this.plugin.resolveUrl(this.settings.publicData.signupEndpoint);
         },
         instancesOptions() {
-            if (!this.instances) return [];
-            return this.instances.map(instance => ({ label: instance.display, value: String(instance.id) }));
+            return this.instances.map(instance => ({ label: instance.name, value: String(instance.id) }));
         },
         workspacesOptions() {
-            if (!this.workspaces) return [];
             return this.workspaces.map(workspace => ({ label: workspace.name, value: workspace.id, ...workspace }));
         },
         endpointsOptions() {
-            if (!this.apiGroups) return [];
-            return this.apiGroups
+            return this.apiSpec
                 .map(group =>
                     Object.keys(group.paths)
                         .map(path =>
@@ -138,80 +158,35 @@ export default {
                 )
                 .flat();
         },
-        defaultDomain() {
-            return (
-                this.settings.publicData.domain ||
-                this.instances?.find(instance => String(instance.id) === this.settings.privateData.instanceId)?.host
-            );
-        },
         incorrectCustomDomain() {
             return (this.settings.publicData.customDomain || '').includes('http');
         },
     },
-    watch: {
-        async 'settings.privateData.apiKey'(value) {
-            await this.loadInstances(value);
-            if (
-                this.settings.privateData.instanceId &&
-                this.instances.length &&
-                !this.instances.some(instance => String(instance.id) === String(this.settings.privateData.instanceId))
-            ) {
-                this.changeInstance(null);
-            } else {
-                await this.loadWorkspaces(this.settings.privateData.instanceId);
-                if (!this.workspaces?.some(workspace => workspace.id === this.settings.privateData.workspaceId)) {
-                    this.changeWorkspace(null);
-                }
-            }
-        },
-        async 'settings.privateData.instanceId'(value) {
-            this.loadWorkspaces(value);
-        },
-        async 'settings.privateData.workspaceId'(value, oldValue) {
-            await this.loadApiGroups(value);
-            if (!value || (value && oldValue)) {
-                wwLib.wwNotification.open({
-                    text: {
-                        en: "You are updating your workspace ? Don't forget to review steps 2, 3 and 5 to update them if needed.",
-                    },
-                    color: 'blue',
-                    duration: '8000',
-                });
-            }
-        },
-    },
     async mounted() {
-        await this.loadInstances(this.settings.privateData.apiKey);
-        await this.loadWorkspaces(this.settings.privateData.instanceId);
-        await this.loadApiGroups(this.settings.privateData.workspaceId);
+        this.api = await this.plugin.createApi(this.settings);
+        this.sync();
     },
     methods: {
-        async loadInstances(apiKey) {
-            this.instances = [];
-            if (!apiKey) return;
-            try {
-                this.isLoading = true;
-                this.instances = await this.plugin.api.fetchInstances(apiKey);
-            } catch (err) {
-                wwLib.wwNotification.open({
-                    text: {
-                        en: 'Unable to fetch your instance, please verify your API key',
-                    },
-                    color: 'red',
-                    duration: '5000',
-                });
-                wwLib.wwLog.error(err);
-            } finally {
-                this.isLoading = false;
-            }
+        sync() {
+            this.instances = this.api.getInstances();
+            this.workspaces = this.api.getWorkspaces();
+            this.apiGroups = this.api.getApiGroups();
+            this.defaultDomain = this.api.getBaseDomain();
         },
-        changeApiKey(apiKey) {
+        async changeApiKey(apiKey) {
+            this.isLoading = true;
+            await this.api.changeApiKey(value);
+            this.sync();
             this.$emit('update:settings', {
                 ...this.settings,
                 privateData: { ...this.settings.privateData, apiKey },
             });
+            this.isLoading = false;
         },
-        changeInstance(instanceId) {
+        async changeInstance(instanceId) {
+            this.isLoading = true;
+            await this.api.changeInstance(value);
+            this.sync();
             this.$emit('update:settings', {
                 ...this.settings,
                 privateData: {
@@ -221,14 +196,19 @@ export default {
                 },
                 publicData: {
                     ...this.settings.publicData,
-                    domain: this.instances.find(instance => String(instance.id) === instanceId)?.host,
+                    domain: this.api.getBaseDomain(),
+                    customDomain: this.api.getCustomDomain() || this.settings.publicData.customDomain,
                     loginEndpoint: null,
                     getMeEndpoint: null,
                     signupEndpoint: null,
                 },
             });
+            this.isLoading = false;
         },
-        changeWorkspace(value) {
+        async changeWorkspace(value) {
+            this.isLoading = true;
+            await this.api.changeWorkspace(value);
+            this.sync();
             this.$emit('update:settings', {
                 ...this.settings,
                 privateData: {
@@ -242,6 +222,7 @@ export default {
                     signupEndpoint: null,
                 },
             });
+            this.isLoading = false;
         },
         setCustomDomain(value) {
             this.$emit('update:settings', {
@@ -267,32 +248,12 @@ export default {
                 publicData: { ...this.settings.publicData, signupEndpoint: value },
             });
         },
-        async loadWorkspaces(instanceId) {
-            this.workspaces = null;
-            if (!instanceId) return;
+        async loadApiSpec() {
+            this.apiSpec = [];
             try {
                 this.isLoading = true;
-                this.workspaces = await this.plugin.api.fetchWorkspaces(instanceId, this.settings.privateData.apiKey);
-            } catch (err) {
-                wwLib.wwLog.error(err);
-            } finally {
-                this.isLoading = false;
-            }
-        },
-        async loadApiGroups(workspaceId) {
-            this.apiGroups = [];
-            try {
-                this.isLoading = true;
-                const apigroups = await this.plugin.api.fetchApiGroups(
-                    workspaceId,
-                    this.settings.privateData.instanceId,
-                    this.settings.privateData.apiKey
-                );
-
-                const promises = apigroups.map(group =>
-                    this.plugin.api.getApiGroup(group.api, workspaceId, this.settings.privateData.apiKey)
-                );
-                this.apiGroups = (await Promise.all(promises)).filter(group => !!group);
+                const promises = this.apigroups.map(group => this.api.fetchApiGroupSpec(group.api));
+                this.apiSpec = (await Promise.all(promises)).filter(group => !!group);
             } catch (err) {
                 wwLib.wwLog.error(err);
             } finally {

@@ -17,7 +17,8 @@ import './components/Functions/LoginProvider.vue';
 import './components/Functions/StoreAuthToken.vue';
 import './components/Functions/FetchUser.vue';
 
-import developerApi from './api/developer.api';
+import DevApi from './api/developer.class';
+import MetaApi from './api/metadata.class';
 /* wwEditor:end */
 
 const ACCESS_COOKIE_NAME = 'ww-auth-access-token';
@@ -31,13 +32,7 @@ export default {
     \================================================================================================*/
     async onLoad(settings) {
         /* wwEditor:start */
-        this.api = developerApi;
-        await this.api.init(
-            settings.privateData.apiKey,
-            settings.privateData.instanceId,
-            settings.privateData.workspaceId
-        );
-        this.isReady = true;
+        await this.initApi(settings);
         /* wwEditor:end */
         const pendingLogin = window.vm.config.globalProperties.$cookie.getCookie(PENDING_PROVIDER_LOGIN);
         const accessToken = window.vm.config.globalProperties.$cookie.getCookie(ACCESS_COOKIE_NAME);
@@ -49,6 +44,19 @@ export default {
         Editor API
     \================================================================================================*/
     /* wwEditor:start */
+    async initApi(settings) {
+        this.isReady = false;
+        this.api = await this.createApi(settings);
+        this.isReady = true;
+    },
+    async createApi(settings) {
+        const xanoApi = settings.privateData.metaApiKey ? MetaApi : DevApi;
+        return await new xanoApi(
+            settings.privateData.apiKey,
+            settings.privateData.instanceId,
+            settings.privateData.workspaceId
+        ).init();
+    },
     /* wwEditor:end */
     /*=============================================m_ÔÔ_m=============================================\
         Xano Auth API
