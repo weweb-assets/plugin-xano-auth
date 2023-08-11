@@ -53,7 +53,7 @@
         />
         <wwEditorInputRow
             type="query"
-            :placeholder="'Default: ' + baseDomain"
+            :placeholder="'Default: ' + defaultDomain"
             :model-value="settings.publicData.customDomain"
             :disabled="!settings.privateData.instanceId"
             label="Instance domain"
@@ -168,19 +168,20 @@ export default {
         this.showOldKey = !this.settings.privateData.metaApiKey;
         xanoApi = this.plugin.createApi(this.settings);
         await xanoApi.init();
-        this.sync();
+        await this.sync();
     },
     methods: {
-        sync() {
+        async sync() {
             this.instances = xanoApi.getInstances();
             this.workspaces = xanoApi.getWorkspaces();
             this.apiGroups = xanoApi.getApiGroups();
             this.defaultDomain = xanoApi.getBaseDomain();
+            this.apiSpec = await this.loadApiSpec();
         },
         async changeApiKey(apiKey) {
             this.isLoading = true;
             await xanoApi.changeApiKey(apiKey);
-            this.sync();
+            await this.sync();
             this.$emit('update:settings', {
                 ...this.settings,
                 privateData: { ...this.settings.privateData, apiKey },
@@ -190,7 +191,7 @@ export default {
         async changeMetaApiKey(metaApiKey) {
             this.isLoading = true;
             await xanoApi.changeApiKey(apiKey);
-            this.sync();
+            await this.sync();
             this.$emit('update:settings', {
                 ...this.settings,
                 privateData: { ...this.settings.privateData, metaApiKey },
@@ -200,7 +201,7 @@ export default {
         async changeInstance(instanceId) {
             this.isLoading = true;
             await xanoApi.changeInstance(instanceId);
-            this.sync();
+            await this.sync();
             this.$emit('update:settings', {
                 ...this.settings,
                 privateData: {
@@ -222,7 +223,7 @@ export default {
         async changeWorkspace(value) {
             this.isLoading = true;
             await xanoApi.changeWorkspace(value);
-            this.sync();
+            await this.sync();
             this.$emit('update:settings', {
                 ...this.settings,
                 privateData: {
