@@ -1,6 +1,6 @@
 <template>
     <div class="xano-auth-settings-edit">
-        <wwEditorFormRow required label="API key">
+        <wwEditorFormRow required label="Developer API key" v-if="showOldKey">
             <template #append-label>
                 <a class="xano-auth-settings-edit__link" href="https://docs.xano.com/developer-api" target="_blank">
                     Find it here
@@ -12,10 +12,10 @@
                     name="api-key"
                     placeholder="ey**************"
                     :model-value="settings.privateData.apiKey"
-                    class="w-full mr-3"
-                    disabled
+                    class="w-full mr-2"
+                    :disabled="settings.privateData.metaApiKey"
                 />
-                <button class="pointer" @click.prevent="isKeyVisible = !isKeyVisible">
+                <button class="ww-editor-button -icon -secondary -dark" @click.prevent="isKeyVisible = !isKeyVisible">
                     <wwEditorIcon :name="isKeyVisible ? 'eye-off' : 'eye'"></wwEditorIcon>
                 </button>
             </div>
@@ -119,6 +119,7 @@ export default {
     emits: ['update:settings'],
     data() {
         return {
+            showOldKey: false,
             isKeyVisible: false,
             isLoading: false,
             instances: [],
@@ -163,6 +164,7 @@ export default {
         },
     },
     async mounted() {
+        this.showOldKey = !this.settings.privateData.metaApiKey;
         xanoApi = this.plugin.createApi(this.settings);
         await xanoApi.init();
         this.sync();
