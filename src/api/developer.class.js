@@ -71,7 +71,7 @@ export default class {
      */
     getInstances() {
         return this.#instances.map(instance => ({
-            id: instance.id,
+            id: String(instance.id),
             name: instance.display,
             baseDomain: instance.host,
             customDomain: null,
