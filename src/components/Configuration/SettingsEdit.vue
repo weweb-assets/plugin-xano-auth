@@ -110,6 +110,7 @@
 </template>
 
 <script>
+let xanoApi = null;
 export default {
     props: {
         plugin: { type: Object, required: true },
@@ -125,7 +126,6 @@ export default {
             apiGroups: [],
             apiSpec: [],
             defaultDomain: null,
-            api: null,
         };
     },
     computed: {
@@ -163,20 +163,20 @@ export default {
         },
     },
     async mounted() {
-        this.api = this.plugin.createApi(this.settings);
-        await this.api.init();
+        xanoApi = this.plugin.createApi(this.settings);
+        await xanoApi.init();
         this.sync();
     },
     methods: {
         sync() {
-            this.instances = this.api.getInstances();
-            this.workspaces = this.api.getWorkspaces();
-            this.apiGroups = this.api.getApiGroups();
-            this.defaultDomain = this.api.getBaseDomain();
+            this.instances = xanoApi.getInstances();
+            this.workspaces = xanoApi.getWorkspaces();
+            this.apiGroups = xanoApi.getApiGroups();
+            this.defaultDomain = xanoApi.getBaseDomain();
         },
         async changeApiKey(apiKey) {
             this.isLoading = true;
-            await this.api.changeApiKey(value);
+            await xanoApi.changeApiKey(value);
             this.sync();
             this.$emit('update:settings', {
                 ...this.settings,
@@ -186,7 +186,7 @@ export default {
         },
         async changeInstance(instanceId) {
             this.isLoading = true;
-            await this.api.changeInstance(value);
+            await xanoApi.changeInstance(value);
             this.sync();
             this.$emit('update:settings', {
                 ...this.settings,
@@ -197,8 +197,8 @@ export default {
                 },
                 publicData: {
                     ...this.settings.publicData,
-                    domain: this.api.getBaseDomain(),
-                    customDomain: this.api.getCustomDomain() || this.settings.publicData.customDomain,
+                    domain: xanoApi.getBaseDomain(),
+                    customDomain: xanoApi.getCustomDomain() || this.settings.publicData.customDomain,
                     loginEndpoint: null,
                     getMeEndpoint: null,
                     signupEndpoint: null,
@@ -208,7 +208,7 @@ export default {
         },
         async changeWorkspace(value) {
             this.isLoading = true;
-            await this.api.changeWorkspace(value);
+            await xanoApi.changeWorkspace(value);
             this.sync();
             this.$emit('update:settings', {
                 ...this.settings,
@@ -253,7 +253,7 @@ export default {
             this.apiSpec = [];
             try {
                 this.isLoading = true;
-                const promises = this.apigroups.map(group => this.api.fetchApiGroupSpec(group.api));
+                const promises = this.apigroups.map(group => xanoApi.fetchApiGroupSpec(group.api));
                 this.apiSpec = (await Promise.all(promises)).filter(group => !!group);
             } catch (err) {
                 wwLib.wwLog.error(err);
