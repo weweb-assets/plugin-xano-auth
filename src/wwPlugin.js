@@ -50,7 +50,7 @@ export default {
         await this.api.init();
         this.isReady = true;
     },
-    async createApi(settings) {
+    createApi(settings) {
         const xanoApi = settings.privateData.metaApiKey ? MetaApi : DevApi;
         return new xanoApi(
             settings.privateData.apiKey,
