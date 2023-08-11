@@ -12,6 +12,7 @@
                     name="api-key"
                     placeholder="ey**************"
                     :model-value="settings.privateData.apiKey"
+                    @update:modelValue="changeApiKey"
                     class="w-full mr-2"
                     :disabled="settings.privateData.metaApiKey"
                 />
@@ -29,13 +30,13 @@
             <div class="flex items-center">
                 <wwEditorInputText
                     :type="isKeyVisible ? 'text' : 'password'"
-                    name="api-key"
+                    name="meta-api-key"
                     placeholder="ey**************"
                     :model-value="settings.privateData.metaApiKey"
-                    @update:modelValue="changeApiKey"
+                    @update:modelValue="changeMetaApiKey"
                     class="w-full mr-3"
                 />
-                <button class="pointer" @click.prevent="isKeyVisible = !isKeyVisible">
+                <button class="ww-editor-button -icon -secondary -dark" @click.prevent="isKeyVisible = !isKeyVisible">
                     <wwEditorIcon :name="isKeyVisible ? 'eye-off' : 'eye'"></wwEditorIcon>
                 </button>
             </div>
@@ -183,6 +184,16 @@ export default {
             this.$emit('update:settings', {
                 ...this.settings,
                 privateData: { ...this.settings.privateData, apiKey },
+            });
+            this.isLoading = false;
+        },
+        async changeMetaApiKey(metaApiKey) {
+            this.isLoading = true;
+            await xanoApi.changeApiKey(apiKey);
+            this.sync();
+            this.$emit('update:settings', {
+                ...this.settings,
+                privateData: { ...this.settings.privateData, metaApiKey },
             });
             this.isLoading = false;
         },
