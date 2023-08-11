@@ -164,7 +164,7 @@ export default {
         },
     },
     async mounted() {
-        this.useMetaApi = !!this.settings.privateData.metaApiKey;
+        this.useMetaApi = !this.settings.privateData.apiKey;
         this.initApi(this.settings);
     },
     methods: {
