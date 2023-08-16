@@ -159,13 +159,27 @@ export default {
         async 'settings.privateData.metaApiKey'(value) {
             this.isLoading = true;
             if (this.useMetaApi) {
-                await xanoManager.changeApiKey(apiKey);
+                await xanoManager.changeApiKey(value);
                 await this.sync();
             } else {
                 await this.initManager();
                 this.useMetaApi = true;
             }
             this.isLoading = false;
+        },
+        async 'settings.privateData.workspaceId'(value) {
+            this.loadApiSpec();
+            if (!value) {
+                this.$emit('update:settings', {
+                    ...this.settings,
+                    publicData: {
+                        ...this.settings.publicData,
+                        loginEndpoint: null,
+                        getMeEndpoint: null,
+                        signupEndpoint: null,
+                    },
+                });
+            }
         },
     },
     async mounted() {
@@ -178,13 +192,12 @@ export default {
             this.isLoading = true;
             xanoManager = this.plugin.createManager(this.settings);
             await xanoManager.init();
+            await this.loadApiSpec();
             await this.sync();
             this.isLoading = false;
         },
         async sync() {
             this.isLoading = true;
-            const workspaceChanged = xanoManager.getWorkspace()?.id !== this.settings.publicData.workspaceId;
-            workspaceChanged && (await this.loadApiSpec());
 
             this.instances = xanoManager.getInstances();
             this.workspaces = xanoManager.getWorkspaces();
@@ -200,11 +213,9 @@ export default {
                     ...this.settings.publicData,
                     domain: xanoManager.getBaseDomain(),
                     customDomain: xanoManager.getCustomDomain() || this.settings.publicData.customDomain,
-                    loginEndpoint: xanoManager.fixUrl(workspaceChanged ? null : this.settings.publicData.loginEndpoint),
-                    getMeEndpoint: xanoManager.fixUrl(workspaceChanged ? null : this.settings.publicData.getMeEndpoint),
-                    signupEndpoint: xanoManager.fixUrl(
-                        workspaceChanged ? null : this.settings.publicData.signupEndpoint
-                    ),
+                    loginEndpoint: xanoManager.fixUrl(this.settings.publicData.loginEndpoint),
+                    getMeEndpoint: xanoManager.fixUrl(this.settings.publicData.getMeEndpoint),
+                    signupEndpoint: xanoManager.fixUrl(this.settings.publicData.signupEndpoint),
                 },
             });
 
