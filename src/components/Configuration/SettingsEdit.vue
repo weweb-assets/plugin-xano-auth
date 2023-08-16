@@ -34,7 +34,7 @@
                     placeholder="ey**************"
                     :model-value="settings.privateData.metaApiKey"
                     @update:modelValue="changeMetaApiKey"
-                    class="w-full mr-3"
+                    class="w-full mr-2"
                 />
                 <button class="ww-editor-button -icon -secondary -dark" @click.prevent="isKeyVisible = !isKeyVisible">
                     <wwEditorIcon :name="isKeyVisible ? 'eye-off' : 'eye'"></wwEditorIcon>
@@ -160,7 +160,7 @@ export default {
             this.isLoading = true;
             if (this.useMetaApi) {
                 await xanoManager.changeApiKey(value);
-                await this.sync();
+                this.sync();
             } else {
                 await this.initManager();
                 this.useMetaApi = true;
@@ -193,12 +193,10 @@ export default {
             xanoManager = this.plugin.createManager(this.settings);
             await xanoManager.init();
             await this.loadApiSpec();
-            await this.sync();
+            this.sync();
             this.isLoading = false;
         },
-        async sync() {
-            this.isLoading = true;
-
+        sync() {
             this.instances = xanoManager.getInstances();
             this.workspaces = xanoManager.getWorkspaces();
             this.defaultDomain = xanoManager.getBaseDomain();
@@ -218,8 +216,6 @@ export default {
                     signupEndpoint: xanoManager.fixUrl(this.settings.publicData.signupEndpoint),
                 },
             });
-
-            this.isLoading = false;
         },
         async changeApiKey(apiKey) {
             this.isLoading = true;
@@ -229,7 +225,7 @@ export default {
             });
 
             await xanoManager.changeApiKey(apiKey);
-            await this.sync();
+            this.sync();
 
             this.isLoading = false;
         },
@@ -242,13 +238,13 @@ export default {
         async changeInstance(instanceId) {
             this.isLoading = true;
             await xanoManager.changeInstance(instanceId);
-            await this.sync();
+            this.sync();
             this.isLoading = false;
         },
         async changeWorkspace(value) {
             this.isLoading = true;
             await xanoManager.changeWorkspace(value);
-            await this.sync();
+            this.sync();
             this.isLoading = false;
         },
         setCustomDomain(value) {

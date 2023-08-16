@@ -53,7 +53,7 @@ export default {
     createManager(settings) {
         const XanoManager = settings.privateData.metaApiKey ? MetaApi : DevApi;
         return new XanoManager(
-            settings.privateData.apiKey,
+            settings.privateData.metaApiKey || settings.privateData.apiKey,
             settings.privateData.instanceId,
             settings.privateData.workspaceId
         );
