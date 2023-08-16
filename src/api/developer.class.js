@@ -118,7 +118,7 @@ export default class {
     async changeInstance(instanceId) {
         this.#instanceId = instanceId;
         await this.#loadWorkspaces();
-        if (!this.getWorkspaces()) {
+        if (!this.getWorkspace()) {
             await this.changeWorkspace(null);
         }
     }
