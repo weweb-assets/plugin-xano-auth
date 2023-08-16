@@ -43,7 +43,8 @@ export default class {
 
         // Avoid to fetch again using the same tokenUrl
         if (this.#workspacesCache[instance.id]) {
-            return this.#workspacesCache[instance.id];
+            this.#workspaces = this.#workspacesCache[instance.id];
+            return;
         }
 
         const {
