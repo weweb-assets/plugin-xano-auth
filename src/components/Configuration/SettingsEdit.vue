@@ -1,6 +1,6 @@
 <template>
     <div class="xano-auth-settings-edit">
-        <wwEditorFormRow required label="Developer API key" v-if="deprecated">
+        <wwEditorFormRow required label="Developer API key (Deprecated)" v-if="deprecated">
             <template #append-label>
                 <a class="xano-auth-settings-edit__link" href="https://docs.xano.com/developer-api" target="_blank">
                     Find it here
