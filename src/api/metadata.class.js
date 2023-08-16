@@ -41,7 +41,7 @@ export default class {
 
         if (!instance) return;
 
-        const { data: workspaces } = await axios.get(`${instance.baseDomain}/api:meta/workspace`, {
+        const { data: workspaces } = await axios.get(`https://${instance.baseDomain}/api:meta/workspace`, {
             headers: { Authorization: `Bearer ${this.#apiKey}` },
         });
 
@@ -53,7 +53,7 @@ export default class {
         const workspace = this.getWorkspace();
         if (!instance || !workspace) return;
         const { data: apigroups } = await axios.get(
-            `${instance.baseDomain}/api:meta/workspace/${workspace.id}/apigroup`,
+            `https://${instance.baseDomain}/api:meta/workspace/${workspace.id}/apigroup`,
             {
                 headers: { Authorization: `Bearer ${this.#apiKey}` },
             }
@@ -66,8 +66,8 @@ export default class {
      */
     getInstances() {
         return this.#instances.map(instance => ({
-            id: instance.id,
-            name: instance.name,
+            id: instance.name,
+            name: instance.display,
             baseDomain: instance.xano_domain,
             customDomain: instance.custom_domain,
         }));

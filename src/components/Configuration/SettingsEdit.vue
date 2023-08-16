@@ -51,18 +51,20 @@
             label="Instance"
             @update:modelValue="changeInstance"
         />
-        <wwEditorInputRow
-            type="query"
-            :placeholder="'Default: ' + defaultDomain"
-            :model-value="settings.publicData.customDomain"
-            :disabled="!settings.privateData.instanceId"
-            label="Instance domain"
-            @update:modelValue="setCustomDomain"
-        />
-        <p v-if="incorrectCustomDomain" class="label-sm flex items-center text-red-500 mb-3">
-            <wwEditorIcon class="mr-1" name="warning" small />
-            The custom domain must not include the protocol (http(s)://)
-        </p>
+        <template v-if="settings.privateData.instanceId">
+            <wwEditorInputRow
+                type="query"
+                :placeholder="'Default: ' + defaultDomain"
+                :model-value="settings.publicData.customDomain"
+                :disabled="!settings.privateData.instanceId"
+                label="Instance domain"
+                @update:modelValue="setCustomDomain"
+            />
+            <p v-if="incorrectCustomDomain" class="label-sm flex items-center text-red-500 mb-3">
+                <wwEditorIcon class="mr-1" name="warning" small />
+                The custom domain must not include the protocol (http(s)://)
+            </p>
+        </template>
         <wwEditorInputRow
             label="Workspace"
             type="select"
