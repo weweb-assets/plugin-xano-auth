@@ -38,27 +38,40 @@ export default class {
         if (!this.#apiKey || !this.#instanceId || !this.#instances.length) return;
 
         const instance = this.getInstance();
-
         if (!instance) return;
 
-        const { data: workspaces } = await axios.get(`https://${instance.baseDomain}/api:meta/workspace`, {
-            headers: { Authorization: `Bearer ${this.#apiKey}` },
-        });
-
-        this.#workspaces = workspaces;
+        try {
+            const { data: workspaces } = await axios.get(`https://${instance.baseDomain}/api:meta/workspace`, {
+                headers: { Authorization: `Bearer ${this.#apiKey}` },
+            });
+            this.#workspaces = workspaces;
+        } catch (error) {
+            if (error && error.response && error.response.status === 429) {
+                await this.waitRateLimit();
+                return this.#loadWorkspaces();
+            }
+        }
     }
     async #loadApiGroups() {
         this.#apiGroups = [];
         const instance = this.getInstance();
         const workspace = this.getWorkspace();
         if (!instance || !workspace) return;
-        const { data: apigroups } = await axios.get(
-            `https://${instance.baseDomain}/api:meta/workspace/${workspace.id}/apigroup`,
-            {
-                headers: { Authorization: `Bearer ${this.#apiKey}` },
+
+        try {
+            const { data } = await axios.get(
+                `https://${instance.baseDomain}/api:meta/workspace/${workspace.id}/apigroup`,
+                {
+                    headers: { Authorization: `Bearer ${this.#apiKey}` },
+                }
+            );
+            this.#apiGroups = data.items;
+        } catch (error) {
+            if (error && error.response && error.response.status === 429) {
+                await this.waitRateLimit();
+                return this.#loadApiGroups();
             }
-        );
-        this.#apiGroups = apigroups;
+        }
     }
 
     /**
@@ -132,30 +145,14 @@ export default class {
         if (!apiGroupUrl) return;
         const specUrl = apiGroupUrl.replace('/api:', '/apispec:') + '?type=json';
         try {
-            if (this.#rateLimit) {
-                return new Promise(resolve => {
-                    setTimeout(async () => {
-                        this.#rateLimit = false;
-                        resolve(await this.fetchApiGroupSpec(apiGroupUrl));
-                    }, 20000);
-                });
-            }
             const { data } = await axios.get(specUrl, {
                 headers: { Authorization: `Bearer ${this.#apiKey}` },
             });
-            this.#rateLimit = false;
             return data;
         } catch (error) {
             wwLib.wwLog.error(error);
             if (error && error.response && error.response.status === 429) {
-                wwLib.wwNotification.open({
-                    text: {
-                        en: 'Your xano plan only support 10 requests per 20 seconds, please wait ...',
-                    },
-                    color: 'yellow',
-                    duration: '20000',
-                });
-                this.#rateLimit = true;
+                await this.waitRateLimit();
                 return this.fetchApiGroupSpec(apiGroupUrl);
             }
             if (error && error.response && error.response.status === 404) {
@@ -190,5 +187,20 @@ export default class {
         _url.hostname = this.getBaseDomain() || _url.hostname;
 
         return _url.href;
+    }
+
+    waitRateLimit() {
+        wwLib.wwNotification.open({
+            text: {
+                en: 'Your xano plan only support 10 requests per 20 seconds, please wait ...',
+            },
+            color: 'yellow',
+            duration: '20000',
+        });
+        return new Promise(resolve => {
+            setTimeout(async () => {
+                resolve();
+            }, 20000);
+        });
     }
 }

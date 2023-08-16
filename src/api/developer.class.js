@@ -137,30 +137,14 @@ export default class {
         if (!apiGroupUrl) return;
         const specUrl = apiGroupUrl.replace('/api:', '/apispec:') + '?type=json';
         try {
-            if (this.#rateLimit) {
-                return new Promise(resolve => {
-                    setTimeout(async () => {
-                        this.#rateLimit = false;
-                        resolve(await this.fetchApiGroupSpec(apiGroupUrl));
-                    }, 20000);
-                });
-            }
             const { data } = await axios.get(specUrl, {
                 headers: { Authorization: `Bearer ${this.#apiKey}` },
             });
-            this.#rateLimit = false;
             return data;
         } catch (error) {
             wwLib.wwLog.error(error);
             if (error && error.response && error.response.status === 429) {
-                wwLib.wwNotification.open({
-                    text: {
-                        en: 'Your xano plan only support 10 requests per 20 seconds, please wait ...',
-                    },
-                    color: 'yellow',
-                    duration: '20000',
-                });
-                this.#rateLimit = true;
+                await this.waitRateLimit();
                 return this.fetchApiGroupSpec(apiGroupUrl);
             }
             if (error && error.response && error.response.status === 404) {
@@ -195,5 +179,20 @@ export default class {
         _url.hostname = this.getBaseDomain() || _url.hostname;
 
         return _url.href;
+    }
+
+    waitRateLimit() {
+        wwLib.wwNotification.open({
+            text: {
+                en: 'Your xano plan only support 10 requests per 20 seconds, please wait ...',
+            },
+            color: 'yellow',
+            duration: '20000',
+        });
+        return new Promise(resolve => {
+            setTimeout(async () => {
+                resolve();
+            }, 20000);
+        });
     }
 }
