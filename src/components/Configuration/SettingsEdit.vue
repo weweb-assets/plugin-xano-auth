@@ -279,8 +279,7 @@ export default {
             this.apiSpec = [];
             try {
                 this.isLoading = true;
-                const promises = xanoManager.getApiGroups().map(group => xanoManager.fetchApiGroupSpec(group.api));
-                this.apiSpec = (await Promise.all(promises)).filter(group => !!group);
+                this.apiSpec = await xanoManager.fetchFullSpec();
             } catch (err) {
                 wwLib.wwLog.error(err);
             } finally {

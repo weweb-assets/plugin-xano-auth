@@ -1,4 +1,6 @@
 export default class {
+    #rateLimit = false;
+
     #apiKey = null;
     #instanceId = null;
     #workspaceId = null;
@@ -130,19 +132,31 @@ export default class {
         if (!apiGroupUrl) return;
         const specUrl = apiGroupUrl.replace('/api:', '/apispec:') + '?type=json';
         try {
-            const { data } = await axios.get(specUrl);
-
+            if (this.#rateLimit) {
+                return new Promise(resolve => {
+                    setTimeout(async () => {
+                        this.#rateLimit = false;
+                        resolve(await this.fetchApiGroupSpec(apiGroupUrl));
+                    }, 20000);
+                });
+            }
+            const { data } = await axios.get(specUrl, {
+                headers: { Authorization: `Bearer ${this.#apiKey}` },
+            });
+            this.#rateLimit = false;
             return data;
         } catch (error) {
             wwLib.wwLog.error(error);
             if (error && error.response && error.response.status === 429) {
                 wwLib.wwNotification.open({
                     text: {
-                        en: 'Your xano plan only support 10 requetes per 20 seconds, please wait and retry.',
+                        en: 'Your xano plan only support 10 requests per 20 seconds, please wait ...',
                     },
-                    color: 'red',
-                    duration: '5000',
+                    color: 'yellow',
+                    duration: '20000',
                 });
+                this.#rateLimit = true;
+                return this.fetchApiGroupSpec(apiGroupUrl);
             }
             if (error && error.response && error.response.status === 404) {
                 wwLib.wwNotification.open({
@@ -155,6 +169,19 @@ export default class {
             }
             return null;
         }
+    }
+
+    async fetchFullSpec() {
+        const groups = this.getApiGroups();
+        const chunks = Array.from({ length: Math.ceil(groups.length / 10) }, (v, i) =>
+            groups.slice(i * 10, i * 10 + 10)
+        );
+        const spec = [];
+        for (const chunk of chunks) {
+            const promises = chunk.map(group => this.fetchApiGroupSpec(group.api));
+            spec.push(...(await Promise.all(promises)));
+        }
+        return spec.filter(group => !!group);
     }
 
     fixUrl(url) {
