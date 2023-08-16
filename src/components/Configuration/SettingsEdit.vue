@@ -111,7 +111,7 @@
 </template>
 
 <script>
-let xanoApi = null;
+let xanoManager = null;
 export default {
     props: {
         plugin: { type: Object, required: true },
@@ -159,10 +159,10 @@ export default {
         async 'settings.privateData.metaApiKey'(value) {
             this.isLoading = true;
             if (this.useMetaApi) {
-                await xanoApi.changeApiKey(apiKey);
+                await xanoManager.changeApiKey(apiKey);
                 await this.sync();
             } else {
-                await this.initApi();
+                await this.initManager();
                 this.useMetaApi = true;
             }
             this.isLoading = false;
@@ -171,35 +171,35 @@ export default {
     async mounted() {
         this.deprecated = !!this.settings.privateData.apiKey;
         this.useMetaApi = !!this.settings.privateData.metaApiKey;
-        this.initApi();
+        this.initManager();
     },
     methods: {
-        async initApi() {
+        async initManager() {
             this.isLoading = true;
-            xanoApi = this.plugin.createApi(settings);
-            await xanoApi.init();
+            xanoManager = this.plugin.createManager(this.settings);
+            await xanoManager.init();
             await this.sync();
             this.isLoading = false;
         },
         async sync() {
             this.isLoading = true;
-            const workspaceChanged = xanoApi.getWorkspace()?.id !== this.settings.publicData.workspaceId;
+            const workspaceChanged = xanoManager.getWorkspace()?.id !== this.settings.publicData.workspaceId;
             workspaceChanged && (await this.loadApiSpec());
 
-            this.instances = xanoApi.getInstances();
-            this.workspaces = xanoApi.getWorkspaces();
-            this.defaultDomain = xanoApi.getBaseDomain();
+            this.instances = xanoManager.getInstances();
+            this.workspaces = xanoManager.getWorkspaces();
+            this.defaultDomain = xanoManager.getBaseDomain();
             this.$emit('update:settings', {
                 ...this.settings,
                 privateData: {
                     ...this.settings.privateData,
-                    instanceId: xanoApi.getInstance()?.id,
-                    workspaceId: xanoApi.getWorkspace()?.id,
+                    instanceId: xanoManager.getInstance()?.id,
+                    workspaceId: xanoManager.getWorkspace()?.id,
                 },
                 publicData: {
                     ...this.settings.publicData,
-                    domain: xanoApi.getBaseDomain(),
-                    customDomain: xanoApi.getCustomDomain() || this.settings.publicData.customDomain,
+                    domain: xanoManager.getBaseDomain(),
+                    customDomain: xanoManager.getCustomDomain() || this.settings.publicData.customDomain,
                     loginEndpoint: xanoAPi.fixUrl(workspaceChanged ? null : this.settings.publicData.loginEndpoint),
                     getMeEndpoint: xanoAPi.fixUrl(workspaceChanged ? null : this.settings.publicData.getMeEndpoint),
                     signupEndpoint: xanoAPi.fixUrl(workspaceChanged ? null : this.settings.publicData.signupEndpoint),
@@ -215,7 +215,7 @@ export default {
                 privateData: { ...this.settings.privateData, apiKey },
             });
 
-            await xanoApi.changeApiKey(apiKey);
+            await xanoManager.changeApiKey(apiKey);
             await this.sync();
 
             this.isLoading = false;
@@ -228,13 +228,13 @@ export default {
         },
         async changeInstance(instanceId) {
             this.isLoading = true;
-            await xanoApi.changeInstance(instanceId);
+            await xanoManager.changeInstance(instanceId);
             await this.sync();
             this.isLoading = false;
         },
         async changeWorkspace(value) {
             this.isLoading = true;
-            await xanoApi.changeWorkspace(value);
+            await xanoManager.changeWorkspace(value);
             await this.sync();
             this.isLoading = false;
         },
@@ -266,7 +266,7 @@ export default {
             this.apiSpec = [];
             try {
                 this.isLoading = true;
-                const promises = xanoApi.getApiGroups().map(group => xanoApi.fetchApiGroupSpec(group.api));
+                const promises = xanoManager.getApiGroups().map(group => xanoManager.fetchApiGroupSpec(group.api));
                 this.apiSpec = (await Promise.all(promises)).filter(group => !!group);
             } catch (err) {
                 wwLib.wwLog.error(err);
