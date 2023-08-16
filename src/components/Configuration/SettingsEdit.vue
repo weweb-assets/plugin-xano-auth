@@ -200,9 +200,11 @@ export default {
                     ...this.settings.publicData,
                     domain: xanoManager.getBaseDomain(),
                     customDomain: xanoManager.getCustomDomain() || this.settings.publicData.customDomain,
-                    loginEndpoint: xanoAPi.fixUrl(workspaceChanged ? null : this.settings.publicData.loginEndpoint),
-                    getMeEndpoint: xanoAPi.fixUrl(workspaceChanged ? null : this.settings.publicData.getMeEndpoint),
-                    signupEndpoint: xanoAPi.fixUrl(workspaceChanged ? null : this.settings.publicData.signupEndpoint),
+                    loginEndpoint: xanoManager.fixUrl(workspaceChanged ? null : this.settings.publicData.loginEndpoint),
+                    getMeEndpoint: xanoManager.fixUrl(workspaceChanged ? null : this.settings.publicData.getMeEndpoint),
+                    signupEndpoint: xanoManager.fixUrl(
+                        workspaceChanged ? null : this.settings.publicData.signupEndpoint
+                    ),
                 },
             });
 
