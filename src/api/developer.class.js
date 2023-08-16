@@ -187,12 +187,12 @@ export default class {
                 en: 'Your xano plan only support 10 requests per 20 seconds, please wait ...',
             },
             color: 'yellow',
-            duration: '20000',
+            duration: '5000',
         });
         return new Promise(resolve => {
             setTimeout(async () => {
                 resolve();
-            }, 20000);
+            }, 5000);
         });
     }
 }
