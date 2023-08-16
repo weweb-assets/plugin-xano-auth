@@ -1,6 +1,6 @@
 <template>
     <div class="xano-auth-settings-edit">
-        <wwEditorFormRow required label="Developer API key" v-if="!useMetaApi">
+        <wwEditorFormRow required label="Developer API key" v-if="deprecated">
             <template #append-label>
                 <a class="xano-auth-settings-edit__link" href="https://docs.xano.com/developer-api" target="_blank">
                     Find it here
@@ -79,7 +79,7 @@
             full
             placeholder="Select an endpoint"
             required
-            :model-value="getMeEndpoint"
+            :model-value="settings.publicData.getMeEndpoint"
             :disabled="!settings.privateData.workspaceId"
             :options="endpointsOptions.filter(endpoint => endpoint.label.startsWith('GET'))"
             @update:modelValue="setGetMeEndpoint"
@@ -90,7 +90,7 @@
             full
             placeholder="Select an endpoint"
             required
-            :model-value="loginEndpoint"
+            :model-value="settings.publicData.loginEndpoint"
             :disabled="!settings.privateData.workspaceId"
             :options="endpointsOptions.filter(endpoint => endpoint.label.startsWith('POST'))"
             @update:modelValue="setLoginEndpoint"
@@ -101,7 +101,7 @@
             full
             placeholder="Select an endpoint"
             required
-            :model-value="signupEndpoint"
+            :model-value="settings.publicData.signupEndpoint"
             :disabled="!settings.privateData.workspaceId"
             :options="endpointsOptions.filter(endpoint => endpoint.label.startsWith('POST'))"
             @update:modelValue="setSignupEndpoint"
@@ -120,6 +120,7 @@ export default {
     emits: ['update:settings'],
     data() {
         return {
+            deprecated: false,
             useMetaApi: false,
             isKeyVisible: false,
             isLoading: false,
@@ -130,15 +131,6 @@ export default {
         };
     },
     computed: {
-        getMeEndpoint() {
-            return this.plugin.resolveUrl(this.settings.publicData.getMeEndpoint);
-        },
-        loginEndpoint() {
-            return this.plugin.resolveUrl(this.settings.publicData.loginEndpoint);
-        },
-        signupEndpoint() {
-            return this.plugin.resolveUrl(this.settings.publicData.signupEndpoint);
-        },
         instancesOptions() {
             return this.instances.map(instance => ({ label: instance.name, value: String(instance.id) }));
         },
@@ -152,7 +144,7 @@ export default {
                         .map(path =>
                             Object.keys(group.paths[path]).map(method => ({
                                 label: `${method.toUpperCase()} ${path}`,
-                                value: this.plugin.resolveUrl(group.servers[0].url + path),
+                                value: group.servers[0].url + path,
                             }))
                         )
                         .flat()
@@ -163,12 +155,26 @@ export default {
             return (this.settings.publicData.customDomain || '').includes('http');
         },
     },
+    watch: {
+        async 'settings.privateData.metaApiKey'(value) {
+            this.isLoading = true;
+            if (this.useMetaApi) {
+                await xanoApi.changeApiKey(apiKey);
+                await this.sync();
+            } else {
+                await this.initApi();
+                this.useMetaApi = true;
+            }
+            this.isLoading = false;
+        },
+    },
     async mounted() {
-        this.useMetaApi = !this.settings.privateData.apiKey;
-        this.initApi(this.settings);
+        this.deprecated = !!this.settings.privateData.apiKey;
+        this.useMetaApi = !!this.settings.privateData.metaApiKey;
+        this.initApi();
     },
     methods: {
-        async initApi(settings) {
+        async initApi() {
             this.isLoading = true;
             xanoApi = this.plugin.createApi(settings);
             await xanoApi.init();
@@ -177,79 +183,59 @@ export default {
         },
         async sync() {
             this.isLoading = true;
-            await this.loadApiSpec();
+            const workspaceChanged = xanoApi.getWorkspace()?.id !== this.settings.publicData.workspaceId;
+            workspaceChanged && (await this.loadApiSpec());
+
             this.instances = xanoApi.getInstances();
             this.workspaces = xanoApi.getWorkspaces();
             this.defaultDomain = xanoApi.getBaseDomain();
-            this.isLoading = false;
-        },
-        async changeApiKey(apiKey) {
-            this.isLoading = true;
-            await xanoApi.changeApiKey(apiKey);
-            await this.sync();
-            this.$emit('update:settings', {
-                ...this.settings,
-                privateData: { ...this.settings.privateData, apiKey },
-            });
-            this.isLoading = false;
-        },
-        async changeMetaApiKey(metaApiKey) {
-            this.isLoading = true;
-            const newSettings = {
-                ...this.settings,
-                privateData: { ...this.settings.privateData, apiKey: null, metaApiKey },
-            };
-
-            if (!this.useMetaApi) {
-                await this.initApi(newSettings);
-                this.useMetaApi = true;
-            } else {
-                await xanoApi.changeApiKey(apiKey);
-                await this.sync();
-            }
-
-            this.$emit('update:settings', newSettings);
-            this.isLoading = false;
-        },
-        async changeInstance(instanceId) {
-            this.isLoading = true;
-            await xanoApi.changeInstance(instanceId);
-            await this.sync();
             this.$emit('update:settings', {
                 ...this.settings,
                 privateData: {
                     ...this.settings.privateData,
-                    instanceId,
-                    workspaceId: null,
+                    instanceId: xanoApi.getInstance()?.id,
+                    workspaceId: xanoApi.getWorkspace()?.id,
                 },
                 publicData: {
                     ...this.settings.publicData,
                     domain: xanoApi.getBaseDomain(),
                     customDomain: xanoApi.getCustomDomain() || this.settings.publicData.customDomain,
-                    loginEndpoint: null,
-                    getMeEndpoint: null,
-                    signupEndpoint: null,
+                    loginEndpoint: xanoAPi.fixUrl(workspaceChanged ? null : this.settings.publicData.loginEndpoint),
+                    getMeEndpoint: xanoAPi.fixUrl(workspaceChanged ? null : this.settings.publicData.getMeEndpoint),
+                    signupEndpoint: xanoAPi.fixUrl(workspaceChanged ? null : this.settings.publicData.signupEndpoint),
                 },
             });
+
+            this.isLoading = false;
+        },
+        async changeApiKey(apiKey) {
+            this.isLoading = true;
+            this.$emit('update:settings', {
+                ...this.settings,
+                privateData: { ...this.settings.privateData, apiKey },
+            });
+
+            await xanoApi.changeApiKey(apiKey);
+            await this.sync();
+
+            this.isLoading = false;
+        },
+        async changeMetaApiKey(metaApiKey) {
+            this.$emit('update:settings', {
+                ...this.settings,
+                privateData: { ...this.settings.privateData, apiKey: null, metaApiKey },
+            });
+        },
+        async changeInstance(instanceId) {
+            this.isLoading = true;
+            await xanoApi.changeInstance(instanceId);
+            await this.sync();
             this.isLoading = false;
         },
         async changeWorkspace(value) {
             this.isLoading = true;
             await xanoApi.changeWorkspace(value);
             await this.sync();
-            this.$emit('update:settings', {
-                ...this.settings,
-                privateData: {
-                    ...this.settings.privateData,
-                    workspaceId: value,
-                },
-                publicData: {
-                    ...this.settings.publicData,
-                    loginEndpoint: null,
-                    getMeEndpoint: null,
-                    signupEndpoint: null,
-                },
-            });
             this.isLoading = false;
         },
         setCustomDomain(value) {

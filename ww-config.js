@@ -19,7 +19,7 @@ export default {
                         !customDomain.includes('http')
                     );
                 },
-                onSave: 'initApi',
+                onSave: 'initManager',
             },
             {
                 label: 'Data Source',

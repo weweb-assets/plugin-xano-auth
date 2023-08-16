@@ -51,7 +51,7 @@ export default {
         async loadProviders() {
             try {
                 this.isLoading = true;
-                const socialProviders = await this.plugin.api.getSocialProviders();
+                const socialProviders = await this.plugin.xanoManager.getSocialProviders();
                 this.$emit('update:settings', {
                     ...this.settings,
                     publicData: {

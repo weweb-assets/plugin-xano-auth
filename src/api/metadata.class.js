@@ -109,16 +109,14 @@ export default class {
         await this.#loadInstances();
         if (!this.getInstance()) {
             await this.changeInstance(null);
-        } else {
-            await this.#loadWorkspaces();
-            if (!this.getWorkspaces()) {
-                await this.changeWorkspace(null);
-            }
         }
     }
     async changeInstance(instanceId) {
         this.#instanceId = instanceId;
         await this.#loadWorkspaces();
+        if (!this.getWorkspaces()) {
+            await this.changeWorkspace(null);
+        }
     }
     async changeWorkspace(workspaceId) {
         this.#workspaceId = workspaceId;
@@ -132,9 +130,7 @@ export default class {
         if (!apiGroupUrl) return;
         const specUrl = apiGroupUrl.replace('/api:', '/apispec:') + '?type=json';
         try {
-            const { data } = await axios.get(specUrl, {
-                headers: { Authorization: `Bearer ${this.#apiKey}` },
-            });
+            const { data } = await axios.get(specUrl);
 
             return data;
         } catch (error) {
@@ -159,5 +155,13 @@ export default class {
             }
             return null;
         }
+    }
+
+    fixUrl(url) {
+        if (!url) return null;
+        const _url = new URL(url);
+        _url.hostname = this.getBaseDomain() || _url.hostname;
+
+        return _url.href;
     }
 }

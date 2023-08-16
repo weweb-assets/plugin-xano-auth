@@ -26,13 +26,13 @@ const PENDING_PROVIDER_LOGIN = 'ww-auth-xano-provider-login';
 
 export default {
     isReady: false,
-    api: null,
+    xanoManager: null,
     /*=============================================m_ÔÔ_m=============================================\
         Plugin API
     \================================================================================================*/
     async onLoad(settings) {
         /* wwEditor:start */
-        await this.initApi(settings);
+        await this.initManager(settings);
         /* wwEditor:end */
         const pendingLogin = window.vm.config.globalProperties.$cookie.getCookie(PENDING_PROVIDER_LOGIN);
         const accessToken = window.vm.config.globalProperties.$cookie.getCookie(ACCESS_COOKIE_NAME);
@@ -44,15 +44,15 @@ export default {
         Editor API
     \================================================================================================*/
     /* wwEditor:start */
-    async initApi(settings) {
+    async initManager(settings) {
         this.isReady = false;
-        this.api = this.createApi(settings);
-        await this.api.init();
+        this.xanoManager = this.createManager(settings);
+        await this.xanoManager.init();
         this.isReady = true;
     },
-    createApi(settings) {
-        const xanoApi = settings.privateData.metaApiKey ? MetaApi : DevApi;
-        return new xanoApi(
+    createManager(settings) {
+        const XanoManager = settings.privateData.metaApiKey ? MetaApi : DevApi;
+        return new XanoManager(
             settings.privateData.apiKey,
             settings.privateData.instanceId,
             settings.privateData.workspaceId
@@ -200,7 +200,6 @@ export default {
         config.url = this.resolveUrl(to);
         return axios(config);
     },
-    // Ensure everything use the right base domain
     resolveUrl(url) {
         if (!url) return null;
         const _url = new URL(url);
