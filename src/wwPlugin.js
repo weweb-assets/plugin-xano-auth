@@ -3,8 +3,6 @@ import './components/Configuration/SettingsEdit.vue';
 import './components/Configuration/SettingsSummary.vue';
 import './components/Redirections/SettingsEdit.vue';
 import './components/Redirections/SettingsSummary.vue';
-import './components/Social/SettingsEdit.vue';
-import './components/Social/SettingsSummary.vue';
 import './components/DataSource/SettingsEdit.vue';
 import './components/DataSource/SettingsSummary.vue';
 import './components/Branching/SettingsEdit.vue';
@@ -17,27 +15,21 @@ import './components/Functions/LoginProvider.vue';
 import './components/Functions/StoreAuthToken.vue';
 import './components/Functions/FetchUser.vue';
 
-import developerApi from './api/developer.api';
+import DevApi from './api/developer.class';
+import MetaApi from './api/metadata.class';
 /* wwEditor:end */
 
 const ACCESS_COOKIE_NAME = 'ww-auth-access-token';
 const PENDING_PROVIDER_LOGIN = 'ww-auth-xano-provider-login';
 
 export default {
-    isReady: false,
-    api: null,
+    xanoManager: null,
     /*=============================================m_ÔÔ_m=============================================\
         Plugin API
     \================================================================================================*/
     async onLoad(settings) {
         /* wwEditor:start */
-        this.api = developerApi;
-        await this.api.init(
-            settings.privateData.apiKey,
-            settings.privateData.instanceId,
-            settings.privateData.workspaceId
-        );
-        this.isReady = true;
+        await this.initManager(settings);
         /* wwEditor:end */
         const pendingLogin = window.vm.config.globalProperties.$cookie.getCookie(PENDING_PROVIDER_LOGIN);
         const accessToken = window.vm.config.globalProperties.$cookie.getCookie(ACCESS_COOKIE_NAME);
@@ -49,6 +41,18 @@ export default {
         Editor API
     \================================================================================================*/
     /* wwEditor:start */
+    async initManager(settings) {
+        this.xanoManager = this.createManager(settings);
+        await this.xanoManager.init();
+    },
+    createManager(settings) {
+        const XanoManager = settings.privateData.metaApiKey ? MetaApi : DevApi;
+        return new XanoManager(
+            settings.privateData.metaApiKey || settings.privateData.apiKey,
+            settings.privateData.instanceId,
+            settings.privateData.workspaceId
+        );
+    },
     /* wwEditor:end */
     /*=============================================m_ÔÔ_m=============================================\
         Xano Auth API
@@ -191,7 +195,6 @@ export default {
         config.url = this.resolveUrl(to);
         return axios(config);
     },
-    // Ensure everything use the right base domain
     resolveUrl(url) {
         if (!url) return null;
         const _url = new URL(url);
