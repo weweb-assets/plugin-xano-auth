@@ -154,8 +154,8 @@ export default {
         },
         socialProviders() {
             return Object.values(this.settings.publicData.socialProviders || {})
-                .map(provider => provider.name)
-                .join();
+                .map(provider => provider.name.replace('-oauth', '').toUpperCase())
+                .join(', ');
         },
         endpointsOptions() {
             return this.apiSpec
