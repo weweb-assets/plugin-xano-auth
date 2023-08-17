@@ -56,7 +56,7 @@ export default {
             this.instanceName = this.plugin.xanoManager.getInstance()?.name;
             this.workspaceName = this.plugin.xanoManager.getWorkspace()?.name;
             this.socialProviders = Object.values(this.settings.publicData.socialProviders || {})
-                .map(provider => provider.name.replace('-oauth', '').toUpperCase())
+                .map(provider => provider.name.replace('-oauth', ''))
                 .join(', ');
             this.isLoading = false;
         });
