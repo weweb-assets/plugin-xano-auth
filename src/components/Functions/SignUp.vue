@@ -77,17 +77,8 @@ export default {
         };
     },
     mounted() {
-        if (!this.plugin.isReady) {
-            this.isLoading = true;
-            const wait = setInterval(() => {
-                if (this.plugin.isReady) {
-                    this.refreshApiGroup();
-                    clearInterval(wait);
-                }
-            }, 1000);
-        } else {
-            this.refreshApiGroup();
-        }
+        this.isLoading = true;
+        this.plugin.xanoManager.onReady(this.refreshApiGroup);
     },
     computed: {
         apiGroupUrl() {

@@ -25,7 +25,6 @@ const ACCESS_COOKIE_NAME = 'ww-auth-access-token';
 const PENDING_PROVIDER_LOGIN = 'ww-auth-xano-provider-login';
 
 export default {
-    isReady: false,
     xanoManager: null,
     /*=============================================m_ÔÔ_m=============================================\
         Plugin API
@@ -45,10 +44,8 @@ export default {
     \================================================================================================*/
     /* wwEditor:start */
     async initManager(settings) {
-        this.isReady = false;
         this.xanoManager = this.createManager(settings);
         await this.xanoManager.init();
-        this.isReady = true;
     },
     createManager(settings) {
         const XanoManager = settings.privateData.metaApiKey ? MetaApi : DevApi;

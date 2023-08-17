@@ -1,51 +1,55 @@
 <template>
-    <div class="xano-auth-settings-summary">
-        <wwEditorFormRow label="Login Endpoint">
-            <div class="xano-auth-settings-summary__elem">
-                <div><wwEditorIcon large name="link" class="xano-auth-settings-summary__icon" /></div>
-                <span class="xano-auth-settings-summary__value caption-m">{{ settings.publicData.loginEndpoint }}</span>
-            </div>
-        </wwEditorFormRow>
-        <wwEditorFormRow label="Get Me  Endpoint">
-            <div class="xano-auth-settings-summary__elem">
-                <div><wwEditorIcon large name="link" class="xano-auth-settings-summary__icon" /></div>
-                <span class="xano-auth-settings-summary__value caption-m">{{ settings.publicData.getMeEndpoint }}</span>
-            </div>
-        </wwEditorFormRow>
-        <wwEditorFormRow label="Signup Endpoint">
-            <div class="xano-auth-settings-summary__elem">
-                <div><wwEditorIcon large name="link" class="xano-auth-settings-summary__icon" /></div>
-                <span class="xano-auth-settings-summary__value caption-m">{{
-                    settings.publicData.signupEndpoint
-                }}</span>
-            </div>
-        </wwEditorFormRow>
-    </div>
+    <wwEditorFormRow label="Login Endpoint">
+        <div class="flex items-center mb-2">
+            <div><wwEditorIcon large name="data" class="mr-2" /></div>
+            <span class="truncate text-stale-500">{{ instanceName }}</span>
+        </div>
+    </wwEditorFormRow>
+    <wwEditorFormRow label="Get Me  Endpoint">
+        <div class="flex items-center mb-2">
+            <div><wwEditorIcon large name="data" class="mr-2" /></div>
+            <span class="truncate text-stale-500">{{ workspaceName }}</span>
+        </div>
+    </wwEditorFormRow>
+    <wwEditorFormRow label="Login Endpoint">
+        <div class="flex items-center mb-2">
+            <div><wwEditorIcon large name="link" class="mr-2" /></div>
+            <span class="truncate text-stale-500">{{ settings.publicData.loginEndpoint }}</span>
+        </div>
+    </wwEditorFormRow>
+    <wwEditorFormRow label="Get Me  Endpoint">
+        <div class="flex items-center mb-2">
+            <div><wwEditorIcon large name="link" class="mr-2" /></div>
+            <span class="truncate text-stale-500">{{ settings.publicData.getMeEndpoint }}</span>
+        </div>
+    </wwEditorFormRow>
+    <wwEditorFormRow label="Signup Endpoint">
+        <div class="flex items-center">
+            <div><wwEditorIcon large name="link" class="mr-2" /></div>
+            <span class="truncate text-stale-500">{{ settings.publicData.signupEndpoint }}</span>
+        </div>
+    </wwEditorFormRow>
+    <wwLoader :loading="isLoading" />
 </template>
 
 <script>
 export default {
     props: {
+        plugin: { type: Object, required: true },
         settings: { type: Object, required: true },
+    },
+    data: () => ({
+        isLoading: false,
+        instanceName: null,
+        workspaceName: null,
+    }),
+    mounted() {
+        this.isLoading = true;
+        this.plugin.xanoManager.onReady(() => {
+            this.instanceName = this.plugin.xanoManager.getInstance()?.name;
+            this.workspaceName = this.plugin.xanoManager.getWorkspace()?.name;
+            this.isLoading = false;
+        });
     },
 };
 </script>
-
-<style lang="scss" scoped>
-.xano-auth-settings-summary {
-    &__elem {
-        display: flex;
-        align-items: center;
-        &:not(:last-child) {
-            margin-bottom: var(--ww-spacing-02);
-        }
-    }
-    &__icon {
-        margin-right: var(--ww-spacing-02);
-    }
-    &__value {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-}
-</style>

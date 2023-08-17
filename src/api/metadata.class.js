@@ -1,5 +1,6 @@
 export default class {
-    #rateLimit = false;
+    #isReady = false;
+    #callbacks = [];
 
     #apiKey = null;
     #instanceId = null;
@@ -18,6 +19,13 @@ export default class {
         await this.#loadInstances();
         await this.#loadWorkspaces();
         await this.#loadApiGroups();
+        this.#isReady = true;
+        this.#callbacks.forEach(callback => callback());
+    }
+
+    onReady(callback) {
+        if (this.#isReady) callback();
+        else this.#callbacks.push(callback);
     }
 
     /**

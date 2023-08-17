@@ -1,8 +1,8 @@
 <template>
-    <div class="xano-auth-settings-edit">
+    <div class="flex flex-col">
         <wwEditorFormRow required label="Developer API key (Deprecated)" v-if="deprecated">
             <template #append-label>
-                <a class="xano-auth-settings-edit__link" href="https://docs.xano.com/developer-api" target="_blank">
+                <a class="ml-2 ww-editor-link" href="https://docs.xano.com/developer-api" target="_blank">
                     Find it here
                 </a>
             </template>
@@ -23,7 +23,7 @@
         </wwEditorFormRow>
         <wwEditorFormRow required label="Metadata API Key">
             <template #append-label>
-                <a class="xano-auth-settings-edit__link" href="https://docs.xano.com/metadata-api" target="_blank">
+                <a class="ml-2 ww-editor-link" href="https://docs.xano.com/metadata-api" target="_blank">
                     Find it here
                 </a>
             </template>
@@ -285,14 +285,3 @@ export default {
     },
 };
 </script>
-
-<style lang="scss" scoped>
-.xano-auth-settings-edit {
-    display: flex;
-    flex-direction: column;
-    &__link {
-        color: var(--ww-color-blue-500);
-        margin-left: var(--ww-spacing-02);
-    }
-}
-</style>
