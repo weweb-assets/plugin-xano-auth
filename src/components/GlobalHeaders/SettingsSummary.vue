@@ -1,5 +1,5 @@
 <template>
-    <div class="flex items-center caption-m" :class="{ 'text-blue-500': hasHeaders }">
+    <div class="flex items-center">
         <wwEditorIcon name="options" class="mr-2"></wwEditorIcon>
         {{ hasHeaders ? 'Headers are configured' : 'No headers configured' }}
     </div>
