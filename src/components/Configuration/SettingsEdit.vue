@@ -106,6 +106,21 @@
             :options="endpointsOptions.filter(endpoint => endpoint.label.startsWith('POST'))"
             @update:modelValue="setSignupEndpoint"
         />
+        <wwEditorFormRow label="OAuth">
+            <template #append-label>
+                <a
+                    class="ml-2 ww-editor-link"
+                    href="https://docs.xano.com/building-features/authentication-sign-up-and-log-in/authentication/oauth-social-sign-in"
+                    target="_blank"
+                >
+                    How to configure OAuth providers
+                </a>
+            </template>
+            <div class="flex items-center">
+                <wwEditorIcon large name="puzzle" class="mr-2" />
+                <span class="truncate">{{ socialProviders || 'none' }}</span>
+            </div>
+        </wwEditorFormRow>
     </div>
     <wwLoader :loading="isLoading" />
 </template>
@@ -136,6 +151,11 @@ export default {
         },
         workspacesOptions() {
             return this.workspaces.map(workspace => ({ label: workspace.name, value: workspace.id, ...workspace }));
+        },
+        socialProviders() {
+            return Object.values(this.settings.publicData.socialProviders || {})
+                .map(provider => provider.name)
+                .join();
         },
         endpointsOptions() {
             return this.apiSpec
@@ -214,6 +234,7 @@ export default {
                     loginEndpoint: xanoManager.fixUrl(this.settings.publicData.loginEndpoint),
                     getMeEndpoint: xanoManager.fixUrl(this.settings.publicData.getMeEndpoint),
                     signupEndpoint: xanoManager.fixUrl(this.settings.publicData.signupEndpoint),
+                    socialProviders: xanoManager.getSocialProviders(),
                 },
             });
         },

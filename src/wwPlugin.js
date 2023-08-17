@@ -3,8 +3,6 @@ import './components/Configuration/SettingsEdit.vue';
 import './components/Configuration/SettingsSummary.vue';
 import './components/Redirections/SettingsEdit.vue';
 import './components/Redirections/SettingsSummary.vue';
-import './components/Social/SettingsEdit.vue';
-import './components/Social/SettingsSummary.vue';
 import './components/DataSource/SettingsEdit.vue';
 import './components/DataSource/SettingsSummary.vue';
 import './components/Branching/SettingsEdit.vue';
