@@ -51,7 +51,10 @@ export default {
         Xano Auth API
     \================================================================================================*/
     storeToken(accessToken) {
-        window.vm.config.globalProperties.$cookie.setCookie(ACCESS_COOKIE_NAME, accessToken);
+        window.vm.config.globalProperties.$cookie.setCookie(ACCESS_COOKIE_NAME, accessToken, {
+            expire: '1y',
+            secure: true,
+        });
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, accessToken);
     },
     removeToken() {
