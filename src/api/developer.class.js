@@ -99,7 +99,11 @@ export default class {
         return this.getWorkspaces().find(workspace => workspace.id === this.#workspaceId);
     }
     getApiGroups() {
-        return this.#apiGroups.map(group => ({ id: group.id, name: group.name, api: group.api }));
+        const duplicateRemoved = [];
+        for (const group of this.#apiGroups) {
+            if (!duplicateRemoved.some(i => i.api === group.api)) duplicateRemoved.push(group);
+        }
+        return duplicateRemoved.map(group => ({ id: group.id, name: group.name, api: group.api }));
     }
     getSocialProviders() {
         if (!this.#workspaceId) return null;
