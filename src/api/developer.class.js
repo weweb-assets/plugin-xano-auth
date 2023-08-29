@@ -73,8 +73,14 @@ export default class {
     async #loadApiGroups() {
         this.#apiGroups = [];
         const workspace = this.getWorkspace();
-        if (!workspace) return;
-        this.#apiGroups = workspace.apigroups;
+        if (workspace) this.#apiGroups = workspace.apigroups;
+        else {
+            for (const workspace of this.getWorkspaces()) {
+                this.#apiGroups.push(
+                    ...workspace.apigroups.map(group => ({ ...group, name: workspace.name + ' - ' + group.name }))
+                );
+            }
+        }
     }
 
     /**
@@ -103,7 +109,9 @@ export default class {
         for (const group of this.#apiGroups) {
             if (!duplicateRemoved.some(i => i.api === group.api)) duplicateRemoved.push(group);
         }
-        return duplicateRemoved.map(group => ({ id: group.id, name: group.name, api: group.api }));
+        return duplicateRemoved
+            .map(group => ({ id: group.id, name: group.name, api: group.api }))
+            .sort((a, b) => (a.name.toUpperCase() > b.name.toUpperCase() ? 1 : -1));
     }
     getSocialProviders() {
         if (!this.#workspaceId) return null;
