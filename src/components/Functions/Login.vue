@@ -102,10 +102,13 @@ export default {
             return this.args.body || {};
         },
         endpointParameters() {
-            return xanoManager.parseSpecEndpointParameters(this.spec, { path: this.endpoint, method: 'post' });
+            return this.plugin.xanoManager.parseSpecEndpointParameters(this.spec, {
+                path: this.endpoint,
+                method: 'post',
+            });
         },
         endpointBody() {
-            return xanoManager.parseSpecEndpointBody(this.spec, { path: this.endpoint, method: 'post' });
+            return this.plugin.xanoManager.parseSpecEndpointBody(this.spec, { path: this.endpoint, method: 'post' });
         },
         endpointBodyFiltered() {
             return this.endpointBody.filter(
