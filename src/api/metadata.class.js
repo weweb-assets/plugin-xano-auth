@@ -225,22 +225,22 @@ export default class {
             .flat();
     }
 
-    parseSpecEndpointParameters(spec, { path, method } = {}) {
-        if (!spec || !path || !method) return [];
+    parseSpecEndpointParameters(spec, endpoint) {
+        if (!spec || !endpoint) return [];
         return (
-            spec.paths?.[path]?.[method]?.parameters.map(param => ({
+            spec.paths?.[endpoint.path]?.[endpoint.method]?.parameters.map(param => ({
                 ...param,
                 bindingValidation: this.getBindingValidation(param),
             })) || []
         );
     }
 
-    parseSpecEndpointBody(spec, { path, method } = {}) {
-        if (!spec || !path || !method) return [];
+    parseSpecEndpointBody(spec, endpoint) {
+        if (!spec || !endpoint) return [];
         const body =
-            spec.paths?.[path]?.[method]?.body?.content['application/json'] ||
-            spec.paths?.[path]?.[method]?.body?.content['multipart/form-data'] ||
-            [];
+            spec.paths?.[endpoint.path]?.[endpoint.method]?.requestBody?.content['application/json'] ||
+            spec.paths?.[endpoint.path]?.[endpoint.method]?.requestBody?.content['multipart/form-data'];
+        if (!body) return [];
 
         return Object.keys(body.schema.properties).map(key => {
             const elem = body.schema.properties[key];
