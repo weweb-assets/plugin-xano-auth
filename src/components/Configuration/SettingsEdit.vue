@@ -41,6 +41,10 @@
                 </button>
             </div>
         </wwEditorFormRow>
+        <p v-if="deprecated" class="label-sm flex items-center text-yellow-500 mb-3">
+            <wwEditorIcon class="mr-1" name="warning" small />
+            Setting up your Metadata API key will reset your configuration for this step.
+        </p>
         <wwEditorInputRow
             type="select"
             placeholder="Select an instance"
@@ -178,12 +182,19 @@ export default {
     watch: {
         async 'settings.privateData.metaApiKey'(value) {
             this.isLoading = true;
-            if (this.useMetaApi) {
-                await xanoManager.changeApiKey(value);
-                this.sync();
-            } else {
-                await this.initManager();
-                this.useMetaApi = true;
+            try {
+                if (this.useMetaApi) {
+                    await xanoManager.changeApiKey(value);
+                    this.sync();
+                } else {
+                    await this.initManager();
+                    this.useMetaApi = true;
+                }
+            } catch (error) {
+                wwLib.wwNotification.open({
+                    text: 'Failed to use the new API key, please ensure your API key has the permission required.',
+                    color: 'red',
+                });
             }
             this.isLoading = false;
         },
@@ -211,9 +222,16 @@ export default {
         async initManager() {
             this.isLoading = true;
             xanoManager = this.plugin.createManager(this.settings);
-            await xanoManager.init();
-            await this.loadApiSpec();
-            this.sync();
+            try {
+                await xanoManager.init();
+                await this.loadApiSpec();
+                this.sync();
+            } catch (error) {
+                wwLib.wwNotification.open({
+                    text: 'Failed to init Xano, please ensure your API key has the permission required.',
+                    color: 'red',
+                });
+            }
             this.isLoading = false;
         },
         sync() {
