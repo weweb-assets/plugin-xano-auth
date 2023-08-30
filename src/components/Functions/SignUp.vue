@@ -102,39 +102,10 @@ export default {
             return this.args.body || {};
         },
         endpointParameters() {
-            if (
-                !this.apiGroup ||
-                !this.endpoint ||
-                !this.apiGroup.paths ||
-                !this.apiGroup.paths[this.endpoint] ||
-                !this.apiGroup.paths[this.endpoint]['post']
-            )
-                return [];
-            return this.apiGroup.paths[this.endpoint]['post'].parameters || [];
+            return xanoManager.parseSpecEndpointParameters(this.spec, { path: this.endpoint, method: 'post' });
         },
         endpointBody() {
-            if (
-                !this.apiGroup ||
-                !this.endpoint ||
-                !this.apiGroup.paths ||
-                !this.apiGroup.paths[this.endpoint] ||
-                !this.apiGroup.paths[this.endpoint]['post'] ||
-                !this.apiGroup.paths[this.endpoint]['post'].requestBody
-            )
-                return [];
-
-            const endpoint =
-                this.apiGroup.paths[this.endpoint]['post'].requestBody.content['application/json'] ||
-                this.apiGroup.paths[this.endpoint]['post'].requestBody.content['multipart/form-data'];
-
-            return Object.keys(endpoint.schema.properties).map(key => {
-                const elem = endpoint.schema.properties[key];
-                return {
-                    name: key,
-                    type: elem.type === 'string' ? 'query' : elem.type,
-                    required: elem.required,
-                };
-            });
+            return xanoManager.parseSpecEndpointBody(this.spec, { path: this.endpoint, method: 'post' });
         },
         endpointBodyFiltered() {
             return this.endpointBody.filter(

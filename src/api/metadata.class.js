@@ -177,7 +177,7 @@ export default class {
     }
 
     /**
-     * PUBLIC API
+     * PUBLIC API UTILS
      */
     async fetchApiGroupSpec(apiGroupUrl) {
         if (!apiGroupUrl) return;
@@ -204,6 +204,53 @@ export default class {
             }
             return null;
         }
+    }
+
+    getBindingValidation(property) {
+        return {
+            tooltip: property.description || `Must be of type ${property.type}`,
+            type: property.type === 'integer' ? 'number' : property.type,
+        };
+    }
+
+    parseSpecEndpoints(spec) {
+        if (!spec) return [];
+        return Object.keys(spec.paths)
+            .map(path =>
+                Object.keys(spec.paths[path]).map(method => ({
+                    label: `${method.toUpperCase()} ${path}`,
+                    value: `${method}-${path}`,
+                }))
+            )
+            .flat();
+    }
+
+    parseSpecEndpointParameters(spec, { path, method } = {}) {
+        if (!spec || !path || !method) return [];
+        return (
+            spec.paths?.[path]?.[method]?.parameters.map(param => ({
+                ...param,
+                bindingValidation: this.getBindingValidation(param),
+            })) || []
+        );
+    }
+
+    parseSpecEndpointBody(spec, { path, method } = {}) {
+        if (!spec || !path || !method) return [];
+        const body =
+            spec.paths?.[path]?.[method]?.body?.content['application/json'] ||
+            spec.paths?.[path]?.[method]?.body?.content['multipart/form-data'] ||
+            [];
+
+        return Object.keys(body.schema.properties).map(key => {
+            const elem = body.schema.properties[key];
+            return {
+                name: key,
+                type: elem.type === 'string' ? 'query' : elem.type,
+                required: elem.required,
+                bindingValidation: this.getBindingValidation(elem),
+            };
+        });
     }
 
     async fetchFullSpec() {
