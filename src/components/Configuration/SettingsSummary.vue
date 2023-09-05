@@ -51,6 +51,14 @@ export default {
         socialProviders: null,
     }),
     mounted() {
+        if (this.plugin.xanoManager.hasFailed()) {
+            wwLib.wwNotification.open({
+                text: 'Failed to init Xano, please ensure your API key has the permission required.',
+                color: 'red',
+            });
+            return;
+        }
+
         this.isLoading = true;
         this.plugin.xanoManager.onReady(() => {
             this.instanceName = this.plugin.xanoManager.getInstance()?.name;

@@ -1,6 +1,7 @@
 export default class {
     #isReady = false;
-    #callbacks = [];
+    #isLoading = false;
+    #error = null;
 
     #apiKey = null;
     #instanceId = null;
@@ -17,16 +18,29 @@ export default class {
     }
 
     async init() {
-        await this.#loadInstances();
-        await this.#loadWorkspaces();
-        await this.#loadApiGroups();
-        this.#isReady = true;
-        this.#callbacks.forEach(callback => callback());
+        this.#isReady = false;
+        this.#isLoading = true;
+        try {
+            await this.#loadInstances();
+            await this.#loadWorkspaces();
+            await this.#loadApiGroups();
+            this.#isReady = true;
+            this.#callbacks.forEach(callback => callback());
+        } catch (error) {
+            this.#error = error;
+            throw error;
+        } finally {
+            this.#isLoading = false;
+        }
     }
 
     onReady(callback) {
         if (this.#isReady) callback();
         else this.#callbacks.push(callback);
+    }
+
+    hasFailed() {
+        return !this.#isReady && !this.#isLoading && this.#error;
     }
 
     /**
