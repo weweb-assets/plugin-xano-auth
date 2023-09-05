@@ -2,6 +2,7 @@ export default class {
     #isReady = false;
     #isLoading = false;
     #error = null;
+    #callbacks = [];
 
     #apiKey = null;
     #instanceId = null;
