@@ -50,6 +50,7 @@ export default {
                 text: 'Failed to init Xano Auth, please ensure your API key has the permission required.',
                 color: 'red',
             });
+            wwLib.wwLog.error(error);
             throw error;
         }
     },
