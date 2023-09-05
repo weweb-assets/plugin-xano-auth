@@ -75,7 +75,7 @@ export default {
     data() {
         return {
             isLoading: false,
-            apiGroup: null,
+            spec: null,
         };
     },
     mounted() {
@@ -153,8 +153,8 @@ export default {
         async refreshApiGroup() {
             try {
                 this.isLoading = true;
-                this.apiGroup = await this.plugin.xanoManager.fetchApiGroupSpec(this.apiGroupUrl);
-                if (!this.apiGroup) {
+                this.spec = await this.plugin.xanoManager.fetchApiGroupSpec(this.apiGroupUrl);
+                if (!this.spec) {
                     wwLib.wwNotification.open({
                         text: 'Xano signup endpoint cannot be loaded, please check your configuration, it can be because the swagger is disabled.',
                         color: 'yellow',
