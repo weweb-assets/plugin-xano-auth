@@ -159,9 +159,12 @@ export default class {
             this.#apiGroups = [];
             return;
         }
-        await this.#loadInstances();
+        await this.init();
         if (!this.getInstance()) {
             await this.changeInstance(null);
+        }
+        if (!this.getWorkspace()) {
+            await this.changeWorkspace(null);
         }
     }
     async changeInstance(instanceId) {
