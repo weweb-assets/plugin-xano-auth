@@ -77,17 +77,8 @@ export default {
         };
     },
     mounted() {
-        if (!this.plugin.isReady) {
-            this.isLoading = true;
-            const wait = setInterval(() => {
-                if (this.plugin.isReady) {
-                    this.refreshApiGroup();
-                    clearInterval(wait);
-                }
-            }, 1000);
-        } else {
-            this.refreshApiGroup();
-        }
+        this.isLoading = true;
+        this.plugin.xanoManager.onReady(this.refreshApiGroup);
     },
     computed: {
         apiGroupUrl() {
@@ -176,21 +167,10 @@ export default {
             this.$emit('update:args', { ...this.args, bodyFields });
             this.$nextTick(() => this.setBody({ ...this.body }));
         },
-        async refreshInstance() {
-            try {
-                this.isLoading = true;
-                await this.plugin.fetchInstances();
-                await this.plugin.fetchInstance();
-            } catch (err) {
-                wwLib.wwLog.error(err);
-            } finally {
-                this.isLoading = false;
-            }
-        },
         async refreshApiGroup() {
             try {
                 this.isLoading = true;
-                this.apiGroup = await this.plugin.getApiGroup(this.apiGroupUrl);
+                this.apiGroup = await this.plugin.xanoManager.fetchApiGroupSpec(this.apiGroupUrl);
                 if (!this.apiGroup) {
                     wwLib.wwNotification.open({
                         text: 'Xano signup endpoint cannot be loaded, please check your configuration, it can be because the swagger is disabled.',

@@ -8,17 +8,18 @@ export default {
                 summary: () => import('./src/components/Configuration/SettingsSummary.vue'),
                 getIsValid(settings) {
                     const { loginEndpoint, getMeEndpoint, signupEndpoint, customDomain = '' } = settings.publicData;
-                    const { apiKey, instanceId, workspaceId } = settings.privateData;
+                    const { apiKey, metaApiKey, instanceId, workspaceId } = settings.privateData;
                     return (
                         !!loginEndpoint &&
                         !!getMeEndpoint &&
                         !!signupEndpoint &&
-                        !!apiKey &&
+                        (metaApiKey || apiKey) &&
                         !!instanceId &&
                         !!workspaceId &&
-                        !customDomain.includes('http')
+                        (!customDomain || customDomain.includes('http'))
                     );
                 },
+                onSave: 'initManager',
             },
             {
                 label: 'Data Source',
@@ -40,15 +41,6 @@ export default {
                 label: 'Global Headers',
                 edit: () => import('./src/components/GlobalHeaders/SettingsEdit.vue'),
                 summary: () => import('./src/components/GlobalHeaders/SettingsSummary.vue'),
-                getIsValid() {
-                    return true;
-                },
-            },
-            {
-                label: 'Social login',
-                icon: 'advanced',
-                edit: () => import('./src/components/Social/SettingsEdit.vue'),
-                summary: () => import('./src/components/Social/SettingsSummary.vue'),
                 getIsValid() {
                     return true;
                 },

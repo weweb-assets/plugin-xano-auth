@@ -3,8 +3,6 @@ import './components/Configuration/SettingsEdit.vue';
 import './components/Configuration/SettingsSummary.vue';
 import './components/Redirections/SettingsEdit.vue';
 import './components/Redirections/SettingsSummary.vue';
-import './components/Social/SettingsEdit.vue';
-import './components/Social/SettingsSummary.vue';
 import './components/DataSource/SettingsEdit.vue';
 import './components/DataSource/SettingsSummary.vue';
 import './components/Branching/SettingsEdit.vue';
@@ -16,24 +14,22 @@ import './components/Functions/SignUp.vue';
 import './components/Functions/LoginProvider.vue';
 import './components/Functions/StoreAuthToken.vue';
 import './components/Functions/FetchUser.vue';
+
+import DevApi from './api/developer.class';
+import MetaApi from './api/metadata.class';
 /* wwEditor:end */
 
 const ACCESS_COOKIE_NAME = 'ww-auth-access-token';
 const PENDING_PROVIDER_LOGIN = 'ww-auth-xano-provider-login';
 
 export default {
-    instances: null,
-    instance: null,
-    instanceCache: {},
-    isReady: false,
+    xanoManager: null,
     /*=============================================m_ÔÔ_m=============================================\
         Plugin API
     \================================================================================================*/
     async onLoad(settings) {
         /* wwEditor:start */
-        await this.fetchInstances(settings.privateData.apiKey);
-        await this.fetchInstance(settings.privateData.apiKey, settings.privateData.instanceId);
-        this.isReady = true;
+        await this.initManager(settings);
         /* wwEditor:end */
         const pendingLogin = window.vm.config.globalProperties.$cookie.getCookie(PENDING_PROVIDER_LOGIN);
         const accessToken = window.vm.config.globalProperties.$cookie.getCookie(ACCESS_COOKIE_NAME);
@@ -42,10 +38,21 @@ export default {
         if (pendingLogin) await this.continueLoginProvider(pendingLogin);
     },
     /*=============================================m_ÔÔ_m=============================================\
-        Auth API
+        Editor API
     \================================================================================================*/
     /* wwEditor:start */
-    // async getRoles() {},
+    async initManager(settings) {
+        this.xanoManager = this.createManager(settings);
+        await this.xanoManager.init();
+    },
+    createManager(settings) {
+        const XanoManager = settings.privateData.metaApiKey ? MetaApi : DevApi;
+        return new XanoManager(
+            settings.privateData.metaApiKey || settings.privateData.apiKey,
+            settings.privateData.instanceId,
+            settings.privateData.workspaceId
+        );
+    },
     /* wwEditor:end */
     /*=============================================m_ÔÔ_m=============================================\
         Xano Auth API
@@ -188,7 +195,6 @@ export default {
         config.url = this.resolveUrl(to);
         return axios(config);
     },
-    // Ensure everything use the right base domain
     resolveUrl(url) {
         if (!url) return null;
         const _url = new URL(url);
@@ -196,89 +202,6 @@ export default {
 
         return _url.href;
     },
-    /* wwEditor:start */
-    async fetchInstances(apiKey) {
-        if (!apiKey && !this.settings.privateData.apiKey) return;
-
-        const { data: instances } = await axios.get('https://app.xano.com/api:developer/instance', {
-            headers: { Authorization: `Bearer ${apiKey || this.settings.privateData.apiKey}` },
-        });
-
-        this.instances = instances;
-        this.instanceCache = {};
-        this.instance = null;
-        return instances;
-    },
-    async fetchInstance(apiKey, instanceId) {
-        if (!apiKey && !this.settings.privateData.apiKey) return;
-        if (!instanceId && !this.settings.privateData.instanceId) return;
-        if (!this.instances) return;
-
-        const instance = this.instances.find(
-            instance => `${instance.id}` === (instanceId || this.settings.privateData.instanceId)
-        );
-
-        if (!instance) return;
-
-        // Avoid to fetch again using the same tokenUrl
-        if (this.instanceCache[instance.id]) {
-            this.instance = this.instanceCache[instance.id];
-            return this.instance;
-        }
-
-        const {
-            data: { authToken, origin },
-        } = await axios.get(instance.tokenUrl, {
-            headers: { Authorization: `Bearer ${apiKey || this.settings.privateData.apiKey}` },
-        });
-
-        const { data: workspaces } = await axios.get(`${origin}/api:developer/workspace?type=json`, {
-            headers: { Authorization: `Bearer ${authToken}` },
-        });
-
-        this.instance = workspaces;
-        this.instanceCache[instance.id] = workspaces;
-        return this.instance;
-    },
-    async getApiGroup(apiGroupUrl) {
-        if (!this.instance || !apiGroupUrl) return;
-
-        const apiGroup = this.instance
-            .map(({ apigroups }) => apigroups)
-            .flat()
-            .find(apiGroup => this.resolveUrl(apiGroup.api) === this.resolveUrl(apiGroupUrl));
-        if (!apiGroup) return;
-
-        try {
-            const { data } = await axios.get(apiGroup.swaggerspec, {
-                headers: { Authorization: `Bearer ${this.settings.privateData.apiKey}` },
-            });
-
-            return data;
-        } catch (error) {
-            wwLib.wwLog.error(error);
-            if (error && error.response && error.response.status === 429) {
-                wwLib.wwNotification.open({
-                    text: {
-                        en: 'Your xano plan only support 10 requetes per 20 seconds, please wait and retry.',
-                    },
-                    color: 'red',
-                    duration: '5000',
-                });
-            }
-            if (error && error.response && error.response.status === 404) {
-                wwLib.wwNotification.open({
-                    text: {
-                        en: `The endpoints inside the API group "${apiGroup.name}" cannot be loaded, make sure to have the swagger documentation enabled for this API Group while you're configuring this plugin if you need them.`,
-                    },
-                    color: 'orange',
-                    duration: '8000',
-                });
-            }
-            return null;
-        }
-    },
-    /* wwEditor:end */
 };
 
 function resolveOauthInitEndpoint(provider) {
