@@ -140,7 +140,6 @@ export default {
     data() {
         return {
             deprecated: false,
-            useMetaApi: false,
             isKeyVisible: false,
             isLoading: false,
             instances: [],
@@ -181,22 +180,7 @@ export default {
     },
     watch: {
         async 'settings.privateData.metaApiKey'(value) {
-            this.isLoading = true;
-            try {
-                if (this.useMetaApi) {
-                    await xanoManager.changeApiKey(value);
-                    this.sync();
-                } else {
-                    await this.initManager();
-                    this.useMetaApi = true;
-                }
-            } catch (error) {
-                wwLib.wwNotification.open({
-                    text: 'Failed to use the new API key, please ensure your API key has the permission required.',
-                    color: 'red',
-                });
-            }
-            this.isLoading = false;
+            this.initManager();
         },
         async 'settings.privateData.workspaceId'(value) {
             this.loadApiSpec();
@@ -215,7 +199,6 @@ export default {
     },
     async mounted() {
         this.deprecated = !!this.settings.privateData.apiKey;
-        this.useMetaApi = !!this.settings.privateData.metaApiKey;
         this.initManager();
     },
     methods: {

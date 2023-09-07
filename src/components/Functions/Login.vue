@@ -35,6 +35,7 @@
         type="query"
         placeholder="Enter a value"
         bindable
+        :binding-validation="parameter.bindingValidation"
         :required="parameter.required"
         :model-value="parameters[parameter.name]"
         @update:modelValue="setParameters({ ...parameters, [parameter.name]: $event })"
@@ -56,6 +57,7 @@
         :type="elem.type || 'string'"
         placeholder="Enter a value"
         bindable
+        :binding-validation="elem.bindingValidation"
         :required="elem.required"
         :model-value="body[elem.name]"
         @update:modelValue="setBody({ ...body, [elem.name]: $event })"
@@ -73,10 +75,17 @@ export default {
     data() {
         return {
             isLoading: false,
-            apiGroup: null,
+            spec: null,
         };
     },
     mounted() {
+        if (this.plugin.xanoManager.hasFailed()) {
+            wwLib.wwNotification.open({
+                text: 'Failed to init Xano, please ensure your API key has the permission required.',
+                color: 'red',
+            });
+            return;
+        }
         this.isLoading = true;
         this.plugin.xanoManager.onReady(this.refreshApiGroup);
     },
@@ -102,39 +111,13 @@ export default {
             return this.args.body || {};
         },
         endpointParameters() {
-            if (
-                !this.apiGroup ||
-                !this.endpoint ||
-                !this.apiGroup.paths ||
-                !this.apiGroup.paths[this.endpoint] ||
-                !this.apiGroup.paths[this.endpoint]['post']
-            )
-                return [];
-            return this.apiGroup.paths[this.endpoint]['post'].parameters || [];
+            return this.plugin.xanoManager.parseSpecEndpointParameters(this.spec, {
+                path: this.endpoint,
+                method: 'post',
+            });
         },
         endpointBody() {
-            if (
-                !this.apiGroup ||
-                !this.endpoint ||
-                !this.apiGroup.paths ||
-                !this.apiGroup.paths[this.endpoint] ||
-                !this.apiGroup.paths[this.endpoint]['post'] ||
-                !this.apiGroup.paths[this.endpoint]['post'].requestBody
-            )
-                return [];
-
-            const endpoint =
-                this.apiGroup.paths[this.endpoint]['post'].requestBody.content['application/json'] ||
-                this.apiGroup.paths[this.endpoint]['post'].requestBody.content['multipart/form-data'];
-
-            return Object.keys(endpoint.schema.properties).map(key => {
-                const elem = endpoint.schema.properties[key];
-                return {
-                    name: key,
-                    type: elem.type === 'string' ? 'query' : elem.type,
-                    required: elem.required,
-                };
-            });
+            return this.plugin.xanoManager.parseSpecEndpointBody(this.spec, { path: this.endpoint, method: 'post' });
         },
         endpointBodyFiltered() {
             return this.endpointBody.filter(
@@ -170,8 +153,8 @@ export default {
         async refreshApiGroup() {
             try {
                 this.isLoading = true;
-                this.apiGroup = await this.plugin.xanoManager.fetchApiGroupSpec(this.apiGroupUrl);
-                if (!this.apiGroup) {
+                this.spec = await this.plugin.xanoManager.fetchApiGroupSpec(this.apiGroupUrl);
+                if (!this.spec) {
                     wwLib.wwNotification.open({
                         text: 'Xano signup endpoint cannot be loaded, please check your configuration, it can be because the swagger is disabled.',
                         color: 'yellow',

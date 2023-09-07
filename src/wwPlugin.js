@@ -43,7 +43,16 @@ export default {
     /* wwEditor:start */
     async initManager(settings) {
         this.xanoManager = this.createManager(settings);
-        await this.xanoManager.init();
+        try {
+            await this.xanoManager.init();
+        } catch (error) {
+            wwLib.wwNotification.open({
+                text: 'Failed to init Xano Auth, please ensure your API key has the permission required.',
+                color: 'red',
+            });
+            wwLib.wwLog.error(error);
+            throw error;
+        }
     },
     createManager(settings) {
         const XanoManager = settings.privateData.metaApiKey ? MetaApi : DevApi;

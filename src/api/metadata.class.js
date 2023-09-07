@@ -1,5 +1,7 @@
 export default class {
     #isReady = false;
+    #isLoading = false;
+    #error = null;
     #callbacks = [];
 
     #apiKey = null;
@@ -16,16 +18,29 @@ export default class {
     }
 
     async init() {
-        await this.#loadInstances();
-        await this.#loadWorkspaces();
-        await this.#loadApiGroups();
-        this.#isReady = true;
-        this.#callbacks.forEach(callback => callback());
+        this.#isReady = false;
+        this.#isLoading = true;
+        try {
+            await this.#loadInstances();
+            await this.#loadWorkspaces();
+            await this.#loadApiGroups();
+            this.#isReady = true;
+            this.#callbacks.forEach(callback => callback());
+        } catch (error) {
+            this.#error = error;
+            throw error;
+        } finally {
+            this.#isLoading = false;
+        }
     }
 
     onReady(callback) {
         if (this.#isReady) callback();
         else this.#callbacks.push(callback);
+    }
+
+    hasFailed() {
+        return !this.#isReady && !this.#isLoading && this.#error;
     }
 
     /**
@@ -159,9 +174,12 @@ export default class {
             this.#apiGroups = [];
             return;
         }
-        await this.#loadInstances();
+        await this.init();
         if (!this.getInstance()) {
             await this.changeInstance(null);
+        }
+        if (!this.getWorkspace()) {
+            await this.changeWorkspace(null);
         }
     }
     async changeInstance(instanceId) {
@@ -177,7 +195,7 @@ export default class {
     }
 
     /**
-     * PUBLIC API
+     * PUBLIC API UTILS
      */
     async fetchApiGroupSpec(apiGroupUrl) {
         if (!apiGroupUrl) return;
@@ -204,6 +222,53 @@ export default class {
             }
             return null;
         }
+    }
+
+    getBindingValidation(property) {
+        return {
+            tooltip: property.description || `Must be of type ${property.type}`,
+            type: property.type === 'integer' ? 'number' : property.type,
+        };
+    }
+
+    parseSpecEndpoints(spec) {
+        if (!spec) return [];
+        return Object.keys(spec.paths)
+            .map(path =>
+                Object.keys(spec.paths[path]).map(method => ({
+                    label: `${method.toUpperCase()} ${path}`,
+                    value: `${method}-${path}`,
+                }))
+            )
+            .flat();
+    }
+
+    parseSpecEndpointParameters(spec, endpoint) {
+        if (!spec || !endpoint) return [];
+        return (
+            spec.paths?.[endpoint.path]?.[endpoint.method]?.parameters.map(param => ({
+                ...param,
+                bindingValidation: this.getBindingValidation(param),
+            })) || []
+        );
+    }
+
+    parseSpecEndpointBody(spec, endpoint) {
+        if (!spec || !endpoint) return [];
+        const body =
+            spec.paths?.[endpoint.path]?.[endpoint.method]?.requestBody?.content['application/json'] ||
+            spec.paths?.[endpoint.path]?.[endpoint.method]?.requestBody?.content['multipart/form-data'];
+        if (!body) return [];
+
+        return Object.keys(body.schema.properties).map(key => {
+            const elem = body.schema.properties[key];
+            return {
+                name: key,
+                type: elem.type === 'string' ? 'query' : elem.type,
+                required: elem.required,
+                bindingValidation: this.getBindingValidation(elem),
+            };
+        });
     }
 
     async fetchFullSpec() {
