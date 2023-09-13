@@ -16,7 +16,7 @@ export default {
                         (metaApiKey || apiKey) &&
                         !!instanceId &&
                         !!workspaceId &&
-                        (!customDomain || customDomain.includes('http'))
+                        (!customDomain || !customDomain.includes('http'))
                     );
                 },
                 onSave: 'initManager',
