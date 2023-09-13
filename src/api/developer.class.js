@@ -193,7 +193,7 @@ export default class {
             if (error && error.response && error.response.status === 404) {
                 wwLib.wwNotification.open({
                     text: {
-                        en: `The endpoints inside the API group "${apiGroup.name}" cannot be loaded, make sure to have the swagger documentation enabled for this API Group while you're configuring this plugin if you need them.`,
+                        en: `The endpoints inside the API group "${apiGroupUrl}" cannot be loaded, make sure to have the swagger documentation enabled for this API Group while you're configuring this plugin if you need them.`,
                     },
                     color: 'orange',
                     duration: '8000',
