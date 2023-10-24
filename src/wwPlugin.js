@@ -59,8 +59,12 @@ export default {
         return new XanoManager(
             settings.privateData.metaApiKey || settings.privateData.apiKey,
             settings.privateData.instanceId,
-            settings.privateData.workspaceId
+            settings.privateData.workspaceId,
+            getCurrentBranch()
         );
+    },
+    updateBranch() {
+        this.xanoManager.changeBranch(getCurrentBranch());
     },
     /* wwEditor:end */
     /*=============================================m_ÔÔ_m=============================================\

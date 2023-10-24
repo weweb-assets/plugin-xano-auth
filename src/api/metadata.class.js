@@ -7,14 +7,17 @@ export default class {
     #apiKey = null;
     #instanceId = null;
     #workspaceId = null;
+    #branch = null;
+
     #instances = [];
     #workspaces = [];
     #apiGroups = [];
 
-    constructor(apiKey, instanceId, workspaceId) {
+    constructor(apiKey, instanceId, workspaceId, branch) {
         this.#apiKey = apiKey;
         this.#instanceId = instanceId;
         this.#workspaceId = workspaceId;
+        this.#branch = branch;
     }
 
     async init() {
@@ -102,7 +105,9 @@ export default class {
         if (!instance) return;
         try {
             const { data } = await axios.get(
-                `https://${instance.baseDomain}/api:meta/workspace/${workspaceId}/apigroup`,
+                `https://${instance.baseDomain}/api:meta/workspace/${workspaceId}/apigroup${
+                    this.#branch ? '?branch=' + this.#branch : ''
+                }`,
                 {
                     headers: { Authorization: `Bearer ${this.#apiKey}` },
                 }
@@ -193,13 +198,17 @@ export default class {
         this.#workspaceId = workspaceId;
         await this.#loadApiGroups();
     }
+    async changeBranch(branch) {
+        this.#branch = branch;
+        await this.#loadApiGroups();
+    }
 
     /**
      * PUBLIC API UTILS
      */
-    async fetchApiGroupSpec(apiGroupUrl) {
+    async fetchApiGroupSpec(apiGroupUrl, branch = null) {
         if (!apiGroupUrl) return;
-        const specUrl = apiGroupUrl.replace('/api:', '/apispec:') + '?type=json';
+        const specUrl = apiGroupUrl.replace('/api:', '/apispec:') + (branch ? ':' + branch : '') + '?type=json';
         try {
             const { data } = await axios.get(specUrl, {
                 headers: { Authorization: `Bearer ${this.#apiKey}` },
@@ -209,7 +218,7 @@ export default class {
             wwLib.wwLog.error(error);
             if (error && error.response && error.response.status === 429) {
                 await this.waitRateLimit();
-                return this.fetchApiGroupSpec(apiGroupUrl);
+                return this.fetchApiGroupSpec(apiGroupUrl, branch);
             }
             if (error && error.response && error.response.status === 404) {
                 wwLib.wwNotification.open({
@@ -270,14 +279,14 @@ export default class {
         });
     }
 
-    async fetchFullSpec() {
+    async fetchFullSpec(branch = null) {
         const groups = this.getApiGroups();
         const chunks = Array.from({ length: Math.ceil(groups.length / 10) }, (v, i) =>
             groups.slice(i * 10, i * 10 + 10)
         );
         const spec = [];
         for (const chunk of chunks) {
-            const promises = chunk.map(group => this.fetchApiGroupSpec(group.api));
+            const promises = chunk.map(group => this.fetchApiGroupSpec(group.api, branch));
             spec.push(...(await Promise.all(promises)));
         }
         return spec.filter(group => !!group);

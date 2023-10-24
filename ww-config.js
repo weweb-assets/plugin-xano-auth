@@ -36,6 +36,7 @@ export default {
                 getIsValid() {
                     return true;
                 },
+                onSave: 'updateBranch',
             },
             {
                 label: 'Global Headers',
