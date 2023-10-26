@@ -40,6 +40,21 @@
         :model-value="parameters[parameter.name]"
         @update:modelValue="setParameters({ ...parameters, [parameter.name]: $event })"
     />
+    <wwEditorFormRow v-for="(key, index) in legacyEndpointParameters" :key="index" :label="key">
+        <template #append-label>
+            <div class="flex items-center justify-end w-full body-3 text-red-500">
+                This parameter doesn't exist anymore
+                <button
+                    type="button"
+                    class="ww-editor-button -icon -small -tertiary -red ml-1"
+                    @click="removeParam([key])"
+                >
+                    <wwEditorIcon small name="trash" />
+                </button>
+            </div>
+        </template>
+        <wwEditorInputRow type="query" bindable :model-value="parameters[key]" />
+    </wwEditorFormRow>
     <wwEditorInputRow
         v-if="endpointBody.length"
         label="Body fields"
@@ -62,6 +77,21 @@
         :model-value="body[elem.name]"
         @update:modelValue="setBody({ ...body, [elem.name]: $event })"
     />
+    <wwEditorFormRow v-for="(key, index) in legacyEndpointBody" :key="index" :label="key">
+        <template #append-label>
+            <div class="flex items-center justify-end w-full body-3 text-red-500">
+                This field doesn't exist anymore
+                <button
+                    type="button"
+                    class="ww-editor-button -icon -small -tertiary -red ml-1"
+                    @click="removeBody([key])"
+                >
+                    <wwEditorIcon small name="trash" />
+                </button>
+            </div>
+        </template>
+        <wwEditorInputRow type="query" bindable :model-value="body[key]" />
+    </wwEditorFormRow>
     <wwLoader :loading="isLoading" />
 </template>
 
@@ -127,6 +157,14 @@ export default {
         bodyFieldOptions() {
             return this.endpointBody.map(item => ({ label: item.name, value: item.name }));
         },
+        legacyEndpointParameters() {
+            const fields = this.endpointParameters.map(field => field.name);
+            return Object.keys(this.parameters).filter(key => !fields.includes(key));
+        },
+        legacyEndpointBody() {
+            const fields = this.endpointBody.map(field => field.name);
+            return Object.keys(this.body).filter(key => !fields.includes(key));
+        },
     },
     methods: {
         setParameters(parameters) {
@@ -136,19 +174,25 @@ export default {
             this.$emit('update:args', { ...this.args, headers });
         },
         setBody(body) {
-            for (const bodyKey in body) {
-                if (!this.endpointBodyFiltered.find(field => field.name === bodyKey)) {
-                    delete body[bodyKey];
-                }
-            }
-            for (const field of this.endpointBodyFiltered) {
-                body[field.name] = body[field.name] || null;
-            }
             this.$emit('update:args', { ...this.args, body });
         },
         setBodyFields(bodyFields) {
             this.$emit('update:args', { ...this.args, bodyFields });
-            this.$nextTick(() => this.setBody({ ...this.body }));
+            this.$nextTick(() => this.removeBody(this.legacyEndpointBody));
+        },
+        removeParam(keys) {
+            const parameters = { ...this.parameters };
+            for (const key of keys) {
+                delete parameters[key];
+            }
+            this.setProp('parameters', parameters);
+        },
+        removeBody(keys) {
+            const body = { ...this.body };
+            for (const key of keys) {
+                delete body[key];
+            }
+            this.setProp('body', body);
         },
         async refreshApiGroup() {
             try {
