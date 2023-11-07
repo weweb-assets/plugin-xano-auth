@@ -206,7 +206,7 @@ export default class {
     /**
      * PUBLIC API UTILS
      */
-    async fetchApiGroupSpec(apiGroupUrl, branch = null) {
+    async fetchApiGroupSpec(apiGroupUrl, branch = this.#branch) {
         if (!apiGroupUrl) return;
         const specUrl = apiGroupUrl.replace('/api:', '/apispec:') + (branch ? ':' + branch : '') + '?type=json';
         try {

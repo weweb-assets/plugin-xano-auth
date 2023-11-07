@@ -90,7 +90,12 @@
                 </button>
             </div>
         </template>
-        <wwEditorInputRow type="query" bindable :model-value="body[key]" />
+        <wwEditorInputRow
+            type="query"
+            bindable
+            :model-value="body[key]"
+            @update:modelValue="setBody({ ...body, [key]: $event })"
+        />
     </wwEditorFormRow>
     <wwLoader :loading="isLoading" />
 </template>
