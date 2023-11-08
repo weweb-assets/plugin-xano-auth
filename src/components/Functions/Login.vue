@@ -167,7 +167,7 @@ export default {
             return Object.keys(this.parameters).filter(key => !fields.includes(key));
         },
         legacyEndpointBody() {
-            const fields = this.endpointBody.map(field => field.name);
+            const fields = this.endpointBodyFiltered.map(field => field.name);
             return Object.keys(this.body).filter(key => !fields.includes(key));
         },
     },
@@ -182,8 +182,18 @@ export default {
             this.$emit('update:args', { ...this.args, body });
         },
         setBodyFields(bodyFields) {
-            this.$emit('update:args', { ...this.args, bodyFields });
-            this.$nextTick(() => this.removeBody(this.legacyEndpointBody));
+            const body = { ...this.body };
+
+            for (const bodyKey in body) {
+                if (!bodyFields.includes(bodyKey)) {
+                    delete body[bodyKey];
+                }
+            }
+            for (const field of bodyFields) {
+                body[field] = body[field] || null;
+            }
+
+            this.$emit('update:args', { ...this.args, bodyFields, body });
         },
         removeParam(keys) {
             const parameters = { ...this.parameters };
@@ -197,7 +207,8 @@ export default {
             for (const key of keys) {
                 delete body[key];
             }
-            this.setProp('body', body);
+            const bodyFields = this.bodyFields.filter(field => !keys.includes(field.name));
+            this.$emit('update:args', { ...this.args, body, bodyFields });
         },
         async refreshApiGroup() {
             try {
