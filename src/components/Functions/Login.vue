@@ -183,6 +183,7 @@ export default {
             this.$emit('update:args', { ...this.args, headers });
         },
         setBody(body) {
+            if (JSON.stringify(body) === JSON.stringify(this.body)) return;
             this.$emit('update:args', { ...this.args, body });
         },
         setBodyFields(bodyFields) {
