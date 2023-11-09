@@ -165,10 +165,12 @@ export default {
             return this.endpointBody.map(item => ({ label: item.name, value: item.name }));
         },
         legacyEndpointParameters() {
+            if (this.isLoading) return [];
             const fields = this.endpointParameters.map(field => field.name);
             return Object.keys(this.parameters).filter(key => !fields.includes(key));
         },
         legacyEndpointBody() {
+            if (this.isLoading) return [];
             const fields = this.endpointBody.map(field => field.name);
             return Object.keys(this.body).filter(key => !fields.includes(key));
         },
@@ -184,18 +186,8 @@ export default {
             this.$emit('update:args', { ...this.args, body });
         },
         setBodyFields(bodyFields) {
-            const body = { ...this.body };
-
-            for (const bodyKey in body) {
-                if (!bodyFields.includes(bodyKey)) {
-                    delete body[bodyKey];
-                }
-            }
-            for (const field of bodyFields) {
-                body[field] = body[field] ?? null;
-            }
-
-            this.$emit('update:args', { ...this.args, bodyFields, body });
+            this.$emit('update:args', { ...this.args, bodyFields });
+            this.$nextTick(this.refreshBody);
         },
         removeParam(keys) {
             const parameters = { ...this.parameters };
@@ -211,6 +203,21 @@ export default {
             }
             const bodyFields = this.bodyFields.filter(field => !keys.includes(field));
             this.$emit('update:args', { ...this.args, body, bodyFields });
+        },
+        refreshBody() {
+            const body = { ...this.body };
+            const fields = [...this.legacyEndpointBody, ...this.endpointBodyFiltered.map(field => field.name)];
+
+            for (const bodyKey in body) {
+                if (!fields.includes(bodyKey)) {
+                    delete body[bodyKey];
+                }
+            }
+            for (const field of fields) {
+                body[field] = body[field] ?? null;
+            }
+
+            this.$emit('update:args', { ...this.args, body });
         },
         async refreshApiGroup() {
             try {
