@@ -187,7 +187,7 @@ export default {
         },
         setBodyFields(bodyFields) {
             this.$emit('update:args', { ...this.args, bodyFields });
-            this.nextTick(() => this.setBody(this.body));
+            this.$nextTick(() => this.setBody(this.body));
         },
         removeParam(keys) {
             const parameters = { ...this.parameters };
