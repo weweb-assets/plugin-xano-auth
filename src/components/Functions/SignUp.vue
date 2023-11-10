@@ -28,7 +28,7 @@
             />
         </template>
     </wwEditorInputRow>
-    <wwEditorFormRow v-for="(key, index) in legacyEndpointParameters" :key="key" :label="key">
+    <wwEditorFormRow v-for="(key, index) in legacyParameters" :key="key" :label="key">
         <template #append-label>
             <div class="flex items-center justify-end w-full body-3 text-red-500">
                 This parameter doesn't exist anymore
@@ -66,7 +66,7 @@
         placeholder="All body fields"
         @update:modelValue="setBodyFields"
     />
-    <wwEditorFormRow v-for="(key, index) in legacyEndpointBody" :key="key" :label="key">
+    <wwEditorFormRow v-for="(key, index) in legacyBody" :key="key" :label="key">
         <template #append-label>
             <div class="flex items-center justify-end w-full body-3 text-red-500">
                 This field doesn't exist anymore
@@ -164,12 +164,12 @@ export default {
         bodyFieldOptions() {
             return this.endpointBody.map(item => ({ label: item.name, value: item.name }));
         },
-        legacyEndpointParameters() {
+        legacyParameters() {
             if (this.isLoading) return [];
             const fields = this.endpointParameters.map(field => field.name);
             return Object.keys(this.parameters).filter(key => !fields.includes(key));
         },
-        legacyEndpointBody() {
+        legacyBody() {
             if (this.isLoading) return [];
             const fields = this.endpointBody.map(field => field.name);
             return Object.keys(this.body).filter(key => !fields.includes(key));
@@ -183,12 +183,11 @@ export default {
             this.$emit('update:args', { ...this.args, headers });
         },
         setBody(body) {
-            if (JSON.stringify(body) === JSON.stringify(this.body)) return;
-            this.$emit('update:args', { ...this.args, body });
+            this.$emit('update:args', { ...this.args, body: this.sanitizeBody({ ...body }) });
         },
         setBodyFields(bodyFields) {
             this.$emit('update:args', { ...this.args, bodyFields });
-            this.$nextTick(this.refreshBody);
+            this.nextTick(() => this.setBody(this.body));
         },
         removeParam(keys) {
             const parameters = { ...this.parameters };
@@ -205,20 +204,18 @@ export default {
             const bodyFields = this.bodyFields.filter(field => !keys.includes(field));
             this.$emit('update:args', { ...this.args, body, bodyFields });
         },
-        refreshBody() {
-            const body = { ...this.body };
-            const fields = [...this.legacyEndpointBody, ...this.endpointBodyFiltered.map(field => field.name)];
-
+        sanitizeBody(body) {
+            const fields = [...this.endpointBodyFiltered.map(f => f.name), ...this.legecyBody];
             for (const bodyKey in body) {
                 if (!fields.includes(bodyKey)) {
                     delete body[bodyKey];
                 }
             }
             for (const field of fields) {
-                body[field] = body[field] ?? null;
+                body[field] = body[field] || null;
             }
 
-            this.$emit('update:args', { ...this.args, body });
+            return body;
         },
         async refreshApiGroup() {
             try {
