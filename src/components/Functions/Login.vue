@@ -142,7 +142,7 @@ export default {
             return this.args.parameters || {};
         },
         bodyFields() {
-            return this.args.bodyFields;
+            return this.args.bodyFields || [];
         },
         body() {
             return this.args.body || {};
