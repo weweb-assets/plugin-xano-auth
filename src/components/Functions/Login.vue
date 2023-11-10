@@ -205,7 +205,7 @@ export default {
             this.$emit('update:args', { ...this.args, body, bodyFields });
         },
         sanitizeBody(body) {
-            const fields = [...this.endpointBodyFiltered.map(f => f.name), ...this.legecyBody];
+            const fields = [...this.endpointBodyFiltered.map(f => f.name), ...this.legacyBody];
             for (const bodyKey in body) {
                 if (!fields.includes(bodyKey)) {
                     delete body[bodyKey];
