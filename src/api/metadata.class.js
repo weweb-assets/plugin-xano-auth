@@ -279,7 +279,7 @@ export default class {
         });
     }
 
-    async fetchFullSpec(branch = null) {
+    async fetchFullSpec(branch = this.#branch) {
         const groups = this.getApiGroups();
         const chunks = Array.from({ length: Math.ceil(groups.length / 10) }, (v, i) =>
             groups.slice(i * 10, i * 10 + 10)
