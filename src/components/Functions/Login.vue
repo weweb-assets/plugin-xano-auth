@@ -142,7 +142,7 @@ export default {
             return this.args.parameters || {};
         },
         bodyFields() {
-            return this.args.bodyFields || [];
+            return this.args.bodyFields;
         },
         body() {
             return this.args.body || {};
@@ -194,7 +194,7 @@ export default {
             for (const key of keys) {
                 delete parameters[key];
             }
-            this.setProp('parameters', parameters);
+            this.setParameters({ ...parameters });
         },
         removeBody(keys) {
             const body = { ...this.body };

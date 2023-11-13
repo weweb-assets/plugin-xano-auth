@@ -142,7 +142,7 @@ export default {
             return this.args.headers || [];
         },
         bodyFields() {
-            return this.args.bodyFields || [];
+            return this.args.bodyFields;
         },
         body() {
             return this.args.body || {};
@@ -187,14 +187,13 @@ export default {
         },
         setBodyFields(bodyFields) {
             this.$emit('update:args', { ...this.args, bodyFields });
-            this.$nextTick(() => this.setBody(this.body));
         },
         removeParam(keys) {
             const parameters = { ...this.parameters };
             for (const key of keys) {
                 delete parameters[key];
             }
-            this.setProp('parameters', parameters);
+            this.setParameters({ ...parameters });
         },
         removeBody(keys) {
             const body = { ...this.body };
