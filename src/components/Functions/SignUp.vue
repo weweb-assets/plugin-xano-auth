@@ -187,6 +187,7 @@ export default {
         },
         setBodyFields(bodyFields) {
             this.$emit('update:args', { ...this.args, bodyFields });
+            this.$nextTick(() => this.setBody(this.body));
         },
         removeParam(keys) {
             const parameters = { ...this.parameters };
@@ -200,7 +201,7 @@ export default {
             for (const key of keys) {
                 delete body[key];
             }
-            const bodyFields = this.bodyFields.filter(field => !keys.includes(field));
+            const bodyFields = (this.bodyFields || []).filter(field => !keys.includes(field));
             this.$emit('update:args', { ...this.args, body, bodyFields });
         },
         sanitizeBody(body) {
