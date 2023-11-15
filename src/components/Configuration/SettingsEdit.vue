@@ -167,7 +167,7 @@ export default {
                         .map(path =>
                             Object.keys(group.paths[path]).map(method => ({
                                 label: `${method.toUpperCase()} ${path}`,
-                                value: group.servers[0].url + path,
+                                value: this.removeBranchFromUrl(group.servers[0].url) + path,
                             }))
                         )
                         .flat()
@@ -303,6 +303,10 @@ export default {
             } finally {
                 this.isLoading = false;
             }
+        },
+        removeBranchFromUrl(url) {
+            const split = url.split(':');
+            return (split.length === 4 ? [split[0], split[1], split[2]] : split).join(':');
         },
     },
 };
