@@ -11,6 +11,7 @@ import './components/GlobalHeaders/SettingsEdit.vue';
 import './components/GlobalHeaders/SettingsSummary.vue';
 import './components/Functions/Login.vue';
 import './components/Functions/SignUp.vue';
+import './components/Functions/SignOut.vue';
 import './components/Functions/LoginProvider.vue';
 import './components/Functions/StoreAuthToken.vue';
 import './components/Functions/FetchUser.vue';

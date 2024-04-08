@@ -28,6 +28,17 @@
             />
         </template>
     </wwEditorInputRow>
+    <wwEditorFormRow>
+        <div class="flex items-center">
+            <wwEditorInputSwitch :model-value="isWithCredentials" @update:modelValue="setIsWithCredentials($event)" />
+            <div class="body-2 ml-2">Send credentials (cookies)</div>
+            <wwEditorQuestionMark
+                tooltip-position="top-left"
+                forced-content="Cookies will be sent automatically. Your Xano endpoint API group need to have CORS configured with the proper header for this to works. 1) Access-Control-Allow-Credentials must be true, 2) Access-Control-Allow-Origin must be set to your editor and production link, not wildcard. [See Xano documentation](https://docs.xano.com/api/the-basics/api-groups#cors-management)"
+                class="ml-auto"
+            />
+        </div>
+    </wwEditorFormRow>
     <wwEditorFormRow v-for="(key, index) in legacyParameters" :key="key" :label="key">
         <template #append-label>
             <div class="flex items-center justify-end w-full body-3 text-red-500">
@@ -141,6 +152,9 @@ export default {
         headers() {
             return this.args.headers || [];
         },
+        isWithCredentials() {
+            return this.args.isWithCredentials || false;
+        },
         bodyFields() {
             return this.args.bodyFields;
         },
@@ -181,6 +195,9 @@ export default {
         },
         setHeaders(headers) {
             this.$emit('update:args', { ...this.args, headers });
+        },
+        setIsWithCredentials(isWithCredentials) {
+            this.$emit('update:args', { ...this.args, isWithCredentials });
         },
         setBody(body) {
             this.$emit('update:args', { ...this.args, body: this.sanitizeBody({ ...body }) });
