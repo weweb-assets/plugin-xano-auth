@@ -11,7 +11,6 @@ import './components/GlobalHeaders/SettingsEdit.vue';
 import './components/GlobalHeaders/SettingsSummary.vue';
 import './components/Functions/Login.vue';
 import './components/Functions/SignUp.vue';
-import './components/Functions/SignOut.vue';
 import './components/Functions/LoginProvider.vue';
 import './components/Functions/StoreAuthToken.vue';
 import './components/Functions/FetchUser.vue';
@@ -82,7 +81,7 @@ export default {
         window.vm.config.globalProperties.$cookie.removeCookie(ACCESS_COOKIE_NAME);
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, null);
     },
-    async fetchUser({ headers } = {}) {
+    async fetchUser({ headers, withCredentials = false } = {}) {
         const { getMeEndpoint } = this.settings.publicData;
         const authToken = wwLib.wwVariable.getValue(`${this.id}-accessToken`);
 
@@ -91,6 +90,7 @@ export default {
         try {
             const { data: user } = await this.request(getMeEndpoint, {
                 headers: buildXanoHeaders({ authToken }, headers),
+                withCredentials,
             });
             wwLib.wwVariable.updateValue(`${this.id}-user`, user);
             wwLib.wwVariable.updateValue(`${this.id}-isAuthenticated`, true);
@@ -100,7 +100,7 @@ export default {
             throw err;
         }
     },
-    async login({ headers, parameters = null, body = null, email = null, password = null }) {
+    async login({ headers, withCredentials = false, parameters = null, body = null, email = null, password = null }) {
         const { loginEndpoint } = this.settings.publicData;
 
         if (!loginEndpoint) throw new Error('No API Group Base URL defined.');
@@ -116,6 +116,7 @@ export default {
                 data,
                 params: parameters,
                 headers: buildXanoHeaders({}, headers),
+                withCredentials,
             });
             this.storeToken(authToken);
             return await this.fetchUser();
@@ -124,7 +125,7 @@ export default {
             throw err;
         }
     },
-    async loginProvider({ headers, provider: providerName, type, redirectPage }) {
+    async loginProvider({ headers, withCredentials = false, provider: providerName, type, redirectPage }) {
         try {
             const provider = this.settings.publicData.socialProviders[providerName];
             if (!provider) return;
@@ -145,6 +146,7 @@ export default {
                 type,
                 redirectUrl,
                 headers: buildXanoHeaders({}, headers),
+                withCredentials,
             });
             window.open(parseAuthUrl(provider.name, result.data), '_self');
         } catch (err) {
@@ -153,7 +155,7 @@ export default {
             throw err;
         }
     },
-    async continueLoginProvider({ headers, provider, type, redirectUrl }) {
+    async continueLoginProvider({ headers, withCredentials = false, provider, type, redirectUrl }) {
         try {
             const codePayload = parseAuthCode(wwLib.globalContext.browser.query);
             if (!codePayload) throw new Error('No code provided for social login');
@@ -164,6 +166,7 @@ export default {
                     redirect_uri: redirectUrl,
                 },
                 headers,
+                withCredentials,
             });
             window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
             this.storeToken(parseAuthToken(provider.name, result.data));
@@ -173,7 +176,7 @@ export default {
             throw error;
         }
     },
-    async signUp({ headers, body, parameters, email, password, name }) {
+    async signUp({ headers, withCredentials = false, body, parameters, email, password, name }) {
         const { signupEndpoint } = this.settings.publicData;
 
         if (!signupEndpoint) throw new Error('No API Group Base URL defined.');
@@ -189,6 +192,7 @@ export default {
                 data,
                 params: parameters,
                 headers: buildXanoHeaders({}, headers),
+                withCredentials,
             });
             this.storeToken(authToken);
             return await this.fetchUser();
@@ -207,6 +211,7 @@ export default {
     },
     async request(to, config) {
         config.url = this.resolveUrl(to);
+        config.withCredentials = this.settings.publicData.withCredentials || config.withCredentials;
         return axios(config);
     },
     resolveUrl(url) {

@@ -116,10 +116,6 @@ export default {
         {
             name: 'Logout',
             code: 'logout',
-            isAsync: true,
-            /* wwEditor:start */
-            edit: () => import('./src/components/Functions/SignOut.vue'),
-            /* wwEditor:end */
         },
     ],
 };
