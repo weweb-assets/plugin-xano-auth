@@ -30,12 +30,16 @@
     </wwEditorInputRow>
     <wwEditorFormRow>
         <div class="flex items-center">
-            <wwEditorInputSwitch :model-value="withCredentials" @update:modelValue="setWithCredentials($event)" />
-            <div class="body-2 ml-2">Send credentials (cookies)</div>
+            <wwEditorInputSwitch
+                :model-value="forcedCredentials || withCredentials"
+                @update:modelValue="setWithCredentials($event)"
+                :disabled="forcedCredentials"
+            />
+            <div class="body-sm ml-2">Send credentials (cookies)</div>
             <wwEditorQuestionMark
                 tooltip-position="top-left"
                 forced-content="Cookies will be sent automatically. Your Xano endpoint API group need to have CORS configured with the proper header for this to works. 1) Access-Control-Allow-Credentials must be true, 2) Access-Control-Allow-Origin must be set to your editor and production link, not wildcard. [See Xano documentation](https://docs.xano.com/api/the-basics/api-groups#cors-management)"
-                class="ml-auto"
+                class="ml-auto text-stale-500"
             />
         </div>
     </wwEditorFormRow>
@@ -53,6 +57,9 @@ export default {
         },
         withCredentials() {
             return this.args.withCredentials || false;
+        },
+        forcedCredentials() {
+            return this.plugin.settings?.publicData.withCredentials;
         },
     },
     methods: {
