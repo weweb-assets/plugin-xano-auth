@@ -101,13 +101,17 @@ export default {
         {
             name: 'Fetch User',
             code: 'fetchUser',
-            edit: () => import('./src/components/Functions/FetchUser.vue'),
             isAsync: true,
+            /* wwEditor:start */
+            edit: () => import('./src/components/Functions/FetchUser.vue'),
+            /* wwEditor:end */
         },
         {
             name: 'Store Auth Token',
             code: 'storeAuthToken',
+            /* wwEditor:start */
             edit: () => import('./src/components/Functions/StoreAuthToken.vue'),
+            /* wwEditor:end */
         },
         {
             name: 'Logout',
