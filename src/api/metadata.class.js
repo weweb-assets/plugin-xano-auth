@@ -105,8 +105,8 @@ export default class {
         if (!instance) return;
         try {
             const { data } = await axios.get(
-                `https://${instance.baseDomain}/api:meta/workspace/${workspaceId}/apigroup${
-                    this.#branch ? '?branch=' + this.#branch : ''
+                `https://${instance.baseDomain}/api:meta/workspace/${workspaceId}/apigroup?per_page=200${
+                    this.#branch ? '&branch=' + this.#branch : ''
                 }`,
                 {
                     headers: { Authorization: `Bearer ${this.#apiKey}` },
