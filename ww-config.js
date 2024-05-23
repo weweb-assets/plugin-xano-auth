@@ -1,4 +1,7 @@
 export default {
+    features: {
+        auth: true,
+    },
     editor: {
         settings: [
             {
@@ -46,24 +49,10 @@ export default {
                     return true;
                 },
             },
-            {
-                label: 'Define redirections (URLs)',
-                icon: 'open-out',
-                edit: () => import('./src/components/Redirections/SettingsEdit.vue'),
-                summary: () => import('./src/components/Redirections/SettingsSummary.vue'),
-                getIsValid(settings) {
-                    const { afterNotSignInPageId } = settings.publicData;
-                    return !!afterNotSignInPageId;
-                },
-            },
         ],
         designSystemId: '9a1f106a-1397-4fb4-8b9a-369d744e6aa3',
     },
-    variables: [
-        { name: 'user', value: 'user', type: 'object', defaultValue: null },
-        { name: 'accessToken', value: 'token', type: 'string', defaultValue: null },
-        { name: 'isAuthenticated', value: 'isAuthenticated', type: 'boolean', defaultValue: false },
-    ],
+    variables: [{ name: 'accessToken', value: 'token', type: 'string', defaultValue: null }],
     actions: [
         {
             name: 'Sign Up',

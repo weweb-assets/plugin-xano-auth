@@ -1,8 +1,6 @@
 /* wwEditor:start */
 import './components/Configuration/SettingsEdit.vue';
 import './components/Configuration/SettingsSummary.vue';
-import './components/Redirections/SettingsEdit.vue';
-import './components/Redirections/SettingsSummary.vue';
 import './components/DataSource/SettingsEdit.vue';
 import './components/DataSource/SettingsSummary.vue';
 import './components/Branching/SettingsEdit.vue';
@@ -27,10 +25,12 @@ export default {
     /*=============================================m_ÔÔ_m=============================================\
         Plugin API
     \================================================================================================*/
-    async onLoad(settings) {
+    async _onLoad(settings) {
         /* wwEditor:start */
         await this.initManager(settings);
         /* wwEditor:end */
+    },
+    async _initUser() {
         const pendingLogin = window.vm.config.globalProperties.$cookie.getCookie(PENDING_PROVIDER_LOGIN);
         const accessToken = window.vm.config.globalProperties.$cookie.getCookie(ACCESS_COOKIE_NAME);
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, accessToken);
