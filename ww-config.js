@@ -52,7 +52,11 @@ export default {
         ],
         designSystemId: '9a1f106a-1397-4fb4-8b9a-369d744e6aa3',
     },
-    variables: [{ name: 'accessToken', value: 'token', type: 'string', defaultValue: null }],
+    variables: [
+        { name: 'user', value: 'user', type: 'object', defaultValue: null },
+        { name: 'isAuthenticated', value: 'isAuthenticated', type: 'boolean', defaultValue: false },
+        { name: 'accessToken', value: 'token', type: 'string', defaultValue: null },
+    ],
     actions: [
         {
             name: 'Sign Up',
