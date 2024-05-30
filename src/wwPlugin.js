@@ -34,7 +34,10 @@ export default {
         const pendingLogin = window.vm.config.globalProperties.$cookie.getCookie(PENDING_PROVIDER_LOGIN);
         const accessToken = window.vm.config.globalProperties.$cookie.getCookie(ACCESS_COOKIE_NAME);
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, accessToken);
-        if (accessToken) await this.fetchUser();
+        if (accessToken) {
+            await this.fetchUser();
+            wwLib.wwPlugins.xano?.xanoClient?.setRealtimeAuthToken(accessToken);
+        }
         if (pendingLogin) await this.continueLoginProvider(pendingLogin);
     },
     /*=============================================m_ÔÔ_m=============================================\
