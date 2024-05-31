@@ -37,6 +37,7 @@ export default {
         if (accessToken) {
             await this.fetchUser();
             wwLib.wwPlugins.xano?.xanoClient?.setRealtimeAuthToken(accessToken);
+            wwLib.wwPlugins.xano?.xanoClient?.realtimeReconnect();
         }
         if (pendingLogin) await this.continueLoginProvider(pendingLogin);
     },
@@ -79,6 +80,8 @@ export default {
             secure: true,
         });
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, accessToken);
+        wwLib.wwPlugins.xano?.xanoClient?.setRealtimeAuthToken(accessToken);
+        wwLib.wwPlugins.xano?.xanoClient?.realtimeReconnect();
     },
     removeToken() {
         window.vm.config.globalProperties.$cookie.removeCookie(ACCESS_COOKIE_NAME);
