@@ -39,7 +39,7 @@
             <wwEditorQuestionMark
                 tooltip-position="top-left"
                 forced-content="Cookies will be sent automatically. Your Xano endpoint API group need to have CORS configured with the proper header for this to works. 1) Access-Control-Allow-Credentials must be true, 2) Access-Control-Allow-Origin must be set to your editor and production link, not wildcard. [See Xano documentation](https://docs.xano.com/api/the-basics/api-groups#cors-management)"
-                class="ml-auto text-stale-500"
+                class="ml-auto content-secondary"
             />
         </div>
     </wwEditorFormRow>
