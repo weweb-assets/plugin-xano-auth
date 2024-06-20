@@ -1,5 +1,5 @@
 <template>
-    <div class="mb-3 label-sm text-stale-500">
+    <div class="mb-3 label-sm content-secondary">
         Global headers will be applied to each request made to your Xano server from the browser side.
     </div>
     <wwEditorInputRow
@@ -31,7 +31,7 @@
             />
         </template>
     </wwEditorInputRow>
-    <div v-if="isBound" class="mb-3 label-sm text-blue-500 flex items-center">
+    <div v-if="isBound" class="mb-3 label-sm content-brand flex items-center">
         <wwEditorIcon name="information-circle" class="mr-1"></wwEditorIcon>
         Format => [{key: 'MyHeaderName', value: 'MyHeaderValue'}]
     </div>
@@ -45,7 +45,7 @@
             <wwEditorQuestionMark
                 tooltip-position="top-left"
                 forced-content="Cookies will be sent automatically. Your Xano endpoint API group need to have CORS configured with the proper header for this to works. 1) Access-Control-Allow-Credentials must be true, 2) Access-Control-Allow-Origin must be set to your editor and production link, not wildcard. [See Xano documentation](https://docs.xano.com/api/the-basics/api-groups#cors-management)"
-                class="ml-auto text-stale-500"
+                class="ml-auto content-secondary"
             />
         </div>
     </wwEditorFormRow>
@@ -77,14 +77,14 @@ export default {
 <style lang="scss" scoped>
 .xano-settings-edit {
     &__link {
-        color: var(--ww-color-blue-500);
+        color: var(--ww-color-content-brand);
         display: inline;
     }
 }
 .divider {
     width: 100%;
     height: 1px;
-    background-color: var(--ww-color-dark-200);
+    background-color: var(--ww-color-border);
     margin: 12px 0px;
 }
 </style>
