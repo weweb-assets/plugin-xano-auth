@@ -39,17 +39,17 @@
             <wwEditorQuestionMark
                 tooltip-position="top-left"
                 forced-content="Cookies will be sent automatically. Your Xano endpoint API group need to have CORS configured with the proper header for this to works. 1) Access-Control-Allow-Credentials must be true, 2) Access-Control-Allow-Origin must be set to your editor and production link, not wildcard. [See Xano documentation](https://docs.xano.com/api/the-basics/api-groups#cors-management)"
-                class="ml-auto text-stale-500"
+                class="ml-auto content-secondary"
             />
         </div>
     </wwEditorFormRow>
     <wwEditorFormRow v-for="(key, index) in legacyParameters" :key="key" :label="key">
         <template #append-label>
-            <div class="flex items-center justify-end w-full body-3 text-red-500">
+            <div class="flex items-center justify-end w-full body-3 content-alert">
                 This parameter doesn't exist anymore
                 <button
                     type="button"
-                    class="ww-editor-button -icon -small -tertiary -red ml-1"
+                    class="ww-editor-button -icon -small -tertiary ml-1"
                     @click="removeParam([key])"
                 >
                     <wwEditorIcon small name="trash" />
@@ -83,11 +83,11 @@
     />
     <wwEditorFormRow v-for="(key, index) in legacyBody" :key="key" :label="key">
         <template #append-label>
-            <div class="flex items-center justify-end w-full body-3 text-red-500">
+            <div class="flex items-center justify-end w-full body-3 content-alert">
                 This field doesn't exist anymore
                 <button
                     type="button"
-                    class="ww-editor-button -icon -small -tertiary -red ml-1"
+                    class="ww-editor-button -icon -small -tertiary ml-1"
                     @click="removeBody([key])"
                 >
                     <wwEditorIcon small name="trash" />
@@ -270,9 +270,9 @@ export default {
     padding: var(--ww-spacing-04);
     margin-top: var(--ww-spacing-02);
     border-radius: var(--ww-border-radius-02);
-    background-color: var(--ww-color-yellow-50);
-    color: var(--ww-color-yellow-500);
-    border: 1px solid var(--ww-color-yellow-500);
+    background-color: var(--ww-color-bg-warning-secondary);
+    color: var(--ww-color-warning-secondary);
+    border: 1px solid var(--ww-color-border-warning-secondary);
 
     &--icon {
         width: 48px !important;
@@ -285,7 +285,7 @@ export default {
         margin: var(--ww-spacing-01) 0;
     }
     &--description {
-        color: var(--ww-color-theme-dark-300);
+        color: var(--ww-color-content-tertiary);
     }
 }
 </style>
