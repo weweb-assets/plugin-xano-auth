@@ -5,7 +5,7 @@
             Learn more
         </a>
     </div>
-    <div class="mb-3 label-sm text-yellow-500 flex items-center">
+    <div class="mb-3 label-sm content-warning flex items-center">
         <wwEditorIcon class="mr-1" name="warning" small />
         Static and cached collections will always use the production setting.
     </div>
@@ -56,14 +56,14 @@ export default {
 <style lang="scss" scoped>
 .xano-settings-edit {
     &__link {
-        color: var(--ww-color-blue-500);
+        color: var(--ww-color-content-brand);
         display: inline;
     }
 }
 .divider {
     width: 100%;
     height: 1px;
-    background-color: var(--ww-color-dark-200);
+    background-color: var(--ww-color-border);
     margin: 12px 0px;
 }
 </style>

@@ -41,7 +41,7 @@
                 </button>
             </div>
         </wwEditorFormRow>
-        <p v-if="deprecated" class="label-sm flex items-center text-yellow-500 mb-3">
+        <p v-if="deprecated" class="label-sm flex items-center content-warning mb-3">
             <wwEditorIcon class="mr-1" name="warning" small />
             Setting up your Metadata API key will reset your configuration for this step.
         </p>
@@ -63,7 +63,7 @@
             label="Instance domain"
             @update:modelValue="setCustomDomain"
         />
-        <p v-if="incorrectCustomDomain" class="label-sm flex items-center text-red-500 mb-3">
+        <p v-if="incorrectCustomDomain" class="label-sm flex items-center content-alert mb-3">
             <wwEditorIcon class="mr-1" name="warning" small />
             The custom domain must not include the protocol (http(s)://)
         </p>
