@@ -30,7 +30,7 @@ export default {
         await this.initManager(settings);
         /* wwEditor:end */
     },
-    async _initUser() {
+    async _initAuth() {
         const pendingLogin = window.vm.config.globalProperties.$cookie.getCookie(PENDING_PROVIDER_LOGIN);
         const accessToken = window.vm.config.globalProperties.$cookie.getCookie(ACCESS_COOKIE_NAME);
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, accessToken);
