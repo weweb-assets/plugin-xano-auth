@@ -87,6 +87,8 @@ export default {
     removeToken() {
         window.vm.config.globalProperties.$cookie.removeCookie(ACCESS_COOKIE_NAME);
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, null);
+        wwLib.wwPlugins.xano?.xanoClient?.setAuthToken(null);
+        wwLib.wwPlugins.xano?.xanoClient?.setRealtimeAuthToken(null);
     },
     async fetchUser({ headers, withCredentials = false } = {}) {
         const { getMeEndpoint } = this.settings.publicData;
