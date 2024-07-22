@@ -80,6 +80,7 @@ export default {
             secure: true,
         });
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, accessToken);
+        wwLib.wwPlugins.xano?.xanoClient?.setAuthToken(accessToken);
         wwLib.wwPlugins.xano?.xanoClient?.setRealtimeAuthToken(accessToken);
         wwLib.wwPlugins.xano?.xanoClient?.realtimeReconnect();
     },
