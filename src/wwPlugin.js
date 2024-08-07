@@ -90,6 +90,7 @@ export default {
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, null);
         wwLib.wwPlugins.xano?.xanoClient?.setAuthToken(null);
         wwLib.wwPlugins.xano?.xanoClient?.setRealtimeAuthToken(null);
+        wwLib.wwPlugins.xano?.xanoClient?.realtimeReconnect();
     },
     async fetchUser({ headers, withCredentials = false } = {}) {
         const { getMeEndpoint } = this.settings.publicData;
