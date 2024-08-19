@@ -34,7 +34,12 @@ export default {
         const pendingLogin = window.vm.config.globalProperties.$cookie.getCookie(PENDING_PROVIDER_LOGIN);
         const accessToken = window.vm.config.globalProperties.$cookie.getCookie(ACCESS_COOKIE_NAME);
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, accessToken);
-        if (accessToken) await this.fetchUser();
+        if (accessToken) {
+            await this.fetchUser();
+            wwLib.wwPlugins.xano?.xanoClient?.setAuthToken(accessToken);
+            wwLib.wwPlugins.xano?.xanoClient?.setRealtimeAuthToken(accessToken);
+            wwLib.wwPlugins.xano?.xanoClient?.realtimeReconnect();
+        }
         if (pendingLogin) await this.continueLoginProvider(pendingLogin);
     },
     /*=============================================m_ÔÔ_m=============================================\
@@ -76,10 +81,16 @@ export default {
             secure: true,
         });
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, accessToken);
+        wwLib.wwPlugins.xano?.xanoClient?.setAuthToken(accessToken);
+        wwLib.wwPlugins.xano?.xanoClient?.setRealtimeAuthToken(accessToken);
+        wwLib.wwPlugins.xano?.xanoClient?.realtimeReconnect();
     },
     removeToken() {
         window.vm.config.globalProperties.$cookie.removeCookie(ACCESS_COOKIE_NAME);
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, null);
+        wwLib.wwPlugins.xano?.xanoClient?.setAuthToken(null);
+        wwLib.wwPlugins.xano?.xanoClient?.setRealtimeAuthToken(null);
+        wwLib.wwPlugins.xano?.xanoClient?.realtimeReconnect();
     },
     async fetchUser({ headers, withCredentials = false } = {}) {
         const { getMeEndpoint } = this.settings.publicData;
