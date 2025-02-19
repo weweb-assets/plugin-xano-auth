@@ -75,7 +75,7 @@ export default {
                     body: {
                         type: 'object',
                         description:
-                            'Request body containing user registration data. Must match your Xano API endpoint schema. The key values are bindable, but not the whole object. The object cannot be bind, you have to bind individual sub keys. eg. {email: <bind-email>, password: <bind-password>}',
+                            'Request body containing user registration data. Must match your Xano API endpoint schema. The key values are bindable, but not the whole object. The object cannot be bind, you have to bind individual sub keys. eg. {email: {__wwType: "...", code: "..."}, password {__wwType: "...", code: "..."}}',
                         bindable: false,
                     },
                     parameters: {
@@ -117,7 +117,7 @@ export default {
                     body: {
                         type: 'object',
                         description:
-                            'Request body containing login credentials. Must match your Xano API endpoint schema. The object cannot be bind, you have to bind individual sub keys. eg. {email: <bind-email>, password: <bind-password>}',
+                            'Request body containing login credentials. Must match your Xano API endpoint schema. The object cannot be bind, you have to bind individual sub keys. eg. {email: {__wwType: "...", code: "..."}, password {__wwType: "...", code: "..."}}',
                         bindable: false,
                     },
                     parameters: {
