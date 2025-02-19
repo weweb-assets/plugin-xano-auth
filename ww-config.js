@@ -75,8 +75,8 @@ export default {
                     body: {
                         type: 'object',
                         description:
-                            'Request body containing user registration data. Must match your Xano API endpoint schema.',
-                        bindable: true,
+                            'Request body containing user registration data. Must match your Xano API endpoint schema. The key values are bindable, but not the whole object.',
+                        bindable: false,
                     },
                     parameters: {
                         type: 'object',
@@ -94,7 +94,7 @@ export default {
                         type: 'boolean',
                         description:
                             'Whether to include credentials (cookies) with the request. Falls back to plugin settings if not specified.',
-                        bindable: true,
+                        bindable: false,
                     },
                 },
             },
@@ -117,8 +117,8 @@ export default {
                     body: {
                         type: 'object',
                         description:
-                            'Request body containing login credentials. Must match your Xano API endpoint schema.',
-                        bindable: true,
+                            'Request body containing login credentials. Must match your Xano API endpoint schema. The key values are bindable, but not the whole object.',
+                        bindable: false,
                     },
                     parameters: {
                         type: 'object',
@@ -136,7 +136,7 @@ export default {
                         type: 'boolean',
                         description:
                             'Whether to include credentials (cookies) with the request. Falls back to plugin settings if not specified.',
-                        bindable: true,
+                        bindable: false,
                     },
                 },
             },
@@ -163,7 +163,8 @@ export default {
                     },
                     type: {
                         type: 'string',
-                        description: 'The type of OAuth flow to use',
+                        description:
+                            'The type of OAuth flow to use. For twitter-oauth, use "access_token", for the rest, use "continue"',
                         bindable: true,
                     },
                     redirectPage: {
@@ -181,7 +182,7 @@ export default {
                         type: 'boolean',
                         description:
                             'Whether to include credentials (cookies) with the request. Falls back to plugin settings if not specified.',
-                        bindable: true,
+                        bindable: false,
                     },
                 },
             },
@@ -208,7 +209,7 @@ export default {
                         type: 'boolean',
                         description:
                             'Whether to include credentials (cookies) with the request. Falls back to plugin settings if not specified.',
-                        bindable: true,
+                        bindable: false,
                     },
                 },
             },

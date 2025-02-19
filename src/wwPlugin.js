@@ -46,6 +46,14 @@ export default {
         Editor API
     \================================================================================================*/
     /* wwEditor:start */
+    _getCopilotContext() {
+        return {
+            loginEndpoint: this.settings.publicData.loginEndpoint,
+            signupEndpoint: this.settings.publicData.signupEndpoint,
+            getMeEndpoint: this.settings.publicData.getMeEndpoint,
+            socialProviders: this.settings.publicData.socialProviders,
+        };
+    },
     async initManager(settings) {
         this.xanoManager = this.createManager(settings);
         try {
