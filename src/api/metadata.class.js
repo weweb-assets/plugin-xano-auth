@@ -105,8 +105,7 @@ export default class {
         if (!instance) return;
         try {
             const { data } = await axios.get(
-                `https://${instance.baseDomain}/api:meta/workspace/${workspaceId}/apigroup?per_page=200${
-                    this.#branch ? '&branch=' + this.#branch : ''
+                `https://${instance.baseDomain}/api:meta/workspace/${workspaceId}/apigroup?per_page=200${this.#branch ? '&branch=' + this.#branch : ''
                 }`,
                 {
                     headers: { Authorization: `Bearer ${this.#apiKey}` },
@@ -148,6 +147,7 @@ export default class {
                 id: group.id,
                 name: group.name,
                 api: `https://${this.getBaseDomain()}/api:${group.canonical}`,
+                token: group?.documentation?.token,
             }))
             .sort((a, b) => (a.name.toUpperCase() > b.name.toUpperCase() ? 1 : -1));
     }
@@ -208,7 +208,8 @@ export default class {
      */
     async fetchApiGroupSpec(apiGroupUrl, branch = this.#branch) {
         if (!apiGroupUrl) return;
-        const specUrl = apiGroupUrl.replace('/api:', '/apispec:') + (branch ? ':' + branch : '') + '?type=json';
+        const apiGroup = this.getApiGroups().find(group => group.api === apiGroupUrl);
+        const specUrl = apiGroupUrl.replace('/api:', '/apispec:') + (branch ? ':' + branch : '') + '?type=json' + (apiGroup?.token ? '&token=' + apiGroup.token : '');
         try {
             const { data } = await axios.get(specUrl, {
                 headers: { Authorization: `Bearer ${this.#apiKey}` },
