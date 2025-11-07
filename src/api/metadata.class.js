@@ -147,7 +147,7 @@ export default class {
                 id: group.id,
                 name: group.name,
                 api: `https://${this.getBaseDomain()}/api:${group.canonical}`,
-                token: group?.documentation?.token,
+                documentation: group?.documentation,
             }))
             .sort((a, b) => (a.name.toUpperCase() > b.name.toUpperCase() ? 1 : -1));
     }
@@ -206,10 +206,10 @@ export default class {
     /**
      * PUBLIC API UTILS
      */
-    async fetchApiGroupSpec(apiGroupUrl, branch = this.#branch) {
+    async fetchApiGroupSpec(apiGroupUrl) {
         if (!apiGroupUrl) return;
         const apiGroup = this.getApiGroups().find(group => group.api === apiGroupUrl);
-        const specUrl = apiGroupUrl.replace('/api:', '/apispec:') + (branch ? ':' + branch : '') + '?type=json' + (apiGroup?.token ? '&token=' + apiGroup.token : '');
+        const specUrl = apiGroup.documentation?.link;
         try {
             const { data } = await axios.get(specUrl, {
                 headers: { Authorization: `Bearer ${this.#apiKey}` },
@@ -219,7 +219,7 @@ export default class {
             wwLib.wwLog.error(error);
             if (error && error.response && error.response.status === 429) {
                 await this.waitRateLimit();
-                return this.fetchApiGroupSpec(apiGroupUrl, branch);
+                return this.fetchApiGroupSpec(apiGroupUrl);
             }
             if (error && error.response && error.response.status === 404) {
                 wwLib.wwNotification.open({
@@ -280,14 +280,14 @@ export default class {
         });
     }
 
-    async fetchFullSpec(branch = this.#branch) {
+    async fetchFullSpec() {
         const groups = this.getApiGroups();
         const chunks = Array.from({ length: Math.ceil(groups.length / 10) }, (v, i) =>
             groups.slice(i * 10, i * 10 + 10)
         );
         const spec = [];
         for (const chunk of chunks) {
-            const promises = chunk.map(group => this.fetchApiGroupSpec(group.api, branch));
+            const promises = chunk.map(group => this.fetchApiGroupSpec(group.api));
             spec.push(...(await Promise.all(promises)));
         }
         return spec.filter(group => !!group);
