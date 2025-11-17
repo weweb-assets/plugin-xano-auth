@@ -13,11 +13,12 @@ export default class {
     #workspaces = [];
     #apiGroups = [];
 
-    constructor(apiKey, instanceId, workspaceId, branch) {
+    constructor(apiKey, instanceId, workspaceId, branch, customDomain) {
         this.#apiKey = apiKey;
         this.#instanceId = instanceId;
         this.#workspaceId = workspaceId;
         this.#branch = branch;
+        this.#customDomain = customDomain;
     }
 
     async init() {
@@ -53,7 +54,7 @@ export default class {
         this.#instances = [];
         if (!this.#apiKey) return;
 
-        const { data: instances } = await axios.get('https://app.xano.com/api:meta/instance', {
+        const { data: instances } = await axios.get(this.#customDomain ? `https://${this.#customDomain}/api:meta/instance` : 'https://app.xano.com/api:meta/instance', {
             headers: { Authorization: `Bearer ${this.#apiKey}` },
         });
 
@@ -177,6 +178,7 @@ export default class {
             this.#instances = [];
             this.#workspaces = [];
             this.#apiGroups = [];
+            this.#customDomain = null;
             return;
         }
         await this.init();
@@ -201,6 +203,10 @@ export default class {
     async changeBranch(branch) {
         this.#branch = branch;
         await this.#loadApiGroups();
+    }
+    async changeCustomDomain(customDomain) {
+        this.#customDomain = customDomain;
+        await this.#loadInstances();
     }
 
     /**

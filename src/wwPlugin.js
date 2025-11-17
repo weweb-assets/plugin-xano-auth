@@ -65,7 +65,8 @@ export default {
             settings.privateData.metaApiKey || settings.privateData.apiKey,
             settings.privateData.instanceId,
             settings.privateData.workspaceId,
-            getCurrentBranch()
+            getCurrentBranch(),
+            settings.publicData.customDomain
         );
     },
     updateBranch() {
