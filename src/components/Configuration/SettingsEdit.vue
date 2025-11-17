@@ -59,6 +59,7 @@
             type="query"
             :placeholder="'Default: ' + (defaultDomain || '')"
             :model-value="settings.publicData.customDomain"
+            :disabled="!settings.privateData.instanceId"
             label="Instance domain"
             @update:modelValue="setCustomDomain"
         />
