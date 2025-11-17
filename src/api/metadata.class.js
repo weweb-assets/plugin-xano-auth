@@ -8,6 +8,7 @@ export default class {
     #instanceId = null;
     #workspaceId = null;
     #branch = null;
+    #customDomain = null;
 
     #instances = [];
     #workspaces = [];
