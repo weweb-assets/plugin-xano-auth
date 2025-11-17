@@ -54,16 +54,18 @@ export default class {
     async #loadInstances() {
         this.#instances = [];
         if (!this.#apiKey) return;
-
-        const { data: instances } = await axios.get(this.#customDomain ? `https://${this.#customDomain}/api:meta/instance` : 'https://app.xano.com/api:meta/instance', {
-            headers: { Authorization: `Bearer ${this.#apiKey}` },
-        });
-
-        this.#instances = instances;
+        try {
+            const { data: instances } = await axios.get('https://app.xano.com/api:meta/instance', {
+                headers: { Authorization: `Bearer ${this.#apiKey}` },
+            });
+            this.#instances = instances;
+        } catch (error) {
+            this.$instances = [];
+        }
     }
     async #loadWorkspaces() {
         this.#workspaces = [];
-        if (!this.#apiKey || !this.#instanceId || !this.#instances.length) return;
+        if (!this.#apiKey || !this.#instanceId) return;
 
         const instance = this.getInstance();
         if (!instance) return;
@@ -127,12 +129,17 @@ export default class {
      * PUBLIC GETTERS
      */
     getInstances() {
-        return this.#instances.map(instance => ({
+        return [...this.#instances.map(instance => ({
             id: instance.name,
             name: instance.display,
             baseDomain: instance.xano_domain,
             customDomain: instance.custom_domain,
-        }));
+        })), {
+            id: 'custom',
+            name: 'Custom',
+            baseDomain: this.#customDomain,
+            customDomain: this.#customDomain,
+        }];
     }
     getInstance() {
         return this.getInstances().find(instance => instance.id === this.#instanceId);
