@@ -214,7 +214,7 @@ export default class {
     }
     async changeCustomDomain(customDomain) {
         this.#customDomain = customDomain;
-        await this.#loadInstances();
+        await this.#loadWorkspaces();
     }
 
     /**
