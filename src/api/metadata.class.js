@@ -8,16 +8,18 @@ export default class {
     #instanceId = null;
     #workspaceId = null;
     #branch = null;
+    #customDomain = null;
 
     #instances = [];
     #workspaces = [];
     #apiGroups = [];
 
-    constructor(apiKey, instanceId, workspaceId, branch) {
+    constructor(apiKey, instanceId, workspaceId, branch, customDomain) {
         this.#apiKey = apiKey;
         this.#instanceId = instanceId;
         this.#workspaceId = workspaceId;
         this.#branch = branch;
+        this.#customDomain = customDomain;
     }
 
     async init() {
@@ -52,16 +54,18 @@ export default class {
     async #loadInstances() {
         this.#instances = [];
         if (!this.#apiKey) return;
-
-        const { data: instances } = await axios.get('https://app.xano.com/api:meta/instance', {
-            headers: { Authorization: `Bearer ${this.#apiKey}` },
-        });
-
-        this.#instances = instances;
+        try {
+            const { data: instances } = await axios.get('https://app.xano.com/api:meta/instance', {
+                headers: { Authorization: `Bearer ${this.#apiKey}` },
+            });
+            this.#instances = instances;
+        } catch (error) {
+            this.$instances = [];
+        }
     }
     async #loadWorkspaces() {
         this.#workspaces = [];
-        if (!this.#apiKey || !this.#instanceId || !this.#instances.length) return;
+        if (!this.#apiKey || !this.#instanceId) return;
 
         const instance = this.getInstance();
         if (!instance) return;
@@ -125,12 +129,17 @@ export default class {
      * PUBLIC GETTERS
      */
     getInstances() {
-        return this.#instances.map(instance => ({
+        return [...this.#instances.map(instance => ({
             id: instance.name,
             name: instance.display,
             baseDomain: instance.xano_domain,
             customDomain: instance.custom_domain,
-        }));
+        })), {
+            id: 'custom',
+            name: 'Custom',
+            baseDomain: this.#customDomain,
+            customDomain: this.#customDomain,
+        }];
     }
     getInstance() {
         return this.getInstances().find(instance => instance.id === this.#instanceId);
@@ -147,7 +156,7 @@ export default class {
                 id: group.id,
                 name: group.name,
                 api: `https://${this.getBaseDomain()}/api:${group.canonical}`,
-                token: group?.documentation?.token,
+                documentation: group?.documentation,
             }))
             .sort((a, b) => (a.name.toUpperCase() > b.name.toUpperCase() ? 1 : -1));
     }
@@ -177,6 +186,7 @@ export default class {
             this.#instances = [];
             this.#workspaces = [];
             this.#apiGroups = [];
+            this.#customDomain = null;
             return;
         }
         await this.init();
@@ -202,24 +212,26 @@ export default class {
         this.#branch = branch;
         await this.#loadApiGroups();
     }
+    async changeCustomDomain(customDomain) {
+        this.#customDomain = customDomain;
+        await this.#loadWorkspaces();
+    }
 
     /**
      * PUBLIC API UTILS
      */
-    async fetchApiGroupSpec(apiGroupUrl, branch = this.#branch) {
+    async fetchApiGroupSpec(apiGroupUrl) {
         if (!apiGroupUrl) return;
         const apiGroup = this.getApiGroups().find(group => group.api === apiGroupUrl);
-        const specUrl = apiGroupUrl.replace('/api:', '/apispec:') + (branch ? ':' + branch : '') + '?type=json' + (apiGroup?.token ? '&token=' + apiGroup.token : '');
+        const specUrl = apiGroup.documentation?.link;
         try {
-            const { data } = await axios.get(specUrl, {
-                headers: { Authorization: `Bearer ${this.#apiKey}` },
-            });
+            const { data } = await axios.get(specUrl);
             return data;
         } catch (error) {
             wwLib.wwLog.error(error);
             if (error && error.response && error.response.status === 429) {
                 await this.waitRateLimit();
-                return this.fetchApiGroupSpec(apiGroupUrl, branch);
+                return this.fetchApiGroupSpec(apiGroupUrl);
             }
             if (error && error.response && error.response.status === 404) {
                 wwLib.wwNotification.open({
@@ -280,14 +292,14 @@ export default class {
         });
     }
 
-    async fetchFullSpec(branch = this.#branch) {
+    async fetchFullSpec() {
         const groups = this.getApiGroups();
         const chunks = Array.from({ length: Math.ceil(groups.length / 10) }, (v, i) =>
             groups.slice(i * 10, i * 10 + 10)
         );
         const spec = [];
         for (const chunk of chunks) {
-            const promises = chunk.map(group => this.fetchApiGroupSpec(group.api, branch));
+            const promises = chunk.map(group => this.fetchApiGroupSpec(group.api));
             spec.push(...(await Promise.all(promises)));
         }
         return spec.filter(group => !!group);
