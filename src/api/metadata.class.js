@@ -225,9 +225,7 @@ export default class {
         const apiGroup = this.getApiGroups().find(group => group.api === apiGroupUrl);
         const specUrl = apiGroupUrl.replace('/api:', '/apispec:') + (branch ? ':' + branch : '') + '?type=json' + (apiGroup?.token ? '&token=' + apiGroup.token : '');
         try {
-            const { data } = await axios.get(specUrl, {
-                // headers: { Authorization: `Bearer ${this.#apiKey}` },
-            });
+            const { data } = await axios.get(specUrl);
             return data;
         } catch (error) {
             wwLib.wwLog.error(error);
