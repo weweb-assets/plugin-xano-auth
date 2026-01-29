@@ -171,7 +171,7 @@ export default class {
         return this.getInstance()?.baseDomain;
     }
     getCustomDomain() {
-        return this.getInstance()?.customDomain;
+        return this.#customDomain || this.getInstance()?.customDomain;
     }
 
     /**
