@@ -231,7 +231,7 @@ export default {
                 publicData: {
                     ...this.settings.publicData,
                     domain: xanoManager.getBaseDomain(),
-                    customDomain: xanoManager.getCustomDomain() || this.settings.publicData.customDomain,
+                    customDomain: xanoManager.getCustomDomain(),
                     loginEndpoint: xanoManager.fixUrl(this.settings.publicData.loginEndpoint),
                     getMeEndpoint: xanoManager.fixUrl(this.settings.publicData.getMeEndpoint),
                     signupEndpoint: xanoManager.fixUrl(this.settings.publicData.signupEndpoint),
