@@ -141,9 +141,8 @@ export default {
         try {
             const provider = this.settings.publicData.socialProviders[providerName];
             if (!provider) return;
-            const websiteId = wwLib.wwWebsiteData.getInfo().id;
             const redirectUrl = wwLib.manager
-                ? `${window.location.origin}/${websiteId}/${redirectPage}`
+                ? `${window.location.origin}/${redirectPage}`
                 : `${window.location.origin}${wwLib.wwPageHelper.getPagePath(redirectPage)}`;
             const endpoint = resolveOauthInitEndpoint(provider.name);
 
