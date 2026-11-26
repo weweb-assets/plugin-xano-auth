@@ -27,11 +27,14 @@ export default {
     \================================================================================================*/
     async _onLoad(settings) {
         /* wwEditor:start */
-        await this.initManager(settings);
+        // Only the previous management editor receives private authoring settings.
+        if (settings.privateData) await this.initManager(settings);
         /* wwEditor:end */
     },
     async _initAuth() {
-        const pendingLogin = window.vm.config.globalProperties.$cookie.getCookie(PENDING_PROVIDER_LOGIN);
+        const { pendingLogin, callback } = readProviderLogin();
+        // A completed preview sign-in replaces any expired previous app session.
+        if (callback && pendingLogin) return this.continueLoginProvider(pendingLogin, callback);
         const accessToken = window.vm.config.globalProperties.$cookie.getCookie(ACCESS_COOKIE_NAME);
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, accessToken);
         if (accessToken) {
@@ -138,12 +141,10 @@ export default {
         }
     },
     async loginProvider({ headers, withCredentials = false, provider: providerName, type, redirectPage }) {
+        const provider = this.settings.publicData.socialProviders?.[providerName];
+        if (!provider) return;
+        const redirectUrl = providerReturnUrl(redirectPage);
         try {
-            const provider = this.settings.publicData.socialProviders[providerName];
-            if (!provider) return;
-            const redirectUrl = wwLib.manager
-                ? `${window.location.origin}/${redirectPage}`
-                : `${window.location.origin}${wwLib.wwPageHelper.getPagePath(redirectPage)}`;
             const endpoint = resolveOauthInitEndpoint(provider.name);
 
             const result = await this.request(`${provider.api}/oauth/${provider.name.split('-')[0]}/${endpoint}`, {
@@ -152,23 +153,21 @@ export default {
                 },
                 headers: buildXanoHeaders({}, headers),
             });
-            window.vm.config.globalProperties.$cookie.setCookie(PENDING_PROVIDER_LOGIN, {
-                provider,
-                type,
-                redirectUrl,
-                headers: buildXanoHeaders({}, headers),
-                withCredentials,
-            });
+            const pending = { provider, type, redirectUrl, headers: buildXanoHeaders({}, headers), withCredentials };
+            writeProviderLogin(pending);
             window.open(parseAuthUrl(provider.name, result.data), '_self');
         } catch (err) {
-            window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
+            writeProviderLogin(null);
             this.logout();
             throw err;
         }
     },
-    async continueLoginProvider({ headers, withCredentials = false, provider, type, redirectUrl }) {
+    async continueLoginProvider({ headers, withCredentials = false, provider, type, redirectUrl }, callback) {
         try {
-            const codePayload = parseAuthCode(wwLib.globalContext.browser.query);
+            const query = callback
+                ? Object.fromEntries(new URL(callback).searchParams)
+                : wwLib.globalContext.browser.query;
+            const codePayload = parseAuthCode(query);
             if (!codePayload) throw new Error('No code provided for social login');
 
             const result = await this.request(`${provider.api}/oauth/${provider.name.split('-')[0]}/${type}`, {
@@ -179,11 +178,11 @@ export default {
                 headers,
                 withCredentials,
             });
-            window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
+            writeProviderLogin(null);
             this.storeToken(parseAuthToken(provider.name, result.data));
             return await this.fetchUser();
         } catch (error) {
-            window.vm.config.globalProperties.$cookie.removeCookie(PENDING_PROVIDER_LOGIN);
+            writeProviderLogin(null);
             throw error;
         }
     },
@@ -241,6 +240,45 @@ function resolveOauthInitEndpoint(provider) {
         default:
             return 'init';
     }
+}
+
+function providerReturnUrl(pageId) {
+    /* wwEditor:start */
+    if (wwLib.editor?.isolatedCanvas) {
+        if (!wwLib.editor.previewAuthReturn)
+            throw new Error('Open the app preview in a new tab to sign in with this provider.');
+        return wwLib.editor.previewAuthReturn('signin', pageId);
+    }
+    /* wwEditor:end */
+    return wwLib.manager
+        ? `${window.location.origin}/${pageId}`
+        : `${window.location.origin}${wwLib.wwPageHelper.getPagePath(pageId)}`;
+}
+
+function readProviderLogin() {
+    /* wwEditor:start */
+    if (wwLib.editor?.previewAuthReturn) {
+        const saved = window.sessionStorage.getItem(PENDING_PROVIDER_LOGIN);
+        window.sessionStorage.removeItem(PENDING_PROVIDER_LOGIN);
+        const callback = saved && wwLib.editor.takePreviewAuthResponse();
+        return callback ? { pendingLogin: JSON.parse(saved), callback } : {};
+    }
+    /* wwEditor:end */
+    return { pendingLogin: window.vm.config.globalProperties.$cookie.getCookie(PENDING_PROVIDER_LOGIN) };
+}
+
+function writeProviderLogin(pending) {
+    /* wwEditor:start */
+    // Each preview tab pairs the callback with its own provider request.
+    if (wwLib.editor?.previewAuthReturn) {
+        if (pending) window.sessionStorage.setItem(PENDING_PROVIDER_LOGIN, JSON.stringify(pending));
+        else window.sessionStorage.removeItem(PENDING_PROVIDER_LOGIN);
+        return;
+    }
+    /* wwEditor:end */
+    const cookies = window.vm.config.globalProperties.$cookie;
+    if (pending) cookies.setCookie(PENDING_PROVIDER_LOGIN, pending);
+    else cookies.removeCookie(PENDING_PROVIDER_LOGIN);
 }
 
 function parseAuthCode(query) {

@@ -1,0 +1,369 @@
+{
+    "schemaVersion": 1,
+    "features": {
+        "auth": true,
+        "roles": "local"
+    },
+    "settings": {
+        "groups": [
+            {
+                "key": "connection",
+                "label": "Configuration"
+            },
+            {
+                "key": "dataSource",
+                "label": "Data source"
+            },
+            {
+                "key": "branch",
+                "label": "Branching"
+            },
+            {
+                "key": "headers",
+                "label": "Global headers"
+            }
+        ],
+        "fields": [
+            {
+                "key": "connection",
+                "type": "connection",
+                "label": "Xano connection",
+                "group": "connection",
+                "operation": "xano.connection",
+                "required": true
+            },
+            {
+                "key": "domain",
+                "type": "display",
+                "label": "Instance domain",
+                "group": "connection",
+                "publicPath": ["domain"]
+            },
+            {
+                "key": "xDataSourceProd",
+                "type": "text",
+                "label": "In production",
+                "group": "dataSource",
+                "storage": "publicData"
+            },
+            {
+                "key": "xDataSourceStaging",
+                "type": "text",
+                "label": "In staging",
+                "group": "dataSource",
+                "storage": "publicData"
+            },
+            {
+                "key": "xDataSourceEditor",
+                "type": "text",
+                "label": "In editor",
+                "group": "dataSource",
+                "storage": "publicData"
+            },
+            {
+                "key": "xBranchProd",
+                "type": "text",
+                "label": "In production",
+                "group": "branch",
+                "storage": "publicData"
+            },
+            {
+                "key": "xBranchStaging",
+                "type": "text",
+                "label": "In staging",
+                "group": "branch",
+                "storage": "publicData"
+            },
+            {
+                "key": "xBranchEditor",
+                "type": "text",
+                "label": "In editor",
+                "group": "branch",
+                "storage": "publicData"
+            },
+            {
+                "key": "globalHeaders",
+                "type": "list",
+                "label": "Global headers",
+                "storage": "publicData",
+                "group": "headers",
+                "bindable": true,
+                "item": {
+                    "type": "record",
+                    "fields": [
+                        {
+                            "key": "key",
+                            "type": "text",
+                            "label": "Key",
+                            "bindable": true
+                        },
+                        {
+                            "key": "value",
+                            "type": "text",
+                            "label": "Value",
+                            "bindable": true
+                        }
+                    ]
+                }
+            },
+            {
+                "key": "withCredentials",
+                "type": "boolean",
+                "label": "Send cookies with requests",
+                "group": "headers",
+                "storage": "publicData"
+            }
+        ],
+        "summary": [
+            {
+                "field": "domain",
+                "label": "Domain"
+            }
+        ]
+    },
+    "actions": [
+        {
+            "code": "signUp",
+            "name": "Sign Up",
+            "isAsync": true,
+            "validation": "requiredFields",
+            "form": {
+                "fields": [
+                    {
+                        "key": "headers",
+                        "type": "list",
+                        "label": "Headers",
+                        "bindable": true,
+                        "item": {
+                            "type": "record",
+                            "fields": [
+                                {
+                                    "key": "key",
+                                    "type": "text",
+                                    "label": "Key",
+                                    "bindable": true
+                                },
+                                {
+                                    "key": "value",
+                                    "type": "text",
+                                    "label": "Value",
+                                    "bindable": true
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "key": "withCredentials",
+                        "type": "boolean",
+                        "label": "Send cookies with requests",
+                        "forcedBySetting": "withCredentials"
+                    },
+                    {
+                        "key": "parameters",
+                        "type": "resource",
+                        "label": "Endpoint fields",
+                        "operation": "xano.endpoint",
+                        "endpointSource": "signupEndpoint"
+                    }
+                ]
+            }
+        },
+        {
+            "code": "login",
+            "name": "Login",
+            "isAsync": true,
+            "validation": "requiredFields",
+            "form": {
+                "fields": [
+                    {
+                        "key": "headers",
+                        "type": "list",
+                        "label": "Headers",
+                        "bindable": true,
+                        "item": {
+                            "type": "record",
+                            "fields": [
+                                {
+                                    "key": "key",
+                                    "type": "text",
+                                    "label": "Key",
+                                    "bindable": true
+                                },
+                                {
+                                    "key": "value",
+                                    "type": "text",
+                                    "label": "Value",
+                                    "bindable": true
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "key": "withCredentials",
+                        "type": "boolean",
+                        "label": "Send cookies with requests",
+                        "forcedBySetting": "withCredentials"
+                    },
+                    {
+                        "key": "parameters",
+                        "type": "resource",
+                        "label": "Endpoint fields",
+                        "operation": "xano.endpoint",
+                        "endpointSource": "loginEndpoint"
+                    }
+                ]
+            }
+        },
+        {
+            "code": "loginProvider",
+            "name": "Login Provider",
+            "isAsync": true,
+            "validation": "requiredFields",
+            "form": {
+                "fields": [
+                    {
+                        "key": "headers",
+                        "type": "list",
+                        "label": "Headers",
+                        "bindable": true,
+                        "item": {
+                            "type": "record",
+                            "fields": [
+                                {
+                                    "key": "key",
+                                    "type": "text",
+                                    "label": "Key",
+                                    "bindable": true
+                                },
+                                {
+                                    "key": "value",
+                                    "type": "text",
+                                    "label": "Value",
+                                    "bindable": true
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "key": "withCredentials",
+                        "type": "boolean",
+                        "label": "Send cookies with requests",
+                        "forcedBySetting": "withCredentials"
+                    },
+                    {
+                        "key": "provider",
+                        "type": "choice",
+                        "label": "Provider",
+                        "operation": "xano.oauthProvider",
+                        "required": true,
+                        "bindable": true
+                    },
+                    {
+                        "key": "type",
+                        "type": "choice",
+                        "label": "Type",
+                        "choices": [
+                            {
+                                "label": "Login or Signup",
+                                "value": "continue",
+                                "visibleWhen": {
+                                    "field": "provider",
+                                    "notEquals": "twitter-oauth"
+                                }
+                            },
+                            {
+                                "label": "Login or Signup",
+                                "value": "access_token",
+                                "visibleWhen": {
+                                    "field": "provider",
+                                    "equals": "twitter-oauth"
+                                }
+                            }
+                        ],
+                        "required": true,
+                        "bindable": true
+                    },
+                    {
+                        "key": "redirectPage",
+                        "type": "choice",
+                        "label": "Redirect to",
+                        "operation": "xano.redirectPage",
+                        "bindable": true
+                    }
+                ]
+            }
+        },
+        {
+            "code": "fetchUser",
+            "name": "Fetch User",
+            "isAsync": true,
+            "form": {
+                "fields": [
+                    {
+                        "key": "headers",
+                        "type": "list",
+                        "label": "Headers",
+                        "bindable": true,
+                        "item": {
+                            "type": "record",
+                            "fields": [
+                                {
+                                    "key": "key",
+                                    "type": "text",
+                                    "label": "Key",
+                                    "bindable": true
+                                },
+                                {
+                                    "key": "value",
+                                    "type": "text",
+                                    "label": "Value",
+                                    "bindable": true
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "key": "withCredentials",
+                        "type": "boolean",
+                        "label": "Send cookies with requests",
+                        "forcedBySetting": "withCredentials"
+                    }
+                ]
+            }
+        },
+        {
+            "code": "storeAuthToken",
+            "name": "Store Auth Token",
+            "form": {
+                "fields": [
+                    {
+                        "key": "authToken",
+                        "type": "text",
+                        "label": "Auth token",
+                        "bindable": true,
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "code": "logout",
+            "name": "Logout"
+        }
+    ],
+    "designSystemId": "9a1f106a-1397-4fb4-8b9a-369d744e6aa3",
+    "variables": [
+        {
+            "name": "user",
+            "type": "object"
+        },
+        {
+            "name": "isAuthenticated",
+            "type": "boolean"
+        },
+        {
+            "name": "accessToken",
+            "type": "string"
+        }
+    ]
+}
