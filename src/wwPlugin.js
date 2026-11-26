@@ -33,6 +33,8 @@ export default {
     },
     async _initAuth() {
         const { pendingLogin, callback } = readProviderLogin();
+        // A completed preview sign-in replaces any expired previous app session.
+        if (callback && pendingLogin) return this.continueLoginProvider(pendingLogin, callback);
         const accessToken = window.vm.config.globalProperties.$cookie.getCookie(ACCESS_COOKIE_NAME);
         wwLib.wwVariable.updateValue(`${this.id}-accessToken`, accessToken);
         if (accessToken) {
@@ -41,7 +43,7 @@ export default {
             wwLib.wwPlugins.xano?.xanoClient?.setRealtimeAuthToken(accessToken);
             wwLib.wwPlugins.xano?.xanoClient?.realtimeReconnect();
         }
-        if (pendingLogin) await this.continueLoginProvider(pendingLogin, callback);
+        if (pendingLogin) await this.continueLoginProvider(pendingLogin);
     },
     /*=============================================m_ÔÔ_m=============================================\
         Editor API
@@ -139,10 +141,10 @@ export default {
         }
     },
     async loginProvider({ headers, withCredentials = false, provider: providerName, type, redirectPage }) {
+        const provider = this.settings.publicData.socialProviders?.[providerName];
+        if (!provider) return;
+        const redirectUrl = providerReturnUrl(redirectPage);
         try {
-            const provider = this.settings.publicData.socialProviders[providerName];
-            if (!provider) return;
-            const redirectUrl = providerReturnUrl(redirectPage);
             const endpoint = resolveOauthInitEndpoint(provider.name);
 
             const result = await this.request(`${provider.api}/oauth/${provider.name.split('-')[0]}/${endpoint}`, {
