@@ -27,7 +27,8 @@ export default {
     \================================================================================================*/
     async _onLoad(settings) {
         /* wwEditor:start */
-        await this.initManager(settings);
+        // Only the previous management editor receives private authoring settings.
+        if (settings.privateData) await this.initManager(settings);
         /* wwEditor:end */
     },
     async _initAuth() {
